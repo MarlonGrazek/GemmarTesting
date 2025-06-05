@@ -1,6 +1,6 @@
 {
   "name": "gemmartesting",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Eine Desktop-Anwendung zum Testen von Code-Übungen.",
   "main": "main.js",
   "scripts": {

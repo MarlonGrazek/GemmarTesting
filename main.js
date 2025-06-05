@@ -88,6 +88,7 @@ ipcMain.on('close-window', () => {
 // und bereit ist, Browser-Fenster zu erstellen.
 app.whenReady().then(() => {
 
+  autoUpdater.allowPrerelease = true;
   autoUpdater.checkForUpdatesAndNotify();
 
   // Handler, um externe Links sicher im Standardbrowser des Systems zu öffnen.
