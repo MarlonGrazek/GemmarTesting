@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="de" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemmar Testing</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Minimales CSS für Icons, falls nicht schon in style.css vorhanden */
+        .icon {
+            width: 1.25em; /* em basiert auf Schriftgröße des Elternelements */
+            height: 1.25em; /* em basiert auf Schriftgröße des Elternelements */
+            display: inline-block;
+            vertical-align: middle;
+            fill: currentColor;
+        }
+        .hidden-alt { /* Alternative zu Tailwind's 'hidden', falls Tailwind nicht global wirkt */
+            display: none !important;
+        }
+
+        /* Styles für die benutzerdefinierte Titelleiste und Buttons */
+        .custom-titlebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 32px; /* Höhe der Titelleiste */
+            background-color: transparent; 
+            -webkit-app-region: drag; 
+            z-index: 10000; 
+            display: flex;
+            justify-content: flex-end; 
+            align-items: center;
+            padding-right: 6px; 
+            box-sizing: border-box;
+        }
+
+        .window-controls {
+            display: flex;
+            height: 100%;
+        }
+
+        .window-controls button {
+            -webkit-app-region: no-drag; 
+            background: none;
+            border: none;
+            color: var(--text-secondary); 
+            padding: 0 10px; 
+            height: 100%; 
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+            line-height: 1;
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
+        .window-controls button:hover {
+            background-color: var(--modal-header-icon-button-hover-bg); 
+            color: var(--text-primary);
+        }
+        .window-controls button#customCloseBtn:hover {
+            background-color: #E81123; 
+            color: white !important; 
+        }
+         .window-controls button#customCloseBtn:hover svg {
+            stroke: white !important; 
+        }
+        .window-controls button svg {
+            width: 10px; 
+            height: 10px;
+            fill: currentColor; 
+        }
+        .window-controls button#customCloseBtn svg {
+             stroke: currentColor; 
+             fill: none; 
+        }
+
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 transition-colors duration-300" style="background-color: var(--page-background); color: var(--text-primary); padding-top: 38px;">
+
+    <div class="custom-titlebar">
+        <div class="window-controls">
+            <button id="customMinimizeBtn" title="Minimieren" data-custom-tooltip="Minimieren">
+                <svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><path d="M0 5 H12 V6 H0z" fill="currentColor"/></svg>
+            </button>
+            <button id="customMaximizeBtn" title="Maximieren/Wiederherstellen" data-custom-tooltip="Maximieren">
+                <svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><path d="M2 2 H10 V10 H2z M0 0 H12 V12 H0z M3 3 V9 H9 V3z" fill="currentColor"/></svg>
+            </button>
+            <button id="customCloseBtn" title="Schließen" data-custom-tooltip="Schließen">
+                <svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><path d="M1 1 L11 11 M11 1 L1 11" stroke-width="1.5"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <div id="taskInfoDisplay" class="task-info-display-box hidden-alt" data-custom-tooltip="Klicken für Details zur aktuellen Aufgabe" style="top: calc(1.5rem + 32px); left: 1.5rem;"> <div id="taskInfoTitle" class="task-info-title">Lade Aufgabeninfo...</div>
+        <div id="taskInfoCountdown" class="task-info-countdown">--:--</div>
+    </div>
+
+    <button id="openThemeManagerButton" class="fixed z-50 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2" style="background-color: var(--theme-manager-button-background); color: var(--theme-manager-button-text);border-color: var(--card-test-border); --ring-offset-color: var(--page-background); --ring-color: var(--active-accent-color); top: calc(1.5rem + 32px); right: 1.5rem;" data-custom-tooltip="Themes verwalten"> <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.25a.75.75 0 0 1 .75.75v.541a9.75 9.75 0 0 1 7.086 3.552l.39-.39a.75.75 0 1 1 1.06 1.06l-.39.39A9.712 9.712 0 0 1 22.29 12a.75.75 0 0 1-1.5 0a8.25 8.25 0 0 0-2.087-5.493l.39.39a.75.75 0 1 1-1.06 1.06l-.39-.39A8.212 8.212 0 0 0 12.75 6.01V12a.75.75 0 0 1-1.5 0V6.01A8.212 8.212 0 0 0 6.71 7.507l-.39.39a.75.75 0 1 1-1.06-1.06l.39-.39A8.25 8.25 0 0 0 3.75 12a.75.75 0 0 1-1.5 0c0-1.69.422-3.286 1.176-4.648l-.39-.39a.75.75 0 1 1 1.06-1.06l.39.39A9.712 9.712 0 0 1 9.709 3.54V3a.75.75 0 0 1 .75-.75Zm0 19.5a.75.75 0 0 1-.75-.75V12a.75.75 0 0 1 1.5 0v9.75a.75.75 0 0 1-.75-.75Z" /></svg>
+        <span class="sr-only">Themes verwalten</span>
+    </button>
+
+    <div id="mainContentWrapper" class="content-wrapper w-full max-w-3xl mt-12 sm:mt-16" style="background-color: var(--content-wrapper-background); box-shadow: var(--content-wrapper-shadow);">
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl sm:text-4xl font-bold" style="color: var(--text-header-main);">Gemmar Testing</h1>
+            <p class="mt-2" style="color: var(--text-secondary);">Wähle einen Test und lade deinen Code hoch, um zu sehen, wie gut du abgeschnitten hast!</p>
+        </header>
+
+        <section id="testSelectionSection">
+            <h2 class="text-2xl font-semibold mb-6" style="color: var(--text-section-header);">1. Wähle deinen Test</h2>
+            <div id="testListContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 test-grid-scrollable">
+            </div>
+            <p id="noTestSelectedError" class="text-sm mt-2 hidden-alt" style="color: var(--text-error);">Bitte wähle zuerst einen Test aus.</p>
+        </section>
+
+        <section id="codeUploadSection" class="mt-10 hidden-alt">
+            <h2 class="text-2xl font-semibold mb-1" style="color: var(--text-section-header);">2. Lade deine Java-Dateien hoch</h2>
+            <p class="mb-6" style="color: var(--text-primary);">Ausgewählter Test: <strong id="selectedTestName" style="font-weight: 600; color: var(--active-accent-color);"></strong></p>
+            <div class="p-6 rounded-lg border border-dashed text-center" style="background-color: var(--codeupload-box-background); border-color: var(--codeupload-box-border);">
+                <label for="fileUpload" class="file-input-button" style="background-color: var(--active-accent-color); color: var(--text-on-accent);">Java-Dateien wählen</label>
+                <input type="file" id="fileUpload" multiple accept=".java" class="hidden-input">
+                <p class="mt-4 text-sm" style="color: var(--text-codeupload-box);">Wähle alle relevanten .java-Dateien deiner Lösung aus (inkl. Interface, falls nicht Teil des Tests).</p>
+                <p id="fileSelectionInfo" class="mt-2 text-sm font-medium" style="color: var(--accent-green-text);"></p>
+                <p class="mt-2 text-xs" style="color: var(--text-codeupload-hint);">(Halte Strg/Cmd gedrückt, um mehrere Dateien auszuwählen)</p>
+            </div>
+            <div class="mt-8 text-center">
+                <button id="runTestButton" class="font-semibold py-3 px-8 rounded-lg shadow-md transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed" style="background-color: var(--active-accent-color); color: var(--text-on-accent);">
+                    Test starten
+                </button>
+            </div>
+        </section>
+    </div>
+
+    <div id="resultsPageWrapper" class="content-wrapper hidden-alt w-full max-w-5xl mt-12 sm:mt-16" style="background-color: var(--content-wrapper-background); box-shadow: var(--content-wrapper-shadow);">
+        <header class="mb-6 flex justify-between items-center">
+            <div>
+                <h1 id="resultsPageTitle" class="text-2xl sm:text-3xl font-bold" style="color: var(--text-header-main);">Testergebnisse</h1>
+                <p id="resultsPageSubtitle" class="mt-1" style="color: var(--text-secondary);">Tests werden ausgeführt für: <span id="runningTestName" class="font-semibold"></span></p>
+            </div>
+            <button id="backToSetupButton" class="font-medium py-2 px-4 rounded-md text-sm" style="background-color: var(--active-accent-color); color: var(--text-on-accent);">
+                &larr; Zurück zur Einrichtung
+            </button>
+        </header>
+
+        <div class="mb-6 p-4 rounded-lg shadow" style="background-color: var(--results-summary-box-background); border: 1px solid var(--results-summary-box-border); box-shadow: var(--results-summary-box-shadow);">
+            <div class="flex justify-between items-center mb-2 text-sm" style="color: var(--text-progress-summary-label);">
+                <span>Gesamtfortschritt:</span>
+                <span id="progressPercentage">0%</span>
+            </div>
+            <div class="w-full progress-bar-bg rounded-full h-2.5 mb-4" style="background-color: var(--progressbar-background);">
+                <div id="progressBar" class="progress-bar-fill h-2.5 rounded-full" style="width: 0%; background-color: var(--progressbar-fill);"></div>
+            </div>
+            <div class="flex justify-around text-center text-sm sm:text-base">
+                <div>
+                    <p class="font-semibold" style="color: var(--summary-label-total-text);">Gesamte Tests</p>
+                    <p id="totalTestsCount" class="text-2xl font-bold" style="color: var(--summary-number-total-text);">0</p>
+                </div>
+                <div>
+                    <p class="font-semibold" style="color: var(--summary-label-passed-text);">Bestanden</p>
+                    <p id="passedTestsCount" class="text-2xl font-bold" style="color: var(--summary-number-passed-text);">0</p>
+                </div>
+                <div>
+                    <p class="font-semibold" style="color: var(--summary-label-failed-text);">Fehlgeschlagen</p>
+                    <p id="failedTestsCount" class="text-2xl font-bold" style="color: var(--summary-number-failed-text);">0</p>
+                </div>
+                 <div>
+                    <p class="font-semibold" style="color: var(--summary-label-warning-text);">Warnungen</p>
+                    <p id="warningTestsCount" class="text-2xl font-bold" style="color: var(--summary-number-warning-text);">0</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="testSuitesContainer" class="space-y-6">
+        </div>
+    </div>
+    
+    <div id="messageBox" class="fixed inset-0 flex items-center justify-center p-4 z-[60] hidden-alt" style="background-color: var(--modal-overlay-background);">
+        <div id="messageBoxContent" class="p-6 rounded-lg shadow-xl w-full border" style="background-color: var(--modal-content-background); border-color: var(--modal-content-border); box-shadow: var(--modal-shadow);">
+            <div id="modalHeaderButtonsContainer" class="modal-header-buttons-container">
+            </div>
+            <h3 id="messageBoxTitle" class="text-lg font-semibold mb-4" style="color: var(--text-header-main);">Nachricht</h3>
+            <div id="messageBoxText" class="mb-6" style="color: var(--text-primary);"></div>
+            <button id="messageBoxClose" class="text-white font-medium py-2 px-4 rounded-md w-full" style="background-color: var(--active-accent-color); color: var(--text-on-accent);">OK</button>
+        </div>
+    </div>
+
+    <div id="themeManagerModal" class="fixed inset-0 flex items-center justify-center p-4 z-[70] hidden-alt" style="background-color: var(--modal-overlay-background);">
+        <div id="themeManagerModalContent" class="relative p-6 rounded-lg shadow-xl w-full max-w-md border" style="background-color: var(--modal-content-background); border-color: var(--modal-content-border); box-shadow: var(--modal-shadow);">
+            
+            <div id="themeManagerHeaderButtonsContainer" class="modal-header-buttons-container">
+            </div>
+            <h3 id="themeManagerDialogTitle" class="text-lg font-semibold mb-4" style="color: var(--text-header-main);"></h3> 
+            
+            <div id="themeListSection">
+                <div id="themeManager_themeListItems" class="space-y-3 mb-6 max-h-60 overflow-y-auto"> 
+                </div>
+            </div>
+
+            <div id="createThemeSection" class="hidden-alt">
+                <div class="space-y-6"> 
+                    <div>
+                        <label for="themeNameInput" class="block text-sm font-medium" style="color: var(--text-secondary);">Theme-Name:</label>
+                        <input type="text" id="themeNameInput" placeholder="z.B. Mein cooler Theme" class="w-full p-2 rounded-md" style="background-color: var(--card-test-background); color: var(--text-primary); border:none;">
+                    </div>
+
+                    <div>
+                        <label for="themeBrightnessSlider" class="block text-sm font-medium slider-label-container" style="color: var(--text-secondary);">
+                                <span>Helligkeit:</span> <span id="themeBrightnessValue">50%</span>
+                        </label>
+                        <div class="theme-slider-container">
+                                <input type="range" id="themeBrightnessSlider" min="0" max="100" value="50" class="theme-slider" style="background-color: var(--progressbar-background);"> 
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="themeAccentColorPicker" class="block text-sm font-medium" style="color: var(--text-secondary);">Akzentfarbe:</label>
+                        <input type="color" id="themeAccentColorPicker" value="#3B82F6" class="w-full h-10 p-1 rounded-md cursor-pointer" style="background-color: transparent; border:none;">
+                    </div>
+
+                    <div id="themeTintIntensitySliderContainer"> 
+                        <label for="themeTintIntensitySlider" class="block text-sm font-medium slider-label-container" style="color: var(--text-secondary);">
+                            <span>Tönungsintensität:</span> <span id="themeTintIntensityValue">10%</span>
+                        </label>
+                        <div class="theme-slider-container">
+                            <input type="range" id="themeTintIntensitySlider" min="0" max="30" value="10" class="theme-slider" style="background-color: var(--progressbar-background);">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 theme-edit-actions-container"> 
+                    <button id="deleteThemeInEditViewButton" class="hidden-alt">
+                        Theme löschen
+                    </button>
+                    <button id="saveCustomThemeButton">
+                        Theme speichern
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="customTooltip" class="custom-tooltip"></div>
+
+    <script src="renderer.js"></script>
+</body>
+</html>
