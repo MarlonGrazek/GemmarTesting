@@ -2,7 +2,7 @@
 // Verantwortlich für das Erstellen des Browser-Fensters, die Kommunikation mit dem Renderer-Prozess
 // und die Ausführung der Java-Tests unter Berücksichtigung der Paketstruktur des Nutzers.
 
-const { app, BrowserWindow, ipcMain, shell, Menu, globalShortcut } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, Menu, globalShortcut, dialog } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs');
 const https = require('node:https');
@@ -108,9 +108,6 @@ app.whenReady().then(() => {
   autoUpdater.allowPrerelease = true;
   log.info(`autoUpdater.allowPrerelease is set to: ${autoUpdater.allowPrerelease}`);
 
-  autoUpdater.checkForUpdatesAndNotify();
-  log.info('checkForUpdatesAndNotify called.');
-
   autoUpdater.on('checking-for-update', () => {
     log.info('Checking for update...');
   });
@@ -121,6 +118,27 @@ app.whenReady().then(() => {
 
   autoUpdater.on('update-downloaded', () => {
     log.info('Update downloaded.');
+
+    const dialogOptions = {
+      type: 'info',
+      buttons: ['Neustart', 'Später'],
+      title: 'Update',
+      message: process.platform === 'win32' ? info.releaseNotes : info.releaseName,
+      detail: 'Eine neue Version wurde heruntergeladen. Starten Sie die Anwendung neu, um das Update zu installieren.'
+    };
+
+    dialog.showMessageBox(dialogOptions).then((returnValue) => {
+      if(returnValue.response === 0) {
+        autoUpdater.quitAndInstall(true, true);
+      }
+    });
+
+    try {
+      autoUpdater.checkForUpdates();
+      log.info('checkForUpdates() called.');
+    } catch(error) {
+      log.error('Error calling checkForUpdates:', error);
+    }
   });
 
   autoUpdater.on('error', () => {
