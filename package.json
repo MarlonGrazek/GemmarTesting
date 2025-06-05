@@ -1,6 +1,6 @@
 {
   "name": "gemmartesting",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Eine Desktop-Anwendung zum Testen von Code-Übungen.",
   "main": "main.js",
   "scripts": {
@@ -23,6 +23,11 @@
   "build": {
     "appId": "gemmartesting",
     "productName": "Gemmar Testing",
+    "publish": {
+      "provider": "github",
+      "owner": "MarlonGrazek",
+      "repo": "GemmarTesting"
+    },
     "win": {
       "target": "nsis",
       "icon": "assets/icon.png"
@@ -33,5 +38,8 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true
     }
+  },
+  "dependencies": {
+    "electron-updater": "^6.6.2"
   }
 }

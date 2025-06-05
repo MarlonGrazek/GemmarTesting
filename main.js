@@ -8,6 +8,10 @@ const fs = require('node:fs');
 const https = require('node:https');
 const os = require('node:os');
 const { spawn } = require('node:child_process');
+const { autoUpdater } = require('electron-updater');
+
+autoUpdater.logger = console;
+autoUpdater.logger.log = console.log;
 
 let mainWindow;
 
@@ -83,6 +87,9 @@ ipcMain.on('close-window', () => {
 // Diese Methode wird aufgerufen, wenn Electron die Initialisierung abgeschlossen hat
 // und bereit ist, Browser-Fenster zu erstellen.
 app.whenReady().then(() => {
+
+  autoUpdater.checkForUpdatesAndNotify();
+
   // Handler, um externe Links sicher im Standardbrowser des Systems zu öffnen.
   ipcMain.handle('open-external-link', async (event, url) => {
     try {
