@@ -9,9 +9,10 @@ const https = require('node:https');
 const os = require('node:os');
 const { spawn } = require('node:child_process');
 const { autoUpdater } = require('electron-updater');
+const log = require('electron-log');
 
-autoUpdater.logger = console;
-autoUpdater.logger.log = console.log;
+autoUpdater.logger = log;
+autoUpdater.logger.transports.file.level = 'info';
 
 let mainWindow;
 
@@ -88,9 +89,6 @@ ipcMain.on('close-window', () => {
 // und bereit ist, Browser-Fenster zu erstellen.
 app.whenReady().then(() => {
 
-  autoUpdater.allowPrerelease = true;
-  autoUpdater.checkForUpdatesAndNotify();
-
   // Handler, um externe Links sicher im Standardbrowser des Systems zu öffnen.
   ipcMain.handle('open-external-link', async (event, url) => {
     try {
@@ -103,6 +101,31 @@ app.whenReady().then(() => {
   });
 
   createWindow();
+
+  autoUpdater.logger = log;
+  autoUpdater.logger.transports.file.level = 'info';
+
+  autoUpdater.allowPrerelease = true;
+  log.info(`autoUpdater.allowPrerelease is set to: ${autoUpdater.allowPrerelease}`);
+
+  autoUpdater.checkForUpdatesAndNotify();
+  log.info('checkForUpdatesAndNotify called.');
+
+  autoUpdater.on('checking-for-update', () => {
+    log.info('Checking for update...');
+  });
+
+  autoUpdater.on('update-available', () => {
+    log.info('Update available.');
+  });
+
+  autoUpdater.on('update-downloaded', () => {
+    log.info('Update downloaded.');
+  });
+
+  autoUpdater.on('error', () => {
+    log.info('Error.');
+  });
 
   // Registriere einen globalen Shortcut, um die Entwickler-Tools zu öffnen/schließen.
   // Dies funktioniert auch, wenn das Anwendungsmenü entfernt wurde.
