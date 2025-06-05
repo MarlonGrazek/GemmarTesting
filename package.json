@@ -23,7 +23,7 @@
   "build": {
     "appId": "gemmartesting",
     "productName": "Gemmar Testing",
-    "artifactName": "${productName.replaceAll(' ', '-')}-Setup-${version}.${ext}",
+    "artifactName": "Gemmar-Testing-Setup-${version}.${ext}",
     "publish": {
       "provider": "github",
       "owner": "MarlonGrazek",
