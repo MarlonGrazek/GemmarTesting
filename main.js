@@ -100,6 +100,10 @@ app.whenReady().then(() => {
     }
   });
 
+  ipcMain.handle('get-app-version', () => {
+    return app.getVersion();
+  });
+
   createWindow();
 
   autoUpdater.logger = log;

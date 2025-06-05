@@ -95,8 +95,16 @@
         </div>
     </div>
 
-    <div id="taskInfoDisplay" class="task-info-display-box hidden-alt" data-custom-tooltip="Klicken für Details zur aktuellen Aufgabe" style="top: calc(1.5rem + 32px); left: 1.5rem;"> <div id="taskInfoTitle" class="task-info-title">Lade Aufgabeninfo...</div>
-        <div id="taskInfoCountdown" class="task-info-countdown">--:--</div>
+    <!--Pinned Task Display-->
+    <div id="taskBox" class="info-box">
+        <div id="taskBoxTitle" class="info-box-title">Lade Aufgabeninfo...</div>
+        <div id="taskBoxSubtitle" class="info-box-subtitle">--:--</div>
+    </div>
+
+    <!--Version Display-->
+    <div id="versionBox" class="info-box">
+        <div id="versionBoxTitle" class="info-box-title">Lade Versionsnummer...</div>
+        <div id="versionBoxSubtitle" class="info-box-subtitle">Patchnotes anzeigen</div>
     </div>
 
     <button id="openThemeManagerButton" class="fixed z-50 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2" style="background-color: var(--theme-manager-button-background); color: var(--theme-manager-button-text);border-color: var(--card-test-border); --ring-offset-color: var(--page-background); --ring-color: var(--active-accent-color); top: calc(1.5rem + 32px); right: 1.5rem;" data-custom-tooltip="Themes verwalten"> <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.25a.75.75 0 0 1 .75.75v.541a9.75 9.75 0 0 1 7.086 3.552l.39-.39a.75.75 0 1 1 1.06 1.06l-.39.39A9.712 9.712 0 0 1 22.29 12a.75.75 0 0 1-1.5 0a8.25 8.25 0 0 0-2.087-5.493l.39.39a.75.75 0 1 1-1.06 1.06l-.39-.39A8.212 8.212 0 0 0 12.75 6.01V12a.75.75 0 0 1-1.5 0V6.01A8.212 8.212 0 0 0 6.71 7.507l-.39.39a.75.75 0 1 1-1.06-1.06l.39-.39A8.25 8.25 0 0 0 3.75 12a.75.75 0 0 1-1.5 0c0-1.69.422-3.286 1.176-4.648l-.39-.39a.75.75 0 1 1 1.06-1.06l.39.39A9.712 9.712 0 0 1 9.709 3.54V3a.75.75 0 0 1 .75-.75Zm0 19.5a.75.75 0 0 1-.75-.75V12a.75.75 0 0 1 1.5 0v9.75a.75.75 0 0 1-.75-.75Z" /></svg>

@@ -102,7 +102,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     if (validSendChannels.includes('close-window')) {
         ipcRenderer.send('close-window');
     }
-  }
+  },
+  getAppVersion: () => ipcRenderer.invoke('get-app-version')
 });
 
 console.log('Preload-Skript (preload.js) wurde geladen und electronAPI wurde exposed.');

@@ -24,7 +24,8 @@ let htmlElement, mainContentWrapper, testListContainer,
     testSuitesContainer, messageBox, messageBoxTitle, messageBoxText, messageBoxClose,
     messageBoxContent, modalHeaderButtonsContainer, themeManagerHeaderButtonsContainer,
     customTooltipElement,
-    taskInfoDisplay, taskInfoTitle, taskInfoCountdown,
+    taskBox, taskBoxTitle, taskBoxSubtitle,
+    versionBox, versionBoxTitle, versionBoxSubtitle,
     openThemeManagerButton, themeManagerModal, themeManagerDialogTitle,
     themeListSectionView, createThemeSectionView,
     themeNameInput, saveCustomThemeButton,
@@ -36,7 +37,7 @@ let htmlElement, mainContentWrapper, testListContainer,
 let selectedTestConfig = null;
 let selectedFiles = null;
 let currentCountdownIntervalId = null;
-let currentTaskInfoCountdownIntervalId = null;
+let currentTaskBoxCountdownIntervalId = null;
 let latestFetchedUpdateInfo = null;
 let javaTestEventListenerUnsubscribe = null;
 let pinnedTestId = localStorage.getItem('pinnedTestId');
@@ -762,9 +763,9 @@ function showModalMessage(titleText, descriptionText, actionButtonElement = null
 
             if (pinnedTestId && latestFetchedUpdateInfo && latestFetchedUpdateInfo.tests) {
                 const testToDisplay = latestFetchedUpdateInfo.tests.find(t => t.id === pinnedTestId);
-                updateTaskInfoDisplay(testToDisplay, true); 
+                updateTaskBox(testToDisplay, true);
             } else {
-                updateTaskInfoDisplay(null, false); 
+                updateTaskBox(null, false); 
             }
         });
         modalHeaderButtonsContainer.appendChild(pinButton);
@@ -840,7 +841,7 @@ function startCountdownTimer(targetDateString, countdownElementId, isMainDisplay
         return;
     }
     
-    let intervalIdToClear = isMainDisplay ? currentTaskInfoCountdownIntervalId : currentCountdownIntervalId;
+    let intervalIdToClear = isMainDisplay ? currentTaskBoxCountdownIntervalId : currentCountdownIntervalId;
     if (intervalIdToClear) {
         clearInterval(intervalIdToClear);
     }
@@ -851,15 +852,15 @@ function startCountdownTimer(targetDateString, countdownElementId, isMainDisplay
         const timeLeft = targetDate.getTime() - new Date().getTime();
         countdownSpan.textContent = formatCountdown(timeLeft);
         if (timeLeft <= 0) {
-            let idToClearOnExpiry = isMainDisplay ? currentTaskInfoCountdownIntervalId : currentCountdownIntervalId;
+            let idToClearOnExpiry = isMainDisplay ? currentTaskBoxCountdownIntervalId : currentCountdownIntervalId;
             clearInterval(idToClearOnExpiry);
-            if (isMainDisplay) currentTaskInfoCountdownIntervalId = null;
+            if (isMainDisplay) currentTaskBoxCountdownIntervalId = null;
             else currentCountdownIntervalId = null;
         }
     }
     updateTimer(); 
     if (isMainDisplay) {
-        currentTaskInfoCountdownIntervalId = setInterval(updateTimer, 1000);
+        currentTaskBoxCountdownIntervalId = setInterval(updateTimer, 1000);
     } else {
         currentCountdownIntervalId = setInterval(updateTimer, 1000);
     }
@@ -1309,40 +1310,56 @@ async function startActualTestRun() {
     }
 }
 
-function updateTaskInfoDisplay(testInfo, makeVisible = true) {
-    if (!taskInfoDisplay || !taskInfoTitle || !taskInfoCountdown) return;
+function updateTaskBox(testInfo, makeVisible = true) {
+    if (!taskBox || !taskBoxTitle || !taskBoxSubtitle) return;
 
     if (testInfo && makeVisible) {
-        taskInfoTitle.textContent = testInfo.title;
-        taskInfoDisplay.classList.remove('hidden-alt'); 
+        taskBoxTitle.textContent = testInfo.title;
+        taskBox.classList.remove('hidden-alt'); 
 
-        if (currentTaskInfoCountdownIntervalId) {
-            clearInterval(currentTaskInfoCountdownIntervalId);
-            currentTaskInfoCountdownIntervalId = null;
+        if (currentTaskBoxCountdownIntervalId) {
+            clearInterval(currentTaskBoxCountdownIntervalId);
+            currentTaskBoxCountdownIntervalId = null;
         }
         if (testInfo.dueDate) {
-            taskInfoCountdown.style.display = 'block'; 
-            startCountdownTimer(testInfo.dueDate, 'taskInfoCountdown', true); 
+            taskBoxSubtitle.style.display = 'block'; 
+            startCountdownTimer(testInfo.dueDate, 'taskBoxSubtitle', true);
         } else {
-            taskInfoCountdown.textContent = "Kein Fälligkeitsdatum";
-            taskInfoCountdown.removeAttribute('data-custom-tooltip'); 
+            taskBoxSubtitle.textContent = "Kein Fälligkeitsdatum";
+            taskBoxSubtitle.removeAttribute('data-custom-tooltip'); 
         }
     } else { 
-        taskInfoTitle.textContent = "Keine Aufgabe geladen";
-        taskInfoCountdown.textContent = "--:--";
-        taskInfoDisplay.classList.add('hidden-alt');
-        if (currentTaskInfoCountdownIntervalId) {
-            clearInterval(currentTaskInfoCountdownIntervalId);
-            currentTaskInfoCountdownIntervalId = null;
+        taskBoxTitle.textContent = "Keine Aufgabe geladen";
+        taskBoxSubtitle.textContent = "--:--";
+        taskBox.classList.add('hidden-alt');
+        if (currentTaskBoxCountdownIntervalId) {
+            clearInterval(currentTaskBoxCountdownIntervalId);
+            currentTaskBoxCountdownIntervalId = null;
         }
     }
 }
 
-async function handleUpdateCheck() { 
-    if (taskInfoDisplay) taskInfoDisplay.style.pointerEvents = 'none'; 
+async function initializeVersionBox() {
+    if(!versionBox || !versionBoxTitle) return;
 
-    if (taskInfoTitle) taskInfoTitle.textContent = "Lade Aufgabeninfo...";
-    if (taskInfoCountdown) taskInfoCountdown.textContent = ""; 
+    try {
+        const appVersion = await window.electronAPI.getAppVersion();
+        versionBoxTitle.textContent = `Version ${appVersion}`;
+    } catch(error) {
+        console.error('Fehler beim Abrufen der App-Version:', error);
+        versionBoxTitle.textContent = 'Unbekannte Version';
+    }
+
+    versionBox.addEventListener('click', () => {
+
+    });
+}
+
+async function handleUpdateCheck() { 
+    if (taskBox) taskBox.style.pointerEvents = 'none'; 
+
+    if (taskBoxTitle) taskBoxTitle.textContent = "Lade Aufgabeninfo...";
+    if (taskBoxSubtitle) taskBoxSubtitle.textContent = ""; 
     if (testListContainer) testListContainer.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">Lade verfügbare Tests...</p>';
 
     try {
@@ -1373,22 +1390,22 @@ async function handleUpdateCheck() {
         }
 
         if (testToDisplayInitially) {
-            updateTaskInfoDisplay(testToDisplayInitially, true); 
+            updateTaskBox(testToDisplayInitially, true); 
         } else {
-            updateTaskInfoDisplay(null, false); 
+            updateTaskBox(null, false); 
         }
 
-        if (taskInfoDisplay) {
-            const newDisplay = taskInfoDisplay.cloneNode(true);
-            if (taskInfoDisplay.parentNode) {
-                taskInfoDisplay.parentNode.replaceChild(newDisplay, taskInfoDisplay);
+        if (taskBox) {
+            const newDisplay = taskBox.cloneNode(true);
+            if (taskBox.parentNode) {
+                taskBox.parentNode.replaceChild(newDisplay, taskBox);
             }
             
-            taskInfoDisplay = newDisplay;
-            taskInfoTitle = taskInfoDisplay.querySelector('#taskInfoTitle');
-            taskInfoCountdown = taskInfoDisplay.querySelector('#taskInfoCountdown');
+            taskBox = newDisplay;
+            taskBoxTitle = taskBox.querySelector('#taskBoxTitle');
+            taskBoxSubtitle = taskBox.querySelector('#taskBoxSubtitle');
 
-            taskInfoDisplay.addEventListener('click', () => {
+            taskBox.addEventListener('click', () => {
                 if (!pinnedTestId && latestFetchedUpdateInfo && latestFetchedUpdateInfo.tests && latestFetchedUpdateInfo.tests.length > 0) {
                     const firstTest = latestFetchedUpdateInfo.tests[0];
                     if (firstTest) {
@@ -1474,16 +1491,16 @@ async function handleUpdateCheck() {
         else if (err instanceof SyntaxError) userMessage += " Ungültiges Datenformat (JSON) vom Server.";
         else userMessage += ` Details: ${err.message.substring(0, 100)}`;
         
-        updateTaskInfoDisplay(null, false); 
+        updateTaskBox(null, false); 
         renderTestCards([]); 
-        if (taskInfoDisplay) {
-            taskInfoDisplay.addEventListener('click', () => {
+        if (taskBox) {
+            taskBox.addEventListener('click', () => {
                 showModalMessage("Fehler", userMessage, null, null, true, null);
             });
         }
 
     } finally {
-        if (taskInfoDisplay) taskInfoDisplay.style.pointerEvents = 'auto'; 
+        if (taskBox) taskBox.style.pointerEvents = 'auto'; 
     }
 }
 
@@ -1533,9 +1550,12 @@ document.addEventListener('DOMContentLoaded', () => {
     messageBoxText = document.getElementById('messageBoxText'); 
     messageBoxClose = document.getElementById('messageBoxClose');
     customTooltipElement = document.getElementById('customTooltip');
-    taskInfoDisplay = document.getElementById('taskInfoDisplay');
-    taskInfoTitle = document.getElementById('taskInfoTitle');
-    taskInfoCountdown = document.getElementById('taskInfoCountdown');
+    taskBox = document.getElementById('taskBox');
+    taskBoxTitle = document.getElementById('taskBoxTitle');
+    taskBoxSubtitle = document.getElementById('taskBoxSubtitle');
+    versionBox = document.getElementById('versionBox');
+    versionBoxTitle = document.getElementById('versionBoxTitle');
+    versionBoxSubtitle = document.getElementById('versionBoxSubtitle');
     openThemeManagerButton = document.getElementById('openThemeManagerButton');
     themeManagerModal = document.getElementById('themeManagerModal');
     themeManagerDialogTitle = document.getElementById('themeManagerDialogTitle'); 
@@ -1624,7 +1644,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeTheme(); 
     handleUpdateCheck(); 
     setupFileUploadListener(); 
-    updateRunTestButtonState(); 
+    updateRunTestButtonState();
+    initializeVersionBox();
 
     console.log("Renderer.js: Initial setup in DOMContentLoaded finished.");
 });

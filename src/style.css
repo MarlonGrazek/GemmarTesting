@@ -349,6 +349,9 @@ body {
 
 .hidden-alt {
     display: none !important;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
 }
 
 .icon {
@@ -1501,8 +1504,10 @@ html.dark.black-theme #messageBoxText code {
 }
 
 /* ==========================================================================
-   10. FIXPOSITIONIERTER THEME MANAGER BUTTON & TASK INFO DISPLAY
+   10. FIXPOSITIONIERTER THEME MANAGER BUTTON & INFO BOX
    ========================================================================== */
+
+/* 10.1 Theme Manager Button */
 #openThemeManagerButton {
     position: fixed;
     top: 1.5rem;
@@ -1530,8 +1535,8 @@ html.rainbow-theme #openThemeManagerButton:focus-visible {
     outline-color: var(--rainbow-border-highlight);
 }
 
-
-.task-info-display-box {
+/* 10.2 Info Box */
+.info-box {
     background-color: var(--card-test-background);
     border: 2px solid var(--card-test-border);
     border-radius: 0.5rem;
@@ -1541,26 +1546,19 @@ html.rainbow-theme #openThemeManagerButton:focus-visible {
     transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
     text-align: left;
     position: fixed;
-    top: 1.5rem;
-    left: 1.5rem;
     z-index: 40;
     max-width: 350px;
     width: auto;
+    left: 1.5rem;
 }
 
-.task-info-display-box.hidden-alt {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-}
-
-.task-info-display-box:hover {
+.info-box:hover {
     background-color: var(--card-test-background-hover);
     border-color: var(--card-test-border-hover);
     box-shadow: var(--card-test-shadow-hover);
 }
 
-.task-info-title {
+.info-box-title {
     font-size: 1.05em;
     font-weight: 600;
     color: var(--text-primary);
@@ -1570,9 +1568,17 @@ html.rainbow-theme #openThemeManagerButton:focus-visible {
     text-overflow: ellipsis;
 }
 
-.task-info-countdown {
+.info-box-subtitle {
     font-size: 0.9em;
     color: var(--text-secondary);
+}
+
+#taskBox {
+    top: 1.5rem;
+}
+
+#versionBox {
+    bottom: 1.5rem;
 }
 
 /* ==========================================================================
