@@ -132,18 +132,18 @@ app.whenReady().then(() => {
         autoUpdater.quitAndInstall(true, true);
       }
     });
-
-    try {
-      autoUpdater.checkForUpdates();
-      log.info('checkForUpdates() called.');
-    } catch(error) {
-      log.error('Error calling checkForUpdates:', error);
-    }
   });
 
   autoUpdater.on('error', () => {
     log.info('Error.');
   });
+
+  try {
+    autoUpdater.checkForUpdates();
+    log.info('checkForUpdates() called.');
+  } catch(error) {
+    log.error('Error calling checkForUpdates:', error);
+  }
 
   // Registriere einen globalen Shortcut, um die Entwickler-Tools zu öffnen/schließen.
   // Dies funktioniert auch, wenn das Anwendungsmenü entfernt wurde.
