@@ -116,7 +116,7 @@ app.whenReady().then(() => {
     log.info('Update available.');
   });
 
-  autoUpdater.on('update-downloaded', () => {
+  autoUpdater.on('update-downloaded', (info) => {
     log.info('Update downloaded.');
 
     const dialogOptions = {
