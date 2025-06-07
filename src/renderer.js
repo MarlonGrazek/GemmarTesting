@@ -1339,22 +1339,6 @@ function updateTaskBox(testInfo, makeVisible = true) {
     }
 }
 
-async function initializeVersionBox() {
-    if(!versionBox || !versionBoxTitle) return;
-
-    try {
-        const appVersion = await window.electronAPI.getAppVersion();
-        versionBoxTitle.textContent = `Version ${appVersion}`;
-    } catch(error) {
-        console.error('Fehler beim Abrufen der App-Version:', error);
-        versionBoxTitle.textContent = 'Unbekannte Version';
-    }
-
-    versionBox.addEventListener('click', () => {
-
-    });
-}
-
 async function handleUpdateCheck() { 
     if (taskBox) taskBox.style.pointerEvents = 'none'; 
 
@@ -1645,7 +1629,7 @@ document.addEventListener('DOMContentLoaded', () => {
     handleUpdateCheck(); 
     setupFileUploadListener(); 
     updateRunTestButtonState();
-    initializeVersionBox();
+    initializeUpdateRenderer();
 
     console.log("Renderer.js: Initial setup in DOMContentLoaded finished.");
 });

@@ -11,9 +11,17 @@ const validSendChannels = [
     'run-java-test',
     'minimize-window',    // NEU für Fenstersteuerung
     'maximize-window',    // NEU für Fenstersteuerung
-    'close-window'        // NEU für Fenstersteuerung
+    'close-window',        // NEU für Fenstersteuerung
+    'update-found',
+    'update-download',
+    'restart-and-install'
 ];
-const validReceiveChannels = ['java-test-event']; // Nur 'java-test-event' vom Main zum Renderer
+const validReceiveChannels = [
+  'java-test-event',
+  'update-found',
+  'update-download',
+  'update-status'
+];
 const validInvokeChannels = ['open-external-link']; // Für invoke/handle-Muster
 
 // Stellt dem Renderer-Prozess über `window.electronAPI` definierte Funktionen zur Verfügung.

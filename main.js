@@ -16,6 +16,15 @@ autoUpdater.logger.transports.file.level = 'info';
 
 let mainWindow;
 
+function sendStatusToWindow(payload) {
+  if (mainWindow && mainWindow.webContents && !mainWindow.isDestroyed()) {
+    log.info(`Sende IPC "update-status" an Renderer mit Payload:`, payload);
+    mainWindow.webContents.send('update-status', payload);
+  } else {
+    log.warn('mainWindow nicht verfügbar, IPC "update-status" kann nicht gesendet werden für Payload:', payload);
+  }
+}
+
 // Erstellt das Hauptfenster der Anwendung.
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -32,7 +41,8 @@ function createWindow() {
       preload: path.join(__dirname, 'src', 'preload.js'),
       contextIsolation: true, // Wichtig für Sicherheit: Isoliert Preload-Skript und Renderer-Logik
       nodeIntegration: false, // Node.js-APIs sollten nicht direkt im Renderer verfügbar sein
-      devTools: !app.isPackaged // Erlaube DevTools im Renderer, aber öffne sie nicht automatisch hier
+      //devTools: !app.isPackaged // Erlaube DevTools im Renderer, aber öffne sie nicht automatisch hier
+      devTools: true
     },
     show: false // Fenster erst anzeigen, wenn es bereit ist, um Flackern zu vermeiden
   });
@@ -84,6 +94,21 @@ ipcMain.on('close-window', () => {
   }
 });
 
+let currentUpdateVersionInfo = null;
+ipcMain.on('update-download', (event, updateInfoFromRenderer) => {
+
+  if(updateInfoFromRenderer && updateInfoFromRenderer.version) {
+    currentUpdateVersionInfo = updateInfoFromRenderer;
+    log.info(`Main: User chose to download version ${updateInfoFromRenderer.version}. Starting download...`);
+    autoUpdater.downloadUpdate();
+    // Sende sofort einen initialen "downloading" Status, damit die UI reagiert
+    sendStatusToWindow({ status: 'downloading', percent: 0, version: updateInfoFromRenderer.version });
+} else {
+    log.error("Main: 'update-download' received without valid updateInfo.");
+}
+
+  autoUpdater.downloadUpdate();
+});
 
 // Diese Methode wird aufgerufen, wenn Electron die Initialisierung abgeschlossen hat
 // und bereit ist, Browser-Fenster zu erstellen.
@@ -110,31 +135,61 @@ app.whenReady().then(() => {
   autoUpdater.logger.transports.file.level = 'info';
 
   autoUpdater.allowPrerelease = true;
+  autoUpdater.autoDownload = false;
   log.info(`autoUpdater.allowPrerelease is set to: ${autoUpdater.allowPrerelease}`);
 
   autoUpdater.on('checking-for-update', () => {
     log.info('Checking for update...');
+    sendStatusToWindow({status: 'checking'});
   });
 
-  autoUpdater.on('update-available', () => {
+  autoUpdater.on('update-available', (info) => {
     log.info('Update available.');
+    log.info('Version:', info.version);
+    log.info('Release Date:', info.releaseDate);
+
+    if(mainWindow) {
+      log.info('Sende IPC "update-found" an Renderer...')
+      sendStatusToWindow({
+        status: 'available',
+        version: info.version,
+        notes: info.releaseNotes || info.releaseName || 'No details available.'
+      });
+    } else {
+      log.error('mainWindow ist nicht verfügbar, IPC kann nicht gesendet werden!');
+    }
+  });
+
+  autoUpdater.on('update-not-available', (info) => {
+    log.info('Main: Update not available.');
+    sendStatusToWindow({ status: 'not-available' });
+  });
+
+  autoUpdater.on('error', (err) => {
+    log.error('Main: Error in auto-updater.', err);
+    sendStatusToWindow({ status: 'error', message: err.message });
+  });
+
+  autoUpdater.on('download-progress', (progressObj) => {
+    log.info(`Main: Download Progress: ${progressObj.percent}%`);
+    sendStatusToWindow({ 
+      status: 'downloading', 
+      percent: Math.round(progressObj.percent), 
+      speed: progressObj.bytesPerSecond,
+      // Du brauchst hier die Version, die gerade geladen wird.
+      // Die müsstest du dir aus dem 'update-available' info-Objekt merken.
+      // Angenommen, du hast sie in einer Variable `currentUpdateVersionInfo` gespeichert:
+      version: currentUpdateVersionInfo ? currentUpdateVersionInfo.version : '?.?.?' 
+    });
   });
 
   autoUpdater.on('update-downloaded', (info) => {
     log.info('Update downloaded.');
 
-    const dialogOptions = {
-      type: 'info',
-      buttons: ['Neustart', 'Später'],
-      title: 'Update',
-      message: process.platform === 'win32' ? info.releaseNotes : info.releaseName,
-      detail: 'Eine neue Version wurde heruntergeladen. Starten Sie die Anwendung neu, um das Update zu installieren.'
-    };
-
-    dialog.showMessageBox(dialogOptions).then((returnValue) => {
-      if(returnValue.response === 0) {
-        autoUpdater.quitAndInstall(true, true);
-      }
+    sendStatusToWindow({
+      status: 'downloaded',
+      versopm: info.version,
+      notes: info.releaseNotes || info.releaseName || 'No details available.'
     });
   });
 
@@ -364,6 +419,11 @@ function compileJavaCode(directory, sendTestEvent) {
     });
   });
 }
+
+ipcMain.on('restart-and-install', () => {
+  log.info('Renderer hat den Befehl zum Neustart und Installieren gegeben.');
+  autoUpdater.quitAndInstall(true, true);
+});
 
 // IPC-Listener für die Anforderung, einen Java-Test auszuführen.
 // Empfängt Dateiinhalte vom Nutzer und die Testkonfiguration vom Renderer.
