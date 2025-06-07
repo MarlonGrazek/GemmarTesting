@@ -1,9 +1,14 @@
 console.log("update-renderer.js wird geladen...");
 
 let availableUpdateInfo = null;
+let showModal
 
-function initializeUpdateRenderer() {
+const SVG_CLOSE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+
+export function initializeUpdateRenderer(dependencies) {
     console.log("Update-Renderer wird jetzt initialisiert.");
+
+    showModal = dependencies.showModal;
 
     if (versionBox) {
         console.log("Update-UI: 'versionBox' ist erreichbar!");
@@ -19,13 +24,13 @@ function initializeUpdateRenderer() {
 
     window.electronAPI.receive('update-status', (payload) => {
         console.log('Update-Renderer: IPC "update-status" empfangen mit Payload:', payload);
-        
+
         if (payload.status === 'available') {
-            
+
             availableUpdateInfo = payload;
             // Rufe dein Pop-up auf (diese Funktion verschieben wir als Nächstes)
-            showCustomUpdatePrompt(payload); 
-        } else if(payload.status == 'downloaded') {
+            showCustomUpdatePrompt(payload);
+        } else if (payload.status == 'downloaded') {
             showCustomRestartPrompt(payload);
         } else if (payload.status === 'not-available' || payload.status === 'error') {
             availableUpdateInfo = null; // Setze zurück, wenn kein Update da ist oder ein Fehler auftritt
@@ -44,8 +49,8 @@ async function updateVersionBox(status, data = null) {
 
     // Reset der spezifischen Zustands-Klassen erstmal
     versionBox.classList.remove(
-        'update-available', 
-        'update-checking', 
+        'update-available',
+        'update-checking',
         'update-downloading',
         'update-error'
     );
@@ -93,8 +98,8 @@ async function updateVersionBox(status, data = null) {
                 versionBoxSubtitle.textContent = "Download is running";
             }
             versionBox.classList.add('update-downloading'); // Deine CSS-Klasse für Download-Animation/Rand
-            
-            if(data && data.percent) {
+
+            if (data && data.percent) {
                 versionBox.style.setProperty('--download-progress', `${data.percent}%`);
             }
             break;
@@ -131,7 +136,7 @@ function handleVersionBoxClick() {
 
     if (availableUpdateInfo) {
         console.log(`Klick auf versionBox. Aktueller Status ist: "${availableUpdateInfo.status}"`);
-        
+
         switch (availableUpdateInfo.status) {
             case 'available':
                 showCustomUpdatePrompt(availableUpdateInfo);
@@ -140,7 +145,7 @@ function handleVersionBoxClick() {
             case 'downloaded':
                 showRestartPrompt(availableUpdateInfo);
                 break;
-            
+
             default:
                 console.log(`Klick auf versionBox im Status '${availableUpdateInfo.status}' - keine explizite Aktion definiert.`);
                 break;
@@ -151,6 +156,7 @@ function handleVersionBoxClick() {
 }
 
 function showCustomRestartPrompt(updateDetails) {
+
     if (!messageBox || !messageBoxContent) {
         console.error("MessageBox-Elemente sind nicht verfügbar.");
         return;
@@ -158,82 +164,90 @@ function showCustomRestartPrompt(updateDetails) {
 
     console.log('Zeige Restart-Prompt für Version:', updateDetails.version);
 
-    // Entferne alte, dynamisch erstellte Buttons, um Duplikate zu vermeiden
-    const existingButton = messageBoxContent.querySelector('.popup-button-js');
-    if (existingButton) {
-        existingButton.remove();
-    }
-
-    // Erstelle den Restart-Button
-    const restartButton = document.createElement('button');
-    restartButton.textContent = "Restart";
-    restartButton.className = 'file-input-button popup-button-js'; // Deine Styling-Klasse
-    restartButton.addEventListener('click', () => {
-        console.log('Restart-Button geklickt. Sende IPC an Main-Prozess...');
-        window.electronAPI.send('restart-and-install');
+    showModal({
+        title: `Update to version ${updateDetails.version} installed`,
+        size: 'medium',
+        headerButtons: [
+            {
+                class: 'modal-header-button close-button',
+                tooltip: 'Close',
+                svg: SVG_CLOSE,
+                onClick: (modal) => modal.close()
+            }
+        ],
+        contentTree: {
+            tag: 'div',
+            props: {
+                className: 'patch-notes-content',
+                innerHTML: (updateDetails.notes || 'No patchnotes available').replace(/\n/g, '<br>')
+            }
+        },
+        actionButtons: [
+            {
+                text: 'Later',
+                class: 'modal-action-button button-secondary',
+                onClick: (modal) => {
+                    console.log("Neustart auf 'Später' verschoben.");
+                    modal.close();
+                }
+            },
+            {
+                text: 'Restart & Install',
+                class: 'modal-action-button button-primary',
+                onClick: () => {
+                    console.log("Sende 'restart-and-install' an den Hauptprozess.");
+                    window.electronAPI.send('restart-and-install');
+                }
+            }
+        ]
     });
-
-    // Later Button
-    const laterButton = document.createElement('button');
-    laterButton.textContent = "Not Now";
-    laterButton.className = 'file-input-button popup-button-js';
-    laterButton.addEventListener('click', () => {
-        console.log('Later-Button geklickt. Sende IPC an Main-Prozess...');
-        messageBox.classList.add('hidden-alt');
-    });
-
-    // Füge den Button zum Modal hinzu (passe dies ggf. an deine showModalMessage-Struktur an)
-    messageBoxContent.appendChild(restartButton);
-    messageBoxContent.appendChild(laterButton);
-
-    // Rufe deine globale Funktion aus renderer.js auf, um das Modal anzuzeigen
-    showModalMessage(
-        `Update auf Version ${updateDetails.version} installiert`,
-        `Änderungen:<br>${(updateDetails.notes || 'Keine Patchnotes verfügbar.').replace(/\n/g, '<br>')}`,
-        null, 
-        null, 
-        false // Sagt showModalMessage, dass es keinen Standard-OK-Button anzeigen soll
-    );
-
-    messageBox.classList.remove('hidden-alt'); // Stelle sicher, dass das Modal sichtbar ist
 }
 
 function showCustomUpdatePrompt(updateDetails) {
-    if (!messageBox || !messageBoxContent) {
-        console.error("MessageBox-Elemente sind nicht verfügbar.");
+    if (!showModal) {
+        console.error("showModal-Funktion ist nicht verfügbar, kann Prompt nicht anzeigen.");
         return;
     }
 
-    console.log('Zeige Update-Prompt für Version:', updateDetails.version);
+    console.log('Zeige "Herunterladen?"-Prompt für Version:', updateDetails.version);
 
-    // Entferne alte, dynamisch erstellte Buttons, um Duplikate zu vermeiden
-    const existingButton = messageBoxContent.querySelector('.popup-button-js');
-    if (existingButton) {
-        existingButton.remove();
-    }
+    // Definiere die "Blaupause" für dein Modal
+    showModal({
+        title: `Update to version ${updateDetails.version} available`,
+        size: 'medium',
+        
+        headerButtons: [
+            {
+                class: 'modal-header-button close-button',
+                tooltip: 'Close',
+                svg: SVG_CLOSE,
+                onClick: (modal) => modal.close()
+            }
+        ],
 
-    // Erstelle den Download-Button
-    const downloadButton = document.createElement('button');
-    downloadButton.textContent = "Herunterladen";
-    downloadButton.className = 'file-input-button popup-button-js'; // Deine Styling-Klasse
-    
-    downloadButton.addEventListener('click', () => {
-        console.log('Download-Button geklickt. Sende IPC an Main-Prozess...');
-        window.electronAPI.send('update-download', updateDetails);
-        messageBox.classList.add('hidden-alt'); // Schließe das Modal
+        contentTree: {
+            tag: 'div',
+            props: {
+                className: 'patch-notes-content',
+                innerHTML: (updateDetails.notes || 'No patchnotes available').replace(/\n/g, '<br>')
+            }
+        },
+
+        actionButtons: [
+            {
+                text: 'Later',
+                class: 'modal-action-button button-secondary', // Deine sekundäre Button-Klasse
+                onClick: (modal) => modal.close()
+            },
+            {
+                text: 'Download',
+                class: 'modal-action-button button-primary',    // Deine primäre Akzent-Button-Klasse
+                onClick: (modal) => {
+                    // Sende das Signal zum Download an den Hauptprozess
+                    window.electronAPI.send('update-download', updateDetails);
+                    modal.close();
+                }
+            }
+        ]
     });
-
-    // Füge den Button zum Modal hinzu (passe dies ggf. an deine showModalMessage-Struktur an)
-    messageBoxContent.appendChild(downloadButton);
-
-    // Rufe deine globale Funktion aus renderer.js auf, um das Modal anzuzeigen
-    showModalMessage(
-        `Update auf Version ${updateDetails.version}`,
-        `Änderungen:<br>${(updateDetails.notes || 'Keine Patchnotes verfügbar.').replace(/\n/g, '<br>')}`,
-        null, 
-        null, 
-        false // Sagt showModalMessage, dass es keinen Standard-OK-Button anzeigen soll
-    );
-
-    messageBox.classList.remove('hidden-alt'); // Stelle sicher, dass das Modal sichtbar ist
 }

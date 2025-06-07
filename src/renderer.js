@@ -1,6 +1,9 @@
 // src/renderer.js - Version 8.3 (Rainbow Theme hinzugefügt)
 console.log("Renderer.js Version 8.3 (Rainbow Theme) loading...");
 
+import { initializeModalSystem } from "./modal-manager.js";
+import { initializeUpdateRenderer } from "./update-renderer.js";
+
 // --- SVG Icons ---
 const SVG_CHECK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
 const SVG_CROSS = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
@@ -48,6 +51,7 @@ let failedTests = 0;
 let warningTests = 0;
 let currentSuiteElement = null;
 let currentSubtestElement = null;
+let showModal;
 
 const REF_LIGHTNESS = { DARK: { pageBg: 5.1 }, LIGHT: { pageBg: 96.5 } };
 let themes = [
@@ -140,13 +144,13 @@ function _applyBackgroundTint(accentColorHex, backgroundTintIntensityPercent) {
     if (currentTheme && currentTheme.settings.isRainbow) return; // Keine Tönung für Rainbow Theme
 
     const accentHSL = hexToHSL(accentColorHex);
-    if (accentHSL.s < 1 || backgroundTintIntensityPercent < 1) return; 
+    if (accentHSL.s < 1 || backgroundTintIntensityPercent < 1) return;
 
     BACKGROUND_VARS_TO_TINT.forEach(cssVar => {
         const greyscaleBgHex = getComputedStyle(htmlElement).getPropertyValue(cssVar).trim();
         if (greyscaleBgHex) {
             const greyscaleBgHSL = hexToHSL(greyscaleBgHex);
-            if (greyscaleBgHSL.s < 15) { 
+            if (greyscaleBgHSL.s < 15) {
                 htmlElement.style.setProperty(cssVar, hslToHex(accentHSL.h, parseFloat(backgroundTintIntensityPercent), greyscaleBgHSL.l));
             }
         }
@@ -158,13 +162,13 @@ function _applyTextTint(accentColorHex, backgroundTintIntensityPercent) {
     if (currentTheme && currentTheme.settings.isRainbow) return; // Keine Tönung für Rainbow Theme
 
     const accentHSL = hexToHSL(accentColorHex);
-    if (accentHSL.s < 1 || backgroundTintIntensityPercent < 1) return; 
-    const textTintSaturation = Math.min(7, backgroundTintIntensityPercent / 4); 
+    if (accentHSL.s < 1 || backgroundTintIntensityPercent < 1) return;
+    const textTintSaturation = Math.min(7, backgroundTintIntensityPercent / 4);
     TEXT_VARS_TO_SUBTLY_TINT.forEach(cssVar => {
         const currentGreyHex = getComputedStyle(htmlElement).getPropertyValue(cssVar).trim();
         if (currentGreyHex) {
             const currentGreyHSL = hexToHSL(currentGreyHex);
-            if (currentGreyHSL.s < 15) { 
+            if (currentGreyHSL.s < 15) {
                 htmlElement.style.setProperty(cssVar, hslToHex(accentHSL.h, textTintSaturation, currentGreyHSL.l));
             }
         }
@@ -176,15 +180,15 @@ function _updateEditorThemePreview() {
     const accentColor = themeAccentColorPicker.value;
     const tintIntensityPercent = parseFloat(themeTintIntensitySlider.value);
 
-    clearAllThemeClassesAndInlineStyles(); 
-    htmlElement.style.setProperty('--accent-blue', accentColor); 
+    clearAllThemeClassesAndInlineStyles();
+    htmlElement.style.setProperty('--accent-blue', accentColor);
     const accentHSL = hexToHSL(accentColor);
     htmlElement.style.setProperty('--accent-blue-hover', hslToHex(accentHSL.h, accentHSL.s, Math.max(0, accentHSL.l - 10)));
     const textAccentL = accentHSL.l > 60 ? Math.max(0, accentHSL.l - 25) : Math.min(100, accentHSL.l + 35);
     htmlElement.style.setProperty('--accent-blue-text', hslToHex(accentHSL.h, accentHSL.s, textAccentL));
-    htmlElement.style.setProperty('--progressbar-fill', accentColor); 
+    htmlElement.style.setProperty('--progressbar-fill', accentColor);
 
-    generateAndApplyDynamicThemeColors(brightness); 
+    generateAndApplyDynamicThemeColors(brightness);
 
     _applyBackgroundTint(accentColor, tintIntensityPercent);
     _applyTextTint(accentColor, tintIntensityPercent);
@@ -195,19 +199,19 @@ function generateAndApplyDynamicThemeColors(baseLightnessValue) {
     const textSwitchThreshold = 45, hierarchySwitchThreshold = 65, darkStep = 4, lightStep = -3, selectionTintStrength = 0.5;
     const exceptionBoxBorderContrastDark = 12, exceptionBoxBorderContrastLight = 15;
     const baseL = parseFloat(baseLightnessValue);
-    const isDarkTextPreferred = baseL >= textSwitchThreshold; 
-    const useLightModeHierarchy = baseL >= hierarchySwitchThreshold; 
+    const isDarkTextPreferred = baseL >= textSwitchThreshold;
+    const useLightModeHierarchy = baseL >= hierarchySwitchThreshold;
     const dynamicColors = {};
     let pageBgL, contentWrapperL, cardL, cardBorderL, exceptionBoxL, exceptionBoxBorderL, modalContentL, modalBorderL;
     const clamp = (val) => Math.max(0, Math.min(100, val));
 
-    if (useLightModeHierarchy) { 
+    if (useLightModeHierarchy) {
         pageBgL = (baseL === 100) ? 98 : baseL;
         contentWrapperL = (baseL === 100) ? 100 : clamp(pageBgL - lightStep * 1.5);
         cardL = clamp(contentWrapperL + lightStep); cardBorderL = clamp(cardL + lightStep * 0.5);
         exceptionBoxL = clamp(cardL + lightStep * 1.2); exceptionBoxBorderL = clamp(exceptionBoxL - exceptionBoxBorderContrastLight);
         modalContentL = contentWrapperL; modalBorderL = cardBorderL;
-    } else { 
+    } else {
         pageBgL = baseL; contentWrapperL = clamp(pageBgL + darkStep); cardL = clamp(contentWrapperL + darkStep);
         cardBorderL = clamp(cardL + darkStep * 0.7); exceptionBoxL = clamp(contentWrapperL - darkStep * 0.7);
         exceptionBoxBorderL = clamp(exceptionBoxL + exceptionBoxBorderContrastDark);
@@ -226,9 +230,9 @@ function generateAndApplyDynamicThemeColors(baseLightnessValue) {
     dynamicColors['--text-codeupload-hint'] = hslToHex(0, 0, textSecondaryL + (useLightModeHierarchy ? 5 : -5));
     dynamicColors['--text-progress-summary-label'] = hslToHex(0, 0, textSecondaryL + (useLightModeHierarchy ? -5 : 5));
     dynamicColors['--text-header-main'] = dynamicColors['--text-primary']; dynamicColors['--text-section-header'] = dynamicColors['--text-primary'];
-    
+
     const rootStyle = getComputedStyle(htmlElement || document.documentElement);
-    let currentAccentHex = rootStyle.getPropertyValue('--accent-blue').trim(); 
+    let currentAccentHex = rootStyle.getPropertyValue('--accent-blue').trim();
     const activeThemeObject = themes.find(t => t.name === activeThemeName);
     if (activeThemeObject && activeThemeObject.settings.isRainbow) {
         // Für Rainbow Theme, --card-test-border-selected wird durch CSS-Klasse gesetzt.
@@ -240,8 +244,8 @@ function generateAndApplyDynamicThemeColors(baseLightnessValue) {
 
     let selectedBgBaseL = useLightModeHierarchy ? clamp(cardL - 3) : clamp(cardL + 3);
     if (!(activeThemeObject && activeThemeObject.settings.isRainbow)) {
-      dynamicColors['--card-test-background-selected'] = hslToHex(accentHSL.h, accentHSL.s * selectionTintStrength, selectedBgBaseL);
-      dynamicColors['--card-test-border-selected'] = currentAccentHex;
+        dynamicColors['--card-test-background-selected'] = hslToHex(accentHSL.h, accentHSL.s * selectionTintStrength, selectedBgBaseL);
+        dynamicColors['--card-test-border-selected'] = currentAccentHex;
     }
     dynamicColors['--card-test-shadow-selected'] = 'none';
 
@@ -252,39 +256,39 @@ function generateAndApplyDynamicThemeColors(baseLightnessValue) {
     dynamicColors['--theme-toggle-background'] = hslToHex(0, 0, isDarkTextPreferred ? 90 : 20); dynamicColors['--theme-toggle-text'] = dynamicColors['--text-primary'];
     dynamicColors['--progressbar-background'] = hslToHex(0, 0, clamp(cardL + (useLightModeHierarchy ? lightStep : darkStep)));
 
-    const isCurrentlyLight = baseL >= textSwitchThreshold; 
+    const isCurrentlyLight = baseL >= textSwitchThreshold;
 
     const accentHue = accentHSL.h;
     const accentSaturation = accentHSL.s;
     if (!(activeThemeObject && activeThemeObject.settings.isRainbow)) { // Nur anwenden, wenn nicht Rainbow
-        dynamicColors['--results-item-passed-background'] = isCurrentlyLight ? 
-            hslToHex(accentHue, Math.min(accentSaturation, 50), 94) : 
+        dynamicColors['--results-item-passed-background'] = isCurrentlyLight ?
+            hslToHex(accentHue, Math.min(accentSaturation, 50), 94) :
             hslToHex(accentHue, Math.min(accentSaturation, 60), 20);
     } else { // Für Rainbow, einen festen, hellen Hintergrund für "passed"
-        dynamicColors['--results-item-passed-background'] = isCurrentlyLight ? 
+        dynamicColors['--results-item-passed-background'] = isCurrentlyLight ?
             hslToHex(120, 60, 94) : // Sehr helles Grün
             hslToHex(120, 60, 22);  // Dunkles Grün
     }
 
 
-    const failedHue = 0; 
+    const failedHue = 0;
     const failedSaturationLight = 70;
     const failedSaturationDark = 60;
     dynamicColors['--results-item-failed-background'] = isCurrentlyLight ?
-        hslToHex(failedHue, failedSaturationLight, 95) : 
-        hslToHex(failedHue, failedSaturationDark, 18);  
+        hslToHex(failedHue, failedSaturationLight, 95) :
+        hslToHex(failedHue, failedSaturationDark, 18);
 
-    const warningHue = 50; 
+    const warningHue = 50;
     const warningSaturationLight = 80;
     const warningSaturationDark = 70;
     dynamicColors['--results-item-warning-background'] = isCurrentlyLight ?
-        hslToHex(warningHue, warningSaturationLight, 95) : 
-        hslToHex(warningHue, warningSaturationDark, 22);  
+        hslToHex(warningHue, warningSaturationLight, 95) :
+        hslToHex(warningHue, warningSaturationDark, 22);
 
     const infoBaseLightness = isCurrentlyLight ? clamp(cardL + lightStep * 0.8) : clamp(cardL + darkStep * 0.5);
     dynamicColors['--results-item-info-background'] = hslToHex(0, 0, infoBaseLightness);
     dynamicColors['--results-item-running-background'] = hslToHex(0, 0, infoBaseLightness);
-    
+
     for (const [variable, value] of Object.entries(dynamicColors)) {
         (htmlElement || document.documentElement).style.setProperty(variable, value);
     }
@@ -299,7 +303,7 @@ function clearAllThemeClassesAndInlineStyles() {
 }
 function applyPredefinedTheme(themeName) {
     if (!htmlElement) htmlElement = document.documentElement;
-    clearAllThemeClassesAndInlineStyles(); 
+    clearAllThemeClassesAndInlineStyles();
 
     const theme = themes.find(t => t.name === themeName);
     if (theme && theme.type === "predefined") {
@@ -319,12 +323,12 @@ function applyPredefinedTheme(themeName) {
     }
     activeThemeName = themeName;
     localStorage.setItem('activeThemeName', activeThemeName);
-    localStorage.removeItem('activeCustomTheme'); 
+    localStorage.removeItem('activeCustomTheme');
     if (themeManagerModal && !themeManagerModal.classList.contains('hidden-alt')) renderThemeList();
 }
 function applyCustomTheme(themeObject, makeActive = true) {
     if (!htmlElement) htmlElement = document.documentElement;
-    clearAllThemeClassesAndInlineStyles(); 
+    clearAllThemeClassesAndInlineStyles();
 
     if (makeActive) {
         activeThemeName = themeObject.name;
@@ -333,7 +337,7 @@ function applyCustomTheme(themeObject, makeActive = true) {
         else themes.push(themeObject);
     }
 
-    let accentColorForTheme = '#3B82F6'; 
+    let accentColorForTheme = '#3B82F6';
     if (themeObject.colors) {
         if (themeObject.colors['--accent-blue']) {
             htmlElement.style.setProperty('--accent-blue', themeObject.colors['--accent-blue']);
@@ -371,7 +375,7 @@ function initializeTheme() {
         });
     } catch (e) {
         console.error("Could not parse custom themes from localStorage.", e);
-        localStorage.removeItem('customThemes'); 
+        localStorage.removeItem('customThemes');
     }
 
     let themeToApplyOnLoad = storedActiveThemeName ? themes.find(t => t.name === storedActiveThemeName) : null;
@@ -380,13 +384,13 @@ function initializeTheme() {
         try {
             const fullCustomTheme = JSON.parse(localStorage.getItem('activeCustomTheme'));
             if (fullCustomTheme && fullCustomTheme.name === storedActiveThemeName) {
-                themeToApplyOnLoad = fullCustomTheme; 
+                themeToApplyOnLoad = fullCustomTheme;
             } else {
                 console.warn("Full custom theme object mismatch or not found, attempting to use stored list version.");
             }
         } catch (e) {
             console.error("Could not parse active custom theme object.", e);
-            themeToApplyOnLoad = null; 
+            themeToApplyOnLoad = null;
         }
     }
 
@@ -402,19 +406,19 @@ function initializeTheme() {
     }
 }
 function openThemeManager() {
-    if (themeManagerModal && themeManagerHeaderButtonsContainer && themeManagerDialogTitle) { 
-        themeManagerHeaderButtonsContainer.innerHTML = ''; 
+    if (themeManagerModal && themeManagerHeaderButtonsContainer && themeManagerDialogTitle) {
+        themeManagerHeaderButtonsContainer.innerHTML = '';
         const closeBtn = document.createElement('button');
-        closeBtn.className = 'modal-header-button close-button'; 
+        closeBtn.className = 'modal-header-button close-button';
         closeBtn.innerHTML = SVG_CROSS;
         closeBtn.dataset.customTooltip = "Schließen";
-        closeBtn.addEventListener('click', handleModalCloseOrBack); 
+        closeBtn.addEventListener('click', handleModalCloseOrBack);
         themeManagerHeaderButtonsContainer.appendChild(closeBtn);
 
-        themeManagerDialogTitle.textContent = "Themes verwalten"; 
+        themeManagerDialogTitle.textContent = "Themes verwalten";
 
         renderThemeList();
-        showThemeListView(); 
+        showThemeListView();
         themeManagerModal.classList.remove('hidden-alt');
     } else console.error("themeManagerModal, themeManagerHeaderButtonsContainer oder themeManagerDialogTitle Element nicht gefunden.");
 }
@@ -432,15 +436,15 @@ function closeThemeManager() {
                     applyCustomTheme(activeThemeObj, true);
                 }
             }
-            else applyPredefinedTheme("Light"); 
-        } else applyPredefinedTheme("Light"); 
+            else applyPredefinedTheme("Light");
+        } else applyPredefinedTheme("Light");
     } else console.error("themeManagerModal element not found.");
 }
-function handleModalCloseOrBack() { 
+function handleModalCloseOrBack() {
     if (createThemeSectionView && !createThemeSectionView.classList.contains('hidden-alt')) {
-        showThemeListView(); 
+        showThemeListView();
     } else {
-        closeThemeManager(); 
+        closeThemeManager();
     }
 }
 function showCreateThemeView(themeToEdit = null) {
@@ -449,24 +453,24 @@ function showCreateThemeView(themeToEdit = null) {
     }
     themeListSectionView.classList.add('hidden-alt');
     createThemeSectionView.classList.remove('hidden-alt');
-    
+
     if (themeManagerDialogTitle) {
         themeManagerDialogTitle.textContent = themeToEdit ? "Theme bearbeiten" : "Neuen Theme erstellen";
     }
 
-    themeManagerHeaderButtonsContainer.innerHTML = ''; 
+    themeManagerHeaderButtonsContainer.innerHTML = '';
     const backButton = document.createElement('button');
-    backButton.className = 'modal-header-button close-button'; 
-    backButton.innerHTML = SVG_CROSS; 
+    backButton.className = 'modal-header-button close-button';
+    backButton.innerHTML = SVG_CROSS;
     backButton.dataset.customTooltip = "Zurück zur Theme-Auswahl";
-    backButton.addEventListener('click', showThemeListView); 
+    backButton.addEventListener('click', showThemeListView);
     themeManagerHeaderButtonsContainer.appendChild(backButton);
 
-    let initialBrightness = 50; 
-    let initialAccentColor = '#3B82F6'; 
-    let initialTintIntensity = 10; 
+    let initialBrightness = 50;
+    let initialAccentColor = '#3B82F6';
+    let initialTintIntensity = 10;
 
-    clearAllThemeClassesAndInlineStyles(); 
+    clearAllThemeClassesAndInlineStyles();
 
     const baseThemeForPicker = themeToEdit || themes.find(t => t.name === activeThemeName) || themes.find(t => t.name === "Light");
     if (baseThemeForPicker) {
@@ -482,16 +486,16 @@ function showCreateThemeView(themeToEdit = null) {
             }
         }
     }
-    const rootStyle = getComputedStyle(htmlElement || document.documentElement); 
+    const rootStyle = getComputedStyle(htmlElement || document.documentElement);
 
     if (themeToEdit) {
         themeNameInput.value = themeToEdit.name;
-        themeNameInput.disabled = (themeToEdit.type === "predefined"); 
+        themeNameInput.disabled = (themeToEdit.type === "predefined");
         initialBrightness = themeToEdit.settings?.brightness ?? 50;
 
         if (themeToEdit.type === "custom") {
             initialAccentColor = themeToEdit.colors?.['--accent-blue'] || initialAccentColor;
-            initialTintIntensity = themeToEdit.settings?.tintIntensity ?? 0; 
+            initialTintIntensity = themeToEdit.settings?.tintIntensity ?? 0;
         } else { // Predefined theme
             if (themeToEdit.settings.isRainbow) {
                 initialAccentColor = '#FF00FF'; // Fallback-Akzent für den Picker, da Rainbow nicht darstellbar
@@ -508,10 +512,10 @@ function showCreateThemeView(themeToEdit = null) {
         saveCustomThemeButton.dataset.editingThemeName = themeToEdit.name;
         if (deleteThemeInEditViewButton) {
             deleteThemeInEditViewButton.classList.toggle('hidden-alt', themeToEdit.type !== "custom");
-            if(themeToEdit.type === "custom") deleteThemeInEditViewButton.dataset.themeNameToDelete = themeToEdit.name;
+            if (themeToEdit.type === "custom") deleteThemeInEditViewButton.dataset.themeNameToDelete = themeToEdit.name;
             else delete deleteThemeInEditViewButton.dataset.themeNameToDelete;
         }
-    } else { 
+    } else {
         themeAccentColorPicker.disabled = false; // Sicherstellen, dass Picker bei "Neu" aktiv ist
         themeTintIntensitySlider.disabled = false;
         themeNameInput.value = "";
@@ -522,7 +526,7 @@ function showCreateThemeView(themeToEdit = null) {
             if (currentActiveThemeForNew.type === 'custom') {
                 initialAccentColor = currentActiveThemeForNew.colors?.['--accent-blue'] || initialAccentColor;
                 initialTintIntensity = currentActiveThemeForNew.settings?.tintIntensity ?? 0;
-            } else { 
+            } else {
                 if (currentActiveThemeForNew.settings.isRainbow) {
                     initialAccentColor = '#FF00FF'; // Fallback
                     initialTintIntensity = 0;
@@ -537,7 +541,7 @@ function showCreateThemeView(themeToEdit = null) {
         delete saveCustomThemeButton.dataset.editingThemeName;
         if (deleteThemeInEditViewButton) deleteThemeInEditViewButton.classList.add('hidden-alt');
     }
-    clearAllThemeClassesAndInlineStyles(); 
+    clearAllThemeClassesAndInlineStyles();
     // Wenn das Basisthema Rainbow ist, die Klasse wieder hinzufügen, damit der Editor-Hintergrund stimmt
     if (baseThemeForPicker && baseThemeForPicker.settings && baseThemeForPicker.settings.isRainbow) {
         htmlElement.classList.add('rainbow-theme');
@@ -549,47 +553,47 @@ function showCreateThemeView(themeToEdit = null) {
     themeAccentColorPicker.value = initialAccentColor;
     themeTintIntensitySlider.value = initialTintIntensity;
     themeTintIntensityValue.textContent = `${initialTintIntensity}%`;
-    themeTintIntensitySliderContainer.classList.remove('hidden-alt'); 
+    themeTintIntensitySliderContainer.classList.remove('hidden-alt');
 
-    _updateEditorThemePreview(); 
+    _updateEditorThemePreview();
 }
 function showThemeListView() {
-    if (themeListSectionView && createThemeSectionView && themeManagerHeaderButtonsContainer && themeManagerDialogTitle) { 
+    if (themeListSectionView && createThemeSectionView && themeManagerHeaderButtonsContainer && themeManagerDialogTitle) {
         createThemeSectionView.classList.add('hidden-alt');
         themeListSectionView.classList.remove('hidden-alt');
 
-        if(themeManagerDialogTitle) themeManagerDialogTitle.textContent = "Themes verwalten"; 
+        if (themeManagerDialogTitle) themeManagerDialogTitle.textContent = "Themes verwalten";
 
-        themeManagerHeaderButtonsContainer.innerHTML = ''; 
+        themeManagerHeaderButtonsContainer.innerHTML = '';
         const closeBtn = document.createElement('button');
         closeBtn.className = 'modal-header-button close-button';
         closeBtn.innerHTML = SVG_CROSS;
         closeBtn.dataset.customTooltip = "Schließen";
-        closeBtn.addEventListener('click', closeThemeManager); 
+        closeBtn.addEventListener('click', closeThemeManager);
         themeManagerHeaderButtonsContainer.appendChild(closeBtn);
 
         const activeThemeObj = themes.find(t => t.name === activeThemeName);
         if (activeThemeObj) {
             if (activeThemeObj.type === 'predefined') applyPredefinedTheme(activeThemeObj.name);
-            else { 
+            else {
                 const savedCustomTheme = JSON.parse(localStorage.getItem('activeCustomTheme'));
                 if (savedCustomTheme && savedCustomTheme.name === activeThemeObj.name) {
                     applyCustomTheme(savedCustomTheme, true);
                 } else {
-                    applyCustomTheme(activeThemeObj, true); 
+                    applyCustomTheme(activeThemeObj, true);
                 }
             }
-        } else applyPredefinedTheme("Light"); 
+        } else applyPredefinedTheme("Light");
 
     } else console.error("One or more elements for showThemeListView not found.");
 }
 function renderThemeList() {
     if (!themeManager_themeListItems) { console.error("Theme list container (#themeManager_themeListItems) not found."); return; }
-    themeManager_themeListItems.innerHTML = ''; 
-    themeManager_themeListItems.classList.add('theme-grid-container'); 
+    themeManager_themeListItems.innerHTML = '';
+    themeManager_themeListItems.classList.add('theme-grid-container');
 
     let displayThemes = themes.filter(t => t);
-    displayThemes.sort((a,b) => {
+    displayThemes.sort((a, b) => {
         if (a.type === 'predefined' && b.type !== 'predefined') return -1;
         if (a.type !== 'predefined' && b.type === 'predefined') return 1;
         return a.name.localeCompare(b.name);
@@ -600,10 +604,10 @@ function renderThemeList() {
         themeItemCard.className = 'theme-manager-list-item-card';
         if (theme.name === activeThemeName) themeItemCard.classList.add('active-theme');
         themeItemCard.addEventListener('click', () => {
-            if (theme.name === activeThemeName) return; 
+            if (theme.name === activeThemeName) return;
             if (theme.type === "predefined") applyPredefinedTheme(theme.name);
-            else applyCustomTheme(theme, true); 
-            renderThemeList(); 
+            else applyCustomTheme(theme, true);
+            renderThemeList();
         });
 
         const themeNameSpan = document.createElement('span');
@@ -611,7 +615,7 @@ function renderThemeList() {
         themeNameSpan.textContent = theme.name;
         themeItemCard.appendChild(themeNameSpan);
 
-        if (theme.type !== "predefined") { 
+        if (theme.type !== "predefined") {
             const controlsDiv = document.createElement('div');
             controlsDiv.className = 'theme-item-controls';
             const editButton = document.createElement('button');
@@ -628,9 +632,9 @@ function renderThemeList() {
     createThemeCard.className = 'theme-create-card';
     const createThemeNameSpan = document.createElement('span');
     createThemeNameSpan.className = 'theme-name-display';
-    createThemeNameSpan.textContent = "Theme erstellen"; 
+    createThemeNameSpan.textContent = "Theme erstellen";
     createThemeCard.appendChild(createThemeNameSpan);
-    createThemeCard.addEventListener('click', () => showCreateThemeView(null)); 
+    createThemeCard.addEventListener('click', () => showCreateThemeView(null));
     themeManager_themeListItems.appendChild(createThemeCard);
 
     if (displayThemes.length === 0 && !themeManager_themeListItems.querySelector('.theme-create-card')) {
@@ -638,7 +642,7 @@ function renderThemeList() {
     }
 }
 function handleBrightnessSliderChange() {
-    if(themeBrightnessValue && themeBrightnessSlider) {
+    if (themeBrightnessValue && themeBrightnessSlider) {
         themeBrightnessValue.textContent = `${Math.round(parseFloat(themeBrightnessSlider.value))}%`;
     }
     _updateEditorThemePreview();
@@ -670,13 +674,13 @@ function saveCustomTheme() {
         name: name, type: "custom",
         settings: {
             brightness: brightnessSetting,
-            isGreen: false, 
-            tintBackground: tintIntensityPercent > 0, 
+            isGreen: false,
+            tintBackground: tintIntensityPercent > 0,
             tintIntensity: tintIntensityPercent
         },
-        colors: {} 
+        colors: {}
     };
-    themeToSave.colors['--accent-blue'] = chosenAccentColor; 
+    themeToSave.colors['--accent-blue'] = chosenAccentColor;
     const chosenAccentHSL = hexToHSL(chosenAccentColor);
     themeToSave.colors['--accent-blue-hover'] = hslToHex(chosenAccentHSL.h, chosenAccentHSL.s, Math.max(0, chosenAccentHSL.l - 10));
     const textAccentL = chosenAccentHSL.l > 60 ? Math.max(0, chosenAccentHSL.l - 25) : Math.min(100, chosenAccentHSL.l + 35);
@@ -687,15 +691,15 @@ function saveCustomTheme() {
     }
 
     const existingThemeIndex = themes.findIndex(t => t.name === name);
-    if (existingThemeIndex !== -1) { 
+    if (existingThemeIndex !== -1) {
         themes[existingThemeIndex] = themeToSave;
-    } else { 
+    } else {
         themes.push(themeToSave);
     }
 
     localStorage.setItem('customThemes', JSON.stringify(themes.filter(t => t.type === 'custom')));
-    applyCustomTheme(themeToSave, true); 
-    showThemeListView(); 
+    applyCustomTheme(themeToSave, true);
+    showThemeListView();
     showModalMessage("Gespeichert", `Theme "${name}" wurde erfolgreich gespeichert und aktiviert.`, null, null, true, null);
 }
 function deleteCustomTheme(themeName) {
@@ -703,21 +707,21 @@ function deleteCustomTheme(themeName) {
     const themeToDelete = themes.find(t => t.name === themeName && t.type === 'custom');
     if (!themeToDelete) { console.warn(`Versuch, nicht-existierendes oder vordefiniertes Theme "${themeName}" zu löschen.`); return false; }
 
-    themes = themes.filter(t => t.name !== themeName); 
-    localStorage.setItem('customThemes', JSON.stringify(themes.filter(t => t.type === 'custom'))); 
+    themes = themes.filter(t => t.name !== themeName);
+    localStorage.setItem('customThemes', JSON.stringify(themes.filter(t => t.type === 'custom')));
     showModalMessage("Gelöscht", `Theme "${themeName}" wurde entfernt.`, null, null, true, null);
 
-    if (activeThemeName === themeName) { 
-        applyPredefinedTheme("Light"); 
+    if (activeThemeName === themeName) {
+        applyPredefinedTheme("Light");
     }
-    renderThemeList(); 
+    renderThemeList();
     return true;
 }
 function handleDeleteThemeFromEditView() {
     if (!deleteThemeInEditViewButton) { console.warn("deleteThemeInEditViewButton not found in DOM."); return; }
     const themeName = deleteThemeInEditViewButton.dataset.themeNameToDelete;
     if (themeName && deleteCustomTheme(themeName)) {
-        showThemeListView(); 
+        showThemeListView();
     } else {
         console.warn("Kein Theme zum Löschen im Edit-View ausgewählt oder Löschen fehlgeschlagen.");
     }
@@ -729,11 +733,11 @@ function showModalMessage(titleText, descriptionText, actionButtonElement = null
         currentCountdownIntervalId = null;
     }
     if (!messageBox || !messageBoxTitle || !messageBoxText || !messageBoxClose || !messageBoxContent || !modalHeaderButtonsContainer) {
-        alert(`${titleText}\n\n${descriptionText}`); 
+        alert(`${titleText}\n\n${descriptionText}`);
         return;
     }
 
-    modalHeaderButtonsContainer.innerHTML = ''; 
+    modalHeaderButtonsContainer.innerHTML = '';
 
     if (testIdForPinning) {
         const pinButton = document.createElement('button');
@@ -741,37 +745,37 @@ function showModalMessage(titleText, descriptionText, actionButtonElement = null
         pinButton.innerHTML = pinnedTestId === testIdForPinning ? SVG_PIN_MODERN_FILLED : SVG_PIN_MODERN_OUTLINE;
         pinButton.classList.toggle('active', pinnedTestId === testIdForPinning);
         pinButton.dataset.customTooltip = pinnedTestId === testIdForPinning ? "Gepinnten Test lösen" : "Diesen Test anpinnen";
-        
+
         pinButton.addEventListener('click', () => {
-            const currentlyDisplayedModalTestId = testIdForPinning; 
+            const currentlyDisplayedModalTestId = testIdForPinning;
             let newPinnedTestId = null;
 
-            if (pinnedTestId === currentlyDisplayedModalTestId) { 
+            if (pinnedTestId === currentlyDisplayedModalTestId) {
                 localStorage.removeItem('pinnedTestId');
                 newPinnedTestId = null;
                 pinButton.innerHTML = SVG_PIN_MODERN_OUTLINE;
                 pinButton.classList.remove('active');
                 pinButton.dataset.customTooltip = "Diesen Test anpinnen";
-            } else { 
+            } else {
                 localStorage.setItem('pinnedTestId', currentlyDisplayedModalTestId);
                 newPinnedTestId = currentlyDisplayedModalTestId;
                 pinButton.innerHTML = SVG_PIN_MODERN_FILLED;
                 pinButton.classList.add('active');
                 pinButton.dataset.customTooltip = "Gepinnten Test lösen";
             }
-            pinnedTestId = newPinnedTestId; 
+            pinnedTestId = newPinnedTestId;
 
             if (pinnedTestId && latestFetchedUpdateInfo && latestFetchedUpdateInfo.tests) {
                 const testToDisplay = latestFetchedUpdateInfo.tests.find(t => t.id === pinnedTestId);
                 updateTaskBox(testToDisplay, true);
             } else {
-                updateTaskBox(null, false); 
+                updateTaskBox(null, false);
             }
         });
         modalHeaderButtonsContainer.appendChild(pinButton);
     }
-    
-    const closeButtonElement = document.createElement('button'); 
+
+    const closeButtonElement = document.createElement('button');
     closeButtonElement.className = 'modal-header-button close-button';
     closeButtonElement.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
     closeButtonElement.dataset.customTooltip = "Schließen";
@@ -783,20 +787,20 @@ function showModalMessage(titleText, descriptionText, actionButtonElement = null
     const existingFlagsContainer = messageBoxContent.querySelector('.modal-flags-container');
     if (existingFlagsContainer) existingFlagsContainer.remove();
 
-    messageBoxTitle.innerHTML = `<span id="messageBoxMainTitlePart">${titleText}</span>`; 
-    
+    messageBoxTitle.innerHTML = `<span id="messageBoxMainTitlePart">${titleText}</span>`;
+
     if (flagsAndPillContainer && messageBoxTitle.nextSibling) {
         messageBoxContent.insertBefore(flagsAndPillContainer, messageBoxTitle.nextSibling);
-    } else if (flagsAndPillContainer) { 
+    } else if (flagsAndPillContainer) {
         messageBoxContent.insertBefore(flagsAndPillContainer, messageBoxText);
     }
-    
-    messageBoxText.innerHTML = `<div class="modal-description-text">${descriptionText}</div>`; 
+
+    messageBoxText.innerHTML = `<div class="modal-description-text">${descriptionText}</div>`;
 
     if (actionButtonElement && messageBoxClose) {
         messageBoxContent.insertBefore(actionButtonElement, messageBoxClose);
     }
-    
+
     if (messageBoxClose) {
         messageBoxClose.style.display = showOkButton ? 'block' : 'none';
     }
@@ -837,16 +841,16 @@ function startCountdownTimer(targetDateString, countdownElementId, isMainDisplay
 
     if (!countdownSpan || isNaN(targetDate.getTime())) {
         console.error("Ungültiges Zieldatum oder Countdown-Element nicht gefunden.", targetDateString, countdownElementId);
-        if(countdownSpan) countdownSpan.textContent = "Fehler";
+        if (countdownSpan) countdownSpan.textContent = "Fehler";
         return;
     }
-    
+
     let intervalIdToClear = isMainDisplay ? currentTaskBoxCountdownIntervalId : currentCountdownIntervalId;
     if (intervalIdToClear) {
         clearInterval(intervalIdToClear);
     }
-    
-    countdownSpan.dataset.customTooltip = formatFullDateTime(targetDate); 
+
+    countdownSpan.dataset.customTooltip = formatFullDateTime(targetDate);
 
     function updateTimer() {
         const timeLeft = targetDate.getTime() - new Date().getTime();
@@ -858,7 +862,7 @@ function startCountdownTimer(targetDateString, countdownElementId, isMainDisplay
             else currentCountdownIntervalId = null;
         }
     }
-    updateTimer(); 
+    updateTimer();
     if (isMainDisplay) {
         currentTaskBoxCountdownIntervalId = setInterval(updateTimer, 1000);
     } else {
@@ -873,30 +877,30 @@ function parseDescriptionMarkup(text) {
 
     for (let i = 0; i < parts.length; i++) {
         let segment = parts[i];
-        if (i % 2 === 1) { 
+        if (i % 2 === 1) {
             let language = '';
             const firstNewlineIndex = segment.indexOf('\n');
-            
+
             if (firstNewlineIndex !== -1) {
                 const potentialLang = segment.substring(0, firstNewlineIndex).trim();
                 if (/^[a-z0-9_-]+$/i.test(potentialLang) && potentialLang.length > 0 && potentialLang.length < 20) {
                     language = potentialLang.toLowerCase();
-                    segment = segment.substring(firstNewlineIndex + 1); 
+                    segment = segment.substring(firstNewlineIndex + 1);
                 }
             }
-            
+
             const escapedCode = segment
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;');
-            
+
             htmlResult += `<pre><code${language ? ` class="language-${language}"` : ''}>${escapedCode.trim()}</code></pre>`;
-        } else { 
+        } else {
             let escapedSegment = segment
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;');
-            
+
             escapedSegment = escapedSegment.replace(/\*\*([^*]+?)\*\*/g, '<strong>$1</strong>');
             escapedSegment = escapedSegment.replace(/\n/g, '<br>');
             htmlResult += escapedSegment;
@@ -907,7 +911,7 @@ function parseDescriptionMarkup(text) {
 
 function renderTestCards(testsToRender) {
     if (!testListContainer) { console.error("testListContainer not found."); return; }
-    testListContainer.innerHTML = ''; 
+    testListContainer.innerHTML = '';
     if (!testsToRender || testsToRender.length === 0) {
         testListContainer.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">Keine Tests verfügbar oder konnten nicht geladen werden.</p>';
         return;
@@ -915,43 +919,43 @@ function renderTestCards(testsToRender) {
     testsToRender.forEach(test => {
         const card = document.createElement('div'); card.className = 'test-card';
         card.dataset.testId = test.id;
-        
+
         const titleElem = document.createElement('h3');
         titleElem.textContent = test.title;
         card.appendChild(titleElem);
-        
+
         const infoButton = document.createElement('button');
         infoButton.className = 'test-card-info-button';
-        infoButton.innerHTML = SVG_INFO; 
+        infoButton.innerHTML = SVG_INFO;
         infoButton.setAttribute('aria-label', `Informationen zu ${test.title}`);
         infoButton.dataset.customTooltip = `Details zu "${test.title}" anzeigen`;
         infoButton.addEventListener('click', (event) => {
-            event.stopPropagation(); 
-            
+            event.stopPropagation();
+
             const modalTitle = test.title || "Testinformationen";
             const parsedDescription = parseDescriptionMarkup(test.description || "Keine Beschreibung verfügbar.");
-            
+
             let flagsAndPillContainer = document.createElement('div');
             flagsAndPillContainer.className = 'modal-flags-container';
             let hasContentForFlagsContainer = false;
 
             if (test.dueDate) {
-                const modalCountdownId = `testInfoModalCountdown_${test.id}`; 
+                const modalCountdownId = `testInfoModalCountdown_${test.id}`;
                 const countdownPillElement = document.createElement('span');
                 countdownPillElement.id = modalCountdownId;
-                countdownPillElement.className = "countdown-pill modal-header-countdown-pill modal-flag-item"; 
-                countdownPillElement.textContent = "Lädt..."; 
+                countdownPillElement.className = "countdown-pill modal-header-countdown-pill modal-flag-item";
+                countdownPillElement.textContent = "Lädt...";
                 flagsAndPillContainer.appendChild(countdownPillElement);
                 hasContentForFlagsContainer = true;
             }
-            
+
             if (test.flags && Array.isArray(test.flags) && test.flags.length > 0) {
                 test.flags.forEach((flag) => {
-                    if (flag.details && flag.title) { 
+                    if (flag.details && flag.title) {
                         const flagElement = document.createElement('span');
                         flagElement.className = 'modal-flag-item';
                         flagElement.textContent = flag.title;
-                        flagElement.dataset.customTooltip = flag.details; 
+                        flagElement.dataset.customTooltip = flag.details;
                         flagsAndPillContainer.appendChild(flagElement);
                         hasContentForFlagsContainer = true;
                     }
@@ -980,10 +984,10 @@ function renderTestCards(testsToRender) {
                 });
             }
 
-            showModalMessage(modalTitle, parsedDescription, submissionButtonForModal, finalFlagsAndPillContainer, false, test.id); 
-            
+            showModalMessage(modalTitle, parsedDescription, submissionButtonForModal, finalFlagsAndPillContainer, false, test.id);
+
             if (test.dueDate && flagsAndPillContainer.querySelector(`#testInfoModalCountdown_${test.id}`)) {
-                startCountdownTimer(test.dueDate, `testInfoModalCountdown_${test.id}`, false); 
+                startCountdownTimer(test.dueDate, `testInfoModalCountdown_${test.id}`, false);
             }
         });
         card.appendChild(infoButton);
@@ -1002,7 +1006,7 @@ function handleTestSelection(testFullConfig, selectedCardElement) {
     if (noTestSelectedError) noTestSelectedError.classList.add('hidden-alt');
     if (codeUploadSection) codeUploadSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     if (fileSelectionInfo) fileSelectionInfo.textContent = '';
-    selectedFiles = null; if (fileUploadInput) fileUploadInput.value = ''; 
+    selectedFiles = null; if (fileUploadInput) fileUploadInput.value = '';
     updateRunTestButtonState();
 }
 
@@ -1031,7 +1035,7 @@ function showResultsPageUI() {
     if (mainContentWrapper) mainContentWrapper.classList.add('hidden-alt');
     if (resultsPageWrapper) {
         resultsPageWrapper.classList.remove('hidden-alt'); resultsPageWrapper.style.opacity = "0";
-        setTimeout(() => { if (resultsPageWrapper) resultsPageWrapper.style.opacity = "1"; }, 50); 
+        setTimeout(() => { if (resultsPageWrapper) resultsPageWrapper.style.opacity = "1"; }, 50);
     }
 }
 
@@ -1039,9 +1043,9 @@ function showHomePageUI() {
     if (resultsPageWrapper) resultsPageWrapper.classList.add('hidden-alt');
     if (mainContentWrapper) {
         mainContentWrapper.classList.remove('hidden-alt'); mainContentWrapper.style.opacity = "0";
-        setTimeout(() => { if (mainContentWrapper) mainContentWrapper.style.opacity = "1"; }, 50); 
+        setTimeout(() => { if (mainContentWrapper) mainContentWrapper.style.opacity = "1"; }, 50);
     }
-    selectedTestConfig = null; 
+    selectedTestConfig = null;
     if (testListContainer) document.querySelectorAll('.test-card.selected').forEach(card => card.classList.remove('selected'));
     if (codeUploadSection) codeUploadSection.classList.add('hidden-alt');
     if (selectedTestNameElem) selectedTestNameElem.textContent = '';
@@ -1057,41 +1061,41 @@ function showHomePageUI() {
 }
 
 function resetResultsStats() {
-    totalTestsInPlan = 0; 
+    totalTestsInPlan = 0;
     passedTests = 0;
     failedTests = 0;
     warningTests = 0;
     currentSuiteElement = null;
     currentSubtestElement = null;
-    if (testSuitesContainer) testSuitesContainer.innerHTML = ''; 
-    updateSummaryDisplay(); 
+    if (testSuitesContainer) testSuitesContainer.innerHTML = '';
+    updateSummaryDisplay();
     if (progressBar) progressBar.style.width = `0%`;
     if (progressPercentage) progressPercentage.textContent = `0%`;
 }
 
 function updateSummaryDisplay() {
-    if (totalTestsCountElem) totalTestsCountElem.textContent = totalTestsInPlan; 
+    if (totalTestsCountElem) totalTestsCountElem.textContent = totalTestsInPlan;
     if (passedTestsCountElem) passedTestsCountElem.textContent = passedTests;
     if (failedTestsCountElem) failedTestsCountElem.textContent = failedTests;
     if (warningTestsCountElem) warningTestsCountElem.textContent = warningTests;
 
     const executedTestsWithOutcome = passedTests + failedTests + warningTests;
     let overallProgress = 0;
-    if (totalTestsInPlan > 0) { 
+    if (totalTestsInPlan > 0) {
         overallProgress = (executedTestsWithOutcome / totalTestsInPlan) * 100;
-    } else if (executedTestsWithOutcome > 0) { 
+    } else if (executedTestsWithOutcome > 0) {
         overallProgress = 100;
     }
-    
+
     if (progressBar) progressBar.style.width = `${overallProgress}%`;
     if (progressPercentage) progressPercentage.textContent = `${Math.round(overallProgress)}%`;
 }
 
-function createResultItem(message, status) { 
+function createResultItem(message, status) {
     const resultItem = document.createElement('div');
-    resultItem.className = `result-item ${status}`; 
+    resultItem.className = `result-item ${status}`;
     let iconHtml = '';
-    switch (status) { 
+    switch (status) {
         case 'passed': iconHtml = SVG_CHECK; break;
         case 'failed': iconHtml = SVG_CROSS; break;
         case 'warning': iconHtml = SVG_WARNING; break;
@@ -1111,19 +1115,19 @@ function addSuite(suiteName) {
     title.textContent = suiteName;
     suiteCard.appendChild(title);
     const subtestsContainer = document.createElement('div');
-    subtestsContainer.className = 'subtests-area'; 
+    subtestsContainer.className = 'subtests-area';
     suiteCard.appendChild(subtestsContainer);
     testSuitesContainer.appendChild(suiteCard);
     currentSuiteElement = suiteCard;
-    currentSubtestElement = null; 
+    currentSubtestElement = null;
     return suiteCard;
 }
 
 function addSubtest(subtestName) {
     if (!currentSuiteElement) {
         console.warn("Keine aktive Suite, um Subtest hinzuzufügen. Erstelle Fallback-Suite.");
-        addSuite("Unkategorisierte Tests"); 
-        if (!currentSuiteElement) { 
+        addSuite("Unkategorisierte Tests");
+        if (!currentSuiteElement) {
             console.error("Konnte auch keine Fallback-Suite erstellen."); return null;
         }
     }
@@ -1132,27 +1136,27 @@ function addSubtest(subtestName) {
     const title = document.createElement('h3');
     title.textContent = subtestName;
     subtestDiv.appendChild(title);
-    const resultsContainer = document.createElement('div'); 
+    const resultsContainer = document.createElement('div');
     resultsContainer.className = 'result-items-container';
     subtestDiv.appendChild(resultsContainer);
 
     const subtestsArea = currentSuiteElement.querySelector('.subtests-area');
     if (subtestsArea) {
         subtestsArea.appendChild(subtestDiv);
-    } else { 
+    } else {
         currentSuiteElement.appendChild(subtestDiv);
     }
     currentSubtestElement = subtestDiv;
     return subtestDiv;
 }
 
-function logResult(message, status = 'info') { 
+function logResult(message, status = 'info') {
     let targetContainer;
     if (currentSubtestElement) {
         targetContainer = currentSubtestElement.querySelector('.result-items-container');
-    } else if (currentSuiteElement) { 
-        targetContainer = currentSuiteElement.querySelector('.subtests-area'); 
-    } else { 
+    } else if (currentSuiteElement) {
+        targetContainer = currentSuiteElement.querySelector('.subtests-area');
+    } else {
         addSuite("Allgemeine Protokolle");
         if (currentSuiteElement) {
             targetContainer = currentSuiteElement.querySelector('.subtests-area');
@@ -1162,28 +1166,28 @@ function logResult(message, status = 'info') {
         }
     }
 
-    if (!targetContainer) { 
+    if (!targetContainer) {
         console.error("Zielcontainer für Ergebnisse nicht gefunden in logResult.");
         return;
     }
-    targetContainer.appendChild(createResultItem(message, status)); 
+    targetContainer.appendChild(createResultItem(message, status));
 
     if (status === 'passed') passedTests++;
     else if (status === 'failed') failedTests++;
     else if (status === 'warning') warningTests++;
-    
+
     updateSummaryDisplay();
 }
 
 function handleJavaTestEvent(eventData) {
     console.log("Java Test Event empfangen:", eventData);
-    
-    let statusToLog = 'info'; 
+
+    let statusToLog = 'info';
 
     if (eventData.event === 'assert') {
-        statusToLog = eventData.status ? eventData.status.toLowerCase() : 'failed'; 
-         if (statusToLog === 'pass') statusToLog = 'passed'; 
-         else if (statusToLog === 'fail') statusToLog = 'failed'; 
+        statusToLog = eventData.status ? eventData.status.toLowerCase() : 'failed';
+        if (statusToLog === 'pass') statusToLog = 'passed';
+        else if (statusToLog === 'fail') statusToLog = 'failed';
 
         if (statusToLog === 'passed' || statusToLog === 'failed' || statusToLog === 'warning') {
             totalTestsInPlan++;
@@ -1192,7 +1196,7 @@ function handleJavaTestEvent(eventData) {
         const levelFromEvent = eventData.level ? eventData.level.toLowerCase() : 'info';
         if (levelFromEvent === 'error') statusToLog = 'failed';
         else if (levelFromEvent === 'warn') statusToLog = 'warning';
-        else statusToLog = 'info'; 
+        else statusToLog = 'info';
     }
 
     switch (eventData.event) {
@@ -1205,7 +1209,7 @@ function handleJavaTestEvent(eventData) {
         case 'suite_start':
             addSuite(eventData.name);
             break;
-        case 'subtest_start': 
+        case 'subtest_start':
             addSubtest(eventData.name);
             break;
         case 'assert':
@@ -1220,18 +1224,18 @@ function handleJavaTestEvent(eventData) {
                     if (progressBar) progressBar.style.width = `100%`;
                     progressPercentage.textContent = `100% (${eventData.duration} ms)`;
                 } else if (totalTestsInPlan === 0 && (passedTests + failedTests + warningTests > 0)) {
-                    totalTestsInPlan = passedTests + failedTests + warningTests; 
+                    totalTestsInPlan = passedTests + failedTests + warningTests;
                     if (progressBar) progressBar.style.width = `100%`;
                     progressPercentage.textContent = `100% (${eventData.duration} ms)`;
                     console.warn("run_finish: totalTestsInPlan war 0, wurde aber basierend auf Ergebnissen korrigiert.");
                 } else if (totalTestsInPlan === 0) {
                     if (progressBar) progressBar.style.width = `0%`;
                     progressPercentage.textContent = `Abgeschlossen (${eventData.duration} ms)`;
-                } else { 
+                } else {
                     progressPercentage.textContent = `Abgeschlossen (${eventData.duration} ms)`;
                 }
             }
-            updateSummaryDisplay(); 
+            updateSummaryDisplay();
 
             const summaryMessage = `Testlauf für "${selectedTestConfig.title}" beendet.<br>
                                     Ergebnis: ${passedTests} Bestanden, ${failedTests} Fehlgeschlagen, ${warningTests} Warnungen.
@@ -1254,7 +1258,7 @@ async function startActualTestRun() {
         return;
     }
 
-    resetResultsStats(); 
+    resetResultsStats();
     if (runningTestNameElem) runningTestNameElem.textContent = selectedTestConfig.title;
     showResultsPageUI();
 
@@ -1290,7 +1294,7 @@ async function startActualTestRun() {
         // aber für die Identifizierung der auszuführenden Klasse wird userCodeEntryClassFQN verwendet.
         window.electronAPI.send('run-java-test', {
             userFiles: userFileContents,
-            testConfig: { 
+            testConfig: {
                 testLogicFileUrl: selectedTestConfig.filePath,
                 mainTestClassName: selectedTestConfig.mainTestClassName,
                 userCodeEntryClassFQN: selectedTestConfig.userCodeEntryClassFQN, // Dies ist der einfache Klassenname
@@ -1300,11 +1304,11 @@ async function startActualTestRun() {
 
     } catch (error) {
         console.error("Fehler beim Vorbereiten der Dateien für den Testlauf:", error);
-        logResult(`Fehler beim Lesen der hochgeladenen Dateien: ${error.message}`, 'failed'); 
-        
+        logResult(`Fehler beim Lesen der hochgeladenen Dateien: ${error.message}`, 'failed');
+
         if (totalTestsInPlan === 0 && failedTests === 1 && passedTests === 0 && warningTests === 0) {
-            totalTestsInPlan = 1; 
-            updateSummaryDisplay(); 
+            totalTestsInPlan = 1;
+            updateSummaryDisplay();
         }
         handleJavaTestEvent({ event: 'run_finish', duration: "Vorbereitungsfehler" });
     }
@@ -1315,20 +1319,20 @@ function updateTaskBox(testInfo, makeVisible = true) {
 
     if (testInfo && makeVisible) {
         taskBoxTitle.textContent = testInfo.title;
-        taskBox.classList.remove('hidden-alt'); 
+        taskBox.classList.remove('hidden-alt');
 
         if (currentTaskBoxCountdownIntervalId) {
             clearInterval(currentTaskBoxCountdownIntervalId);
             currentTaskBoxCountdownIntervalId = null;
         }
         if (testInfo.dueDate) {
-            taskBoxSubtitle.style.display = 'block'; 
+            taskBoxSubtitle.style.display = 'block';
             startCountdownTimer(testInfo.dueDate, 'taskBoxSubtitle', true);
         } else {
             taskBoxSubtitle.textContent = "Kein Fälligkeitsdatum";
-            taskBoxSubtitle.removeAttribute('data-custom-tooltip'); 
+            taskBoxSubtitle.removeAttribute('data-custom-tooltip');
         }
-    } else { 
+    } else {
         taskBoxTitle.textContent = "Keine Aufgabe geladen";
         taskBoxSubtitle.textContent = "--:--";
         taskBox.classList.add('hidden-alt');
@@ -1339,15 +1343,15 @@ function updateTaskBox(testInfo, makeVisible = true) {
     }
 }
 
-async function handleUpdateCheck() { 
-    if (taskBox) taskBox.style.pointerEvents = 'none'; 
+async function handleUpdateCheck() {
+    if (taskBox) taskBox.style.pointerEvents = 'none';
 
     if (taskBoxTitle) taskBoxTitle.textContent = "Lade Aufgabeninfo...";
-    if (taskBoxSubtitle) taskBoxSubtitle.textContent = ""; 
+    if (taskBoxSubtitle) taskBoxSubtitle.textContent = "";
     if (testListContainer) testListContainer.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">Lade verfügbare Tests...</p>';
 
     try {
-        const response = await fetch(UPDATE_INFO_URL, { cache: 'no-store' }); 
+        const response = await fetch(UPDATE_INFO_URL, { cache: 'no-store' });
         if (!response.ok) {
             throw new Error(`Fehler beim Laden der Manifest-Datei: ${response.status} ${response.statusText}`);
         }
@@ -1357,13 +1361,13 @@ async function handleUpdateCheck() {
         if (latestFetchedUpdateInfo && Array.isArray(latestFetchedUpdateInfo.tests)) {
             renderTestCards(latestFetchedUpdateInfo.tests);
         } else {
-            renderTestCards([]); 
+            renderTestCards([]);
             console.warn("Kein 'tests'-Array in den abgerufenen Manifest-Daten gefunden oder Daten sind ungültig.");
         }
 
         let testToDisplayInitially = null;
         if (latestFetchedUpdateInfo && latestFetchedUpdateInfo.tests && latestFetchedUpdateInfo.tests.length > 0) {
-            if (pinnedTestId) { 
+            if (pinnedTestId) {
                 testToDisplayInitially = latestFetchedUpdateInfo.tests.find(t => t.id === pinnedTestId);
             }
             if (!testToDisplayInitially && pinnedTestId) {
@@ -1374,9 +1378,9 @@ async function handleUpdateCheck() {
         }
 
         if (testToDisplayInitially) {
-            updateTaskBox(testToDisplayInitially, true); 
+            updateTaskBox(testToDisplayInitially, true);
         } else {
-            updateTaskBox(null, false); 
+            updateTaskBox(null, false);
         }
 
         if (taskBox) {
@@ -1384,7 +1388,7 @@ async function handleUpdateCheck() {
             if (taskBox.parentNode) {
                 taskBox.parentNode.replaceChild(newDisplay, taskBox);
             }
-            
+
             taskBox = newDisplay;
             taskBoxTitle = taskBox.querySelector('#taskBoxTitle');
             taskBoxSubtitle = taskBox.querySelector('#taskBoxSubtitle');
@@ -1395,8 +1399,8 @@ async function handleUpdateCheck() {
                     if (firstTest) {
                         const modalTitleText = firstTest.title || "Aufgabeninformation";
                         const parsedDescription = parseDescriptionMarkup(firstTest.description || "Keine Beschreibung verfügbar.");
-                        showModalMessage(modalTitleText, parsedDescription, null, null, false, firstTest.id); 
-                    } else { 
+                        showModalMessage(modalTitleText, parsedDescription, null, null, false, firstTest.id);
+                    } else {
                         showModalMessage("Information", "Keine Tests verfügbar.", null, null, true, null);
                     }
                     return;
@@ -1410,7 +1414,7 @@ async function handleUpdateCheck() {
 
                 const modalTitleText = currentPinnedTest.title || "Aufgabeninformation";
                 const parsedDescription = parseDescriptionMarkup(currentPinnedTest.description || "Keine Beschreibung verfügbar.");
-                
+
                 let flagsAndPillContainerForModal = document.createElement('div');
                 flagsAndPillContainerForModal.className = 'modal-flags-container';
                 let hasContentForFlagsContainer = false;
@@ -1424,7 +1428,7 @@ async function handleUpdateCheck() {
                     flagsAndPillContainerForModal.appendChild(countdownPillElement);
                     hasContentForFlagsContainer = true;
                 }
-                
+
                 if (currentPinnedTest.flags && Array.isArray(currentPinnedTest.flags) && currentPinnedTest.flags.length > 0) {
                     currentPinnedTest.flags.forEach((flag) => {
                         if (flag.details && flag.title) {
@@ -1437,7 +1441,7 @@ async function handleUpdateCheck() {
                         }
                     });
                 }
-                
+
                 const finalFlagsAndPillContainer = hasContentForFlagsContainer ? flagsAndPillContainerForModal : null;
 
                 let submissionButton = null;
@@ -1460,8 +1464,8 @@ async function handleUpdateCheck() {
                         }
                     });
                 }
-                showModalMessage(modalTitleText, parsedDescription, submissionButton, finalFlagsAndPillContainer, false, currentPinnedTest.id); 
-                
+                showModalMessage(modalTitleText, parsedDescription, submissionButton, finalFlagsAndPillContainer, false, currentPinnedTest.id);
+
                 if (currentPinnedTest.dueDate && finalFlagsAndPillContainer && finalFlagsAndPillContainer.querySelector(`#defaultTaskModalCountdown_${currentPinnedTest.id}`)) {
                     startCountdownTimer(currentPinnedTest.dueDate, `defaultTaskModalCountdown_${currentPinnedTest.id}`, false);
                 }
@@ -1474,9 +1478,9 @@ async function handleUpdateCheck() {
         if (err.message.includes("Failed to fetch") || err.message.includes("Netzwerkfehler")) userMessage += " Bitte Internetverbindung prüfen.";
         else if (err instanceof SyntaxError) userMessage += " Ungültiges Datenformat (JSON) vom Server.";
         else userMessage += ` Details: ${err.message.substring(0, 100)}`;
-        
-        updateTaskBox(null, false); 
-        renderTestCards([]); 
+
+        updateTaskBox(null, false);
+        renderTestCards([]);
         if (taskBox) {
             taskBox.addEventListener('click', () => {
                 showModalMessage("Fehler", userMessage, null, null, true, null);
@@ -1484,21 +1488,21 @@ async function handleUpdateCheck() {
         }
 
     } finally {
-        if (taskBox) taskBox.style.pointerEvents = 'auto'; 
+        if (taskBox) taskBox.style.pointerEvents = 'auto';
     }
 }
 
 function positionCustomTooltip(event) {
     if (!customTooltipElement || !customTooltipElement.classList.contains('visible')) return;
-    const offsetX = 15, offsetY = 10; 
+    const offsetX = 15, offsetY = 10;
     let x = event.pageX + offsetX, y = event.pageY + offsetY;
     const tooltipRect = customTooltipElement.getBoundingClientRect();
     const viewportWidth = window.innerWidth, viewportHeight = window.innerHeight;
 
-    if (x + tooltipRect.width > viewportWidth - 10) x = event.pageX - tooltipRect.width - offsetX; 
-    if (y + tooltipRect.height > viewportHeight - 10) y = event.pageY - tooltipRect.height - offsetY; 
-    if (x < 10) x = 10; 
-    if (y < 10) y = 10; 
+    if (x + tooltipRect.width > viewportWidth - 10) x = event.pageX - tooltipRect.width - offsetX;
+    if (y + tooltipRect.height > viewportHeight - 10) y = event.pageY - tooltipRect.height - offsetY;
+    if (x < 10) x = 10;
+    if (y < 10) y = 10;
 
     customTooltipElement.style.left = `${x}px`;
     customTooltipElement.style.top = `${y}px`;
@@ -1531,7 +1535,7 @@ document.addEventListener('DOMContentLoaded', () => {
     messageBoxContent = document.getElementById('messageBoxContent');
     modalHeaderButtonsContainer = document.getElementById('modalHeaderButtonsContainer');
     themeManagerHeaderButtonsContainer = document.getElementById('themeManagerHeaderButtonsContainer');
-    messageBoxText = document.getElementById('messageBoxText'); 
+    messageBoxText = document.getElementById('messageBoxText');
     messageBoxClose = document.getElementById('messageBoxClose');
     customTooltipElement = document.getElementById('customTooltip');
     taskBox = document.getElementById('taskBox');
@@ -1542,7 +1546,7 @@ document.addEventListener('DOMContentLoaded', () => {
     versionBoxSubtitle = document.getElementById('versionBoxSubtitle');
     openThemeManagerButton = document.getElementById('openThemeManagerButton');
     themeManagerModal = document.getElementById('themeManagerModal');
-    themeManagerDialogTitle = document.getElementById('themeManagerDialogTitle'); 
+    themeManagerDialogTitle = document.getElementById('themeManagerDialogTitle');
     themeListSectionView = document.getElementById('themeListSection');
     createThemeSectionView = document.getElementById('createThemeSection');
     // createThemeTitle = document.getElementById('createThemeTitle'); // Removed
@@ -1559,7 +1563,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const minimizeButton = document.getElementById('customMinimizeBtn');
     const maximizeButton = document.getElementById('customMaximizeBtn');
-    const closeButton = document.getElementById('customCloseBtn'); 
+    const closeButton = document.getElementById('customCloseBtn');
 
     if (minimizeButton && window.electronAPI && typeof window.electronAPI.minimizeWindow === 'function') {
         minimizeButton.addEventListener('click', () => {
@@ -1581,12 +1585,15 @@ document.addEventListener('DOMContentLoaded', () => {
         closeButton.addEventListener('click', () => {
             window.electronAPI.closeWindow();
         });
-    } else if (!closeButton) { 
+    } else if (!closeButton) {
         console.warn("Schließen-Button (Fenstersteuerung) nicht gefunden.");
     }
-    if (!window.electronAPI || typeof window.electronAPI.minimizeWindow !== 'function') { 
+    if (!window.electronAPI || typeof window.electronAPI.minimizeWindow !== 'function') {
         console.error("Fenstersteuerungs-API (electronAPI) ist nicht vollständig verfügbar. Preload-Skript überprüfen.");
     }
+
+    const modalAPI = initializeModalSystem();
+    showModal = modalAPI.showModal;
 
     if (customTooltipElement) {
         document.body.addEventListener('mouseover', (event) => {
@@ -1594,9 +1601,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (targetWithTooltip) {
                 const tooltipText = targetWithTooltip.dataset.customTooltip;
                 if (tooltipText) {
-                    customTooltipElement.innerHTML = tooltipText.replace(/\n/g, '<br>'); 
+                    customTooltipElement.innerHTML = tooltipText.replace(/\n/g, '<br>');
                     customTooltipElement.classList.add('visible');
-                    positionCustomTooltip(event); 
+                    positionCustomTooltip(event);
                 }
             }
         });
@@ -1610,7 +1617,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         document.body.addEventListener('mousemove', (event) => {
             if (customTooltipElement.classList.contains('visible')) {
-                positionCustomTooltip(event); 
+                positionCustomTooltip(event);
             }
         });
     }
@@ -1624,12 +1631,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (themeTintIntensitySlider) themeTintIntensitySlider.addEventListener('input', handleTintIntensityChange);
     if (deleteThemeInEditViewButton) deleteThemeInEditViewButton.addEventListener('click', handleDeleteThemeFromEditView);
     if (runTestButton) runTestButton.addEventListener('click', startActualTestRun);
-    
-    initializeTheme(); 
-    handleUpdateCheck(); 
-    setupFileUploadListener(); 
+
+    initializeTheme();
+    handleUpdateCheck();
+    setupFileUploadListener();
     updateRunTestButtonState();
-    initializeUpdateRenderer();
+    initializeUpdateRenderer({ showModal: showModal });
 
     console.log("Renderer.js: Initial setup in DOMContentLoaded finished.");
 });

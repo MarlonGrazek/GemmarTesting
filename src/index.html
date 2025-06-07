@@ -195,6 +195,17 @@
         </div>
     </div>
 
+    <div id="modalOverlay" class="modal-overlay hidden-alt">
+        <div id="modalContainer" class="modal-container">
+            <div id="modalHeader" class="modal-header">
+                <h3 id="modalTitle" class="modal-title"></h3>
+                <div id="modalHeaderButtons" class="modal-header-buttons"></div>
+            </div>
+            <div id="modalContent" class="modal-content"></div>
+            <div id="modalActions" class="modal-actions"></div>
+        </div>
+    </div>
+
     <div id="themeManagerModal" class="fixed inset-0 flex items-center justify-center p-4 z-[70] hidden-alt" style="background-color: var(--modal-overlay-background);">
         <div id="themeManagerModalContent" class="relative p-6 rounded-lg shadow-xl w-full max-w-md border" style="background-color: var(--modal-content-background); border-color: var(--modal-content-border); box-shadow: var(--modal-shadow);">
             
@@ -252,7 +263,7 @@
 
     <div id="customTooltip" class="custom-tooltip"></div>
 
-    <script src="update-renderer.js"></script>
-    <script src="renderer.js"></script>
+    
+    <script type="module" src="renderer.js"></script>
 </body>
 </html>
