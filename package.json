@@ -2,7 +2,7 @@
   "name": "gemmartesting",
   "version": "0.0.13",
   "description": "Eine Desktop-Anwendung zum Testen von Code-Übungen.",
-  "main": "main.js",
+  "main": "src/main/main.js",
   "scripts": {
     "start": "electron .",
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -31,7 +31,7 @@
     },
     "win": {
       "target": "nsis",
-      "icon": "assets/icon.png"
+      "icon": "src/assets/icon.png"
     },
     "nsis": {
       "oneClick": false,

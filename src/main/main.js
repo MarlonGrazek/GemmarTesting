@@ -31,14 +31,14 @@ function createWindow() {
     width: 1280, // Startbreite
     height: 850, // Starthöhe
     title: 'GemmarTesting', // NEU: Setzt den Fenstertitel
-    icon: path.join(__dirname, 'assets', 'icon.png'), // NEU: Pfad zum Anwendungsicon (angenommen es liegt in 'assets/icon.png')
+    icon: path.join(__dirname, '../assets/icon.png'), // NEU: Pfad zum Anwendungsicon (angenommen es liegt in 'assets/icon.png')
                                                       // Für Windows: 'assets/icon.ico' wäre besser.
     frame: false, // ENTFERNT den Standard-Fensterrahmen und die Titelleiste
     titleBarStyle: 'hidden', // Auf macOS für nahtlosere Integration (optional für Windows/Linux)
     webPreferences: {
       // Das Preload-Skript wird vor dem Laden der Webseite im Renderer-Prozess ausgeführt.
       // Es dient als Brücke zwischen dem Renderer und dem Main-Prozess für IPC.
-      preload: path.join(__dirname, 'src', 'preload.js'),
+      preload: path.join(__dirname, '../preload/preload.js'),
       contextIsolation: true, // Wichtig für Sicherheit: Isoliert Preload-Skript und Renderer-Logik
       nodeIntegration: false, // Node.js-APIs sollten nicht direkt im Renderer verfügbar sein
       //devTools: !app.isPackaged // Erlaube DevTools im Renderer, aber öffne sie nicht automatisch hier
@@ -48,7 +48,7 @@ function createWindow() {
   });
 
   // Lädt die index.html-Datei in das Hauptfenster.
-  mainWindow.loadFile(path.join(__dirname, 'src', 'index.html'));
+  mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
 
   // Entferne das Standard-Anwendungsmenü (Datei, Bearbeiten, etc.)
   Menu.setApplicationMenu(null);

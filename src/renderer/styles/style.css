@@ -1,0 +1,1277 @@
+/* ==========================================================================
+   1. BASE UI ELEMENTS & WINDOW CONTROLS
+   ========================================================================== */
+:root {
+    --color-danger: #ef4444;
+    --color-danger-text: #dc2626;
+    --color-warning: #f59e0b;
+    --color-warning-text: #d97706;
+}
+
+/*  1.1 Icons (SVG) */
+.icon {
+    width: 1.25em;
+    height: 1.25em;
+    display: inline-block;
+    vertical-align: middle;
+    fill: currentColor;
+}
+
+/*  1.2. Utility Classes */
+.hidden-alt {
+    display: none !important;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/*  1.3. Title Bar & Window Controls */
+.titlebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 32px;
+    background-color: transparent;
+    -webkit-app-region: drag;
+    z-index: 10000;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding-right: 6px;
+    box-sizing: border-box;
+}
+
+.window-controls {
+    display: flex;
+    height: 100%;
+}
+
+.window-controls button {
+    -webkit-app-region: no-drag;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    padding: 0 10px;
+    height: 100%;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.window-controls button:hover {
+    background-color: var(--modal-header-icon-button-hover-bg);
+    color: var(--text-primary);
+}
+
+.window-controls button#closeButton:hover {
+    background-color: #E81123;
+    color: white !important;
+}
+
+.window-controls button#closeButton:hover svg {
+    stroke: white !important;
+}
+
+.window-controls button svg {
+    width: 10px;
+    height: 10px;
+    fill: currentColor;
+}
+
+.window-controls button#closeButton svg {
+    stroke: currentColor;
+    fill: none;
+}
+
+/* ==========================================================================
+   2. GLOBAL LAYOUTS & BASIS TYPOGRAPHY
+   ========================================================================== */
+/* 4.1. Grundlegendes Seiten-Layout (`body`) */
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    min-height: 100vh;
+    box-sizing: border-box;
+    /* Stellt sicher, dass Padding die Größe nicht beeinflusst */
+
+    /* NEU: Flexbox für die Zentrierung nutzen */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Horizontale Zentrierung */
+    justify-content: center;
+    /* Vertikale Zentrierung */
+
+    padding: 1.5rem;
+    /* Allgemeines Padding für den Viewport */
+    padding-top: calc(32px + 1.5rem);
+    /* Extra Padding für die Titelleiste */
+
+    background-color: var(--surface-page);
+    color: var(--text-primary);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* Haupt-Container für den Inhalt */
+#mainContentWrapper,
+#resultsPageWrapper {
+    width: 100%;
+    /* GEÄNDERT: margin-top und margin-bottom entfernt, um die Zentrierung zu erlauben */
+    margin: 0;
+    border-radius: 0.5rem;
+    background-color: var(--surface-primary);
+    box-shadow: var(--shadow-medium);
+    /* Ein konsistenter Schatten */
+    transition: opacity 0.3s ease-in-out;
+    padding: 1.5rem;
+}
+
+@media (min-width: 640px) {
+
+    #mainContentWrapper,
+    #resultsPageWrapper {
+        padding: 1.75rem;
+    }
+}
+
+@media (min-width: 768px) {
+
+    #mainContentWrapper,
+    #resultsPageWrapper {
+        padding: 2.25rem;
+    }
+}
+
+#mainContentWrapper {
+    max-width: 56rem;
+}
+
+#resultsPageWrapper {
+    max-width: 64rem;
+}
+
+
+/* Allgemeine Überschriften & Text-Stile */
+#mainContentWrapper header,
+#resultsPageWrapper header {
+    margin-bottom: 1.5rem;
+}
+
+#mainContentWrapper header {
+    text-align: center;
+}
+
+#mainContentWrapper header h1,
+#resultsPageWrapper header #resultsPageTitle {
+    font-size: 1.875rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text-primary);
+}
+
+@media (min-width: 640px) {
+
+    #mainContentWrapper header h1,
+    #resultsPageWrapper header #resultsPageTitle {
+        font-size: 2.25rem;
+    }
+}
+
+#mainContentWrapper header p,
+#resultsPageWrapper header #resultsPageSubtitle {
+    margin-top: 0.375rem;
+    color: var(--text-secondary);
+}
+
+#testSelectionSection h2,
+#codeUploadSection h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+/* ==========================================================================
+   3. MODALS (Angepasst an die neuen semantischen Farbvariablen)
+   ========================================================================== */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Beibehalten, da es eine spezifische Abdunklung ist */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    z-index: 70;
+    transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-overlay.hidden-alt {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.modal-container {
+    background-color: var(--surface-primary);
+    /* NEU */
+    border: 1px solid var(--border-divider);
+    /* NEU */
+    box-shadow: var(--shadow-large);
+    /* NEU */
+    border-radius: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+    width: 100%;
+    /* padding wird in den inneren Containern definiert */
+}
+
+/* Größenklassen */
+.modal-container.size-small {
+    max-width: 28rem;
+}
+
+.modal-container.size-medium {
+    max-width: 42rem;
+}
+
+.modal-container.size-large {
+    max-width: 56rem;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-divider);
+    /* NEU */
+    flex-shrink: 0;
+}
+
+.modal-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    /* NEU */
+    margin: 0;
+}
+
+.modal-header-buttons {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.modal-header-button {
+    background-color: transparent;
+    color: var(--text-secondary);
+    /* NEU */
+    border-radius: 0.375rem;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+}
+
+.modal-header-button:hover {
+    background-color: var(--surface-secondary-hover);
+    /* NEU */
+    color: var(--text-primary);
+    /* NEU */
+}
+
+.modal-header-button:focus-visible {
+    outline: 2px solid var(--interactive-accent-primary);
+    /* NEU */
+    outline-offset: 1px;
+}
+
+.modal-header-button svg {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.modal-header-button.close-button svg {
+    stroke-width: 2.5;
+}
+
+.modal-header-button.pin-button svg {
+    stroke-width: 0;
+}
+
+.modal-header-button.pin-button.active {
+    color: var(--interactive-accent-primary);
+    /* NEU */
+}
+
+/* Content, Actions, Flags Container */
+.modal-content {
+    padding: 1.5rem;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.modal-actions {
+    padding: 1.5rem;
+    border-top: 1px solid var(--border-divider);
+    /* NEU */
+    flex-shrink: 0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+.modal-actions.full-width button {
+    flex: 1;
+}
+
+.modal-description-text {
+    color: var(--text-secondary);
+    /* NEU */
+    font-size: 0.95rem;
+    line-height: 1.7;
+    margin: 0;
+    padding: 0 0.1rem;
+    text-align: justify;
+    word-break: break-word;
+}
+
+.modal-description-text strong {
+    color: var(--text-primary);
+    /* NEU */
+    font-weight: 600;
+}
+
+.modal-flags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.6rem;
+    margin-bottom: 1rem;
+    padding: 0;
+    flex-shrink: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.modal-flag-item,
+.modal-flags-container .countdown-pill.modal-header-countdown-pill {
+    background-color: var(--surface-secondary);
+    /* NEU */
+    color: var(--text-secondary);
+    /* NEU */
+    border: 1px solid var(--border-subtle);
+    /* NEU */
+    padding: 0.3em 0.7em;
+    border-radius: 9999px;
+    font-size: 0.90rem;
+    font-weight: 500;
+    cursor: default;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+    white-space: nowrap;
+    box-shadow: var(--shadow-small);
+    /* NEU */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: auto;
+}
+
+.modal-flag-item:hover,
+.modal-flags-container .countdown-pill.modal-header-countdown-pill:hover {
+    background-color: var(--surface-secondary-hover);
+    /* NEU */
+    border-color: var(--border-interactive);
+    /* NEU */
+    color: var(--text-primary);
+    /* NEU */
+    box-shadow: var(--shadow-medium);
+    /* NEU */
+}
+
+.modal-flags-container .countdown-pill.modal-header-countdown-pill {
+    background-color: var(--interactive-accent-primary) !important;
+    /* NEU */
+    color: var(--text-on-accent) !important;
+    /* NEU */
+    border-color: var(--interactive-accent-primary) !important;
+    /* NEU */
+}
+
+.modal-action-button.submit-solution-button {
+    /* Dieses Element wird von render.js erstellt */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.55rem 1rem;
+    margin-top: 0.25rem;
+    margin-bottom: 0.75rem;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: var(--interactive-accent-primary);
+    /* NEU */
+    color: var(--text-on-accent);
+    /* NEU */
+    border: none;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out, opacity 0.2s ease-in-out, background-image 0.2s ease-in-out, filter 0.2s ease-in-out;
+    flex-shrink: 0;
+}
+
+html .modal-action-button.submit-solution-button:hover {
+    background-color: var(--interactive-accent-hover);
+    /* NEU */
+    opacity: 0.9;
+}
+
+.modal-action-button.submit-solution-button .icon {
+    width: 1em;
+    height: 1em;
+    margin-right: 0.4em;
+    vertical-align: middle;
+}
+
+/* ==========================================================================
+   4. BUTTONS
+   ========================================================================== */
+.button-primary {
+    cursor: pointer;
+    display: inline-block;
+    padding: 0.6875rem 1.375rem;
+    background-color: var(--interactive-accent-primary);
+    color: var(--text-on-accent);
+    border-radius: 0.375rem;
+    font-weight: 500;
+    transition: background-color 0.2s ease-in-out;
+    border: none;
+}
+
+.button-primary:hover {
+    background-color: var(--interactive-accent-hover);
+}
+
+.button-secondary {
+    cursor: pointer;
+    display: inline-block;
+    padding: 0.6875rem 1.375rem;
+    background-color: var(--surface-secondary);
+    color: var(--text-primary);
+    border-radius: 0.375rem;
+    font-weight: 500;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, color 0.2s ease-in-out;
+    border: none;
+}
+
+.button-secondary:hover {
+    background-color: var(--surface-secondary-hover);
+    color: var(--text-primary);
+}
+
+.button-danger {
+    cursor: pointer;
+    display: inline-block;
+    padding: 0.6875rem 1.375rem;
+    background-color: #DC2626;
+    color: var(--text-on-accent);
+    border-radius: 0.375rem;
+    font-weight: 500;
+    transition: background-color 0.2s;
+    border: none;
+}
+
+.button-danger:hover {
+    background-color: #B22222;
+    /* NEU */
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* ==========================================================================
+   4. CUSTOM TOOLTIP
+   ========================================================================== */
+.custom-tooltip {
+    position: fixed;
+    display: none;
+    padding: 0.5em 0.8em;
+    background-color: var(--surface-secondary-hover);
+    /* NEU */
+    color: var(--text-secondary);
+    /* NEU */
+    border: 1px solid var(--border-interactive);
+    /* NEU */
+    border-radius: 0.5rem;
+    box-shadow: var(--shadow-medium);
+    /* NEU */
+    font-size: 0.85em;
+    line-height: 1.45;
+    max-width: 320px;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.1s ease-out;
+    white-space: pre-wrap;
+}
+
+.custom-tooltip.visible {
+    display: block;
+    opacity: 1;
+}
+
+/* ==========================================================================
+   5. INFO BOXES
+   ========================================================================== */
+
+.info-box {
+    text-align: left;
+    position: fixed;
+    z-index: 40;
+    max-width: 350px;
+    width: auto;
+    left: 1.5rem;
+    cursor: pointer;
+    border-radius: 0.5rem;
+    padding: 0.875rem;
+    transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+
+    /* NEU: Angewendet auf das semantische System */
+    background-color: var(--surface-secondary);
+    border: 2px solid var(--border-subtle);
+    box-shadow: var(--shadow-small);
+}
+
+.info-box:hover {
+    /* NEU: Angewendet auf das semantische System */
+    background-color: var(--surface-secondary-hover);
+    border-color: var(--border-interactive);
+    box-shadow: var(--shadow-medium);
+}
+
+.info-box-title {
+    font-size: 1.05em;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* NEU: Angewendet auf das semantische System */
+    color: var(--text-primary);
+}
+
+.info-box-subtitle {
+    font-size: 0.9em;
+    /* NEU: Angewendet auf das semantische System */
+    color: var(--text-secondary);
+}
+
+
+/* --- Spezifische Positionierung --- */
+
+#pinBox {
+    /* Oben links, unter der Titelleiste */
+    top: calc(1.5rem + 32px);
+}
+
+#versionBox {
+    /* Unten links */
+    bottom: 1.5rem;
+    top: auto;
+    /* Verhindert vertikales Strecken */
+}
+
+
+/* --- Spezifische Zustände für die Version-Box --- */
+
+#versionBox.update-available {
+    /* NEU: Nutzt die Akzentfarbe für den Rand */
+    border: 2px solid var(--interactive-accent-primary);
+}
+
+/* @property-Definitionen für die Animationen (unverändert) */
+@property --gradient-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+}
+
+@keyframes spin-border {
+    0% {
+        --gradient-angle: 0deg;
+    }
+
+    100% {
+        --gradient-angle: 360deg;
+    }
+}
+
+#versionBox.update-checking {
+    border: 2px solid transparent;
+    /* NEU: Nutzt semantische Variablen für die Hintergrundfarben */
+    background-image:
+        linear-gradient(var(--surface-secondary), var(--surface-secondary)),
+        conic-gradient(from var(--gradient-angle), var(--interactive-accent-primary) 0% 15%, transparent 15% 100%);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    animation: spin-border 1.5s linear infinite;
+}
+
+/* @property für den Download-Fortschritt (unverändert) */
+@property --download-progress {
+    syntax: '<percentage>';
+    initial-value: 0%;
+    inherits: false;
+}
+
+#versionBox.update-downloading {
+    border: 2px solid transparent;
+    /* NEU: Nutzt semantische Variablen für die Hintergrundfarben */
+    background-image:
+        linear-gradient(var(--surface-secondary), var(--surface-secondary)),
+        conic-gradient(var(--interactive-accent-primary) var(--download-progress, 0%), var(--surface-secondary) 0);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    transition: --download-progress 0.2s linear;
+}
+
+/* ==========================================================================
+   CUSTOM SCROLLBAR
+   ========================================================================== */
+
+/* Wirkt sich auf alle Scrollbars in Webkit-Browsern (Chrome, Edge, Safari) aus */
+::-webkit-scrollbar {
+    width: 8px;
+    /* Breite der Scrollbar */
+    height: 8px;
+    /* Höhe für horizontale Scrollbars */
+}
+
+/* Der "Track", also die Leiste, auf der der Schieber läuft */
+::-webkit-scrollbar-track {
+    background: transparent;
+    /* Macht den Hintergrund unsichtbar */
+}
+
+/* Der "Thumb", also der Schieber selbst */
+::-webkit-scrollbar-thumb {
+    background-color: var(--border-subtle);
+    /* Eine subtile Farbe für den Standardzustand */
+    border-radius: 10px;
+    /* Vollständig abgerundete Ecken */
+    border: 2px solid transparent;
+    /* Erzeugt einen kleinen Abstand zum Rand */
+    background-clip: content-box;
+    /* Stellt sicher, dass der Border-Abstand transparent ist */
+    transition: background-color 0.2s;
+}
+
+/* Hover-Zustand für den Schieber */
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--border-interactive);
+    /* Eine etwas auffälligere Farbe bei Hover */
+}
+
+/* ==========================================================================
+   5. TEST SELECTION & CARDS
+   ========================================================================== */
+
+#testListContainer {
+    display: grid;
+    gap: 0.875rem;
+}
+
+/* Responsive Grid: 2 Spalten auf kleinen Bildschirmen */
+@media (min-width: 640px) {
+    #testListContainer {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1.25rem;
+    }
+}
+
+/* 3 Spalten auf größeren Bildschirmen */
+@media (min-width: 1024px) {
+    #testListContainer {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+.test-card {
+    padding: 0.875rem;
+    border-radius: 0.5rem;
+    border-width: 2px;
+    border-style: solid;
+    cursor: pointer;
+    transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 4rem;
+
+    /* Farben & Schatten aus dem Theme-System */
+    background-color: var(--surface-secondary);
+    border-color: var(--border-subtle);
+    box-shadow: var(--shadow-small);
+}
+
+.test-card:not(.selected):hover {
+    background-color: var(--surface-secondary-hover);
+    border-color: var(--border-interactive);
+    box-shadow: var(--shadow-medium);
+}
+
+.test-card.selected {
+    /* Wichtig-Flag, um sicherzustellen, dass die Akzentfarbe immer gewinnt */
+    border-color: var(--interactive-accent-primary) !important;
+    /* Mischt die Akzentfarbe leicht in den Hintergrund ein */
+    background-color: color-mix(in srgb, var(--interactive-accent-primary) 10%, var(--surface-secondary)) !important;
+    box-shadow: none !important;
+}
+
+.test-card h3 {
+    font-weight: 600;
+    font-size: 1.125rem;
+    margin: 0;
+    color: var(--text-primary);
+    flex-grow: 1;
+    margin-right: 0.5rem;
+}
+
+.test-card-info-button {
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+}
+
+.test-card-info-button:hover {
+    background-color: var(--surface-secondary-hover);
+    color: var(--text-primary);
+}
+
+.test-card-info-button .icon {
+    width: 1.5em;
+    height: 1.5em;
+    display: block;
+}
+
+#noTestSelectedError {
+    font-size: 0.875rem;
+    margin-top: 0.375rem;
+    color: var(--color-danger);
+    /* Feste Fehlerfarbe */
+}
+
+/* ==========================================================================
+   6. CODE UPLOAD & START BUTTON
+   ========================================================================== */
+
+#codeUploadSection {
+    margin-top: 2rem;
+}
+
+/* Der Titel über der Upload-Box */
+#codeUploadSection>p:first-of-type {
+    margin-bottom: 0.75rem;
+    color: var(--text-secondary);
+}
+
+#selectedTestName {
+    font-weight: 600;
+    color: var(--interactive-accent-text);
+}
+
+/* Die Box mit dem gestrichelten Rand */
+#codeUploadSection>div:first-of-type {
+    padding: 1.25rem;
+    border-radius: 0.5rem;
+    border: 1px dashed var(--border-subtle);
+    text-align: center;
+    background-color: var(--surface-inset);
+}
+
+/* Verstecktes <input type="file"> Element */
+input[type="file"].hidden-input {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+}
+
+/* Texte in der Upload-Box */
+#codeUploadSection>div:first-of-type>p {
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+    color: var(--text-primary);
+}
+
+#codeUploadSection>div:first-of-type>p:nth-of-type(1) {
+    margin-top: 0.75rem;
+}
+
+#fileSelectionInfo {
+    font-weight: 500;
+    margin-top: 0.375rem;
+    color: var(--color-success-text);
+}
+
+#codeUploadSection>div:first-of-type>p:nth-of-type(3) {
+    font-size: 0.75rem;
+    margin-top: 0.375rem;
+    color: var(--text-subtle);
+}
+
+
+/* Der Container für den "Run Test" Button, sorgt für Zentrierung */
+#codeUploadSection>div:last-of-type {
+    margin-top: 1.5rem;
+    text-align: center;
+}
+
+/* ==========================================================================
+   THEME MANAGER
+   ========================================================================== */
+
+/* HINZUGEFÜGT: Sorgt für einen vertikalen Abstand zwischen den Karten */
+.theme-manager-list-item-card + .theme-manager-list-item-card,
+.theme-manager-list-item-card + .theme-create-card {
+    margin-top: 0.75rem;
+}
+
+/* Styling für eine einzelne Theme-Karte und den "Erstellen"-Button */
+.theme-manager-list-item-card,
+.theme-create-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    border: 2px solid var(--border-subtle);
+    background-color: var(--surface-secondary);
+    box-shadow: var(--shadow-small);
+    cursor: pointer;
+    transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+    min-height: 50px;
+}
+
+/* Hover-Effekt für die Karten */
+.theme-manager-list-item-card:hover,
+.theme-create-card:hover {
+    background-color: var(--surface-secondary-hover);
+    border-color: var(--border-interactive);
+    box-shadow: var(--shadow-medium);
+}
+
+/* Spezielles Styling für die aktive Theme-Karte */
+.theme-manager-list-item-card.active-theme {
+    border-color: var(--interactive-accent-primary) !important;
+    background-color: color-mix(in srgb, var(--interactive-accent-primary) 10%, var(--surface-secondary));
+    box-shadow: none !important;
+}
+
+/* Der Text innerhalb der Karte */
+.theme-name-display {
+    font-weight: 500;
+    color: var(--text-primary);
+    flex-grow: 1;
+    margin-right: 0.5rem;
+}
+
+/* Hervorhebung für den Text des aktiven Themes */
+.theme-manager-list-item-card.active-theme .theme-name-display {
+    color: var(--interactive-accent-primary);
+    font-weight: 600;
+}
+
+/* Spezielles Styling für die "Erstellen"-Karte */
+.theme-create-card {
+    border-style: dashed;
+    justify-content: center;
+}
+
+.theme-create-card .theme-name-display {
+    color: var(--text-secondary);
+    margin-right: 0;
+}
+
+/* Der "Bearbeiten"-Button (Stift-Icon) */
+.theme-edit-button {
+    background: none;
+    border: none;
+    padding: 0.3rem;
+    border-radius: 50%;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    color: var(--text-secondary);
+    transition: color 0.2s, background-color 0.2s;
+}
+
+.theme-edit-button:hover {
+    color: var(--text-primary);
+    background-color: var(--surface-secondary-hover);
+}
+
+.theme-edit-button .icon {
+    width: 1.25em;
+    height: 1.25em;
+}
+
+/* ==========================================================================
+   THEME MANAGER - EDITOR VIEW (Finale, korrigierte Version)
+   ========================================================================== */
+
+/* Container für alle Einstellungen */
+.theme-editor-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Styling für alle Labels im Editor */
+.theme-editor-label {
+    display: block;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+/* Eingabefeld für den Namen */
+.modal-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.75rem;
+    margin-top: 0.5rem;
+    border-radius: 0.375rem;
+    font-size: 1rem;
+    border: none;
+    /* KORREKTUR: Nutzt die hellere Hintergrundfarbe */
+    background-color: var(--surface-secondary);
+    color: var(--text-primary);
+    transition: box-shadow 0.2s;
+}
+
+.modal-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--interactive-accent-primary) inset;
+}
+
+/* Container für die Slider-Beschriftung */
+.slider-label-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.slider-label-container span {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+/* Die Slider selbst */
+.theme-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 8px;
+    margin-top: 0.75rem;
+    border-radius: 9999px;
+    /* KORREKTUR: Nutzt die hellere Hintergrundfarbe */
+    background: var(--surface-secondary);
+    border: 1px solid var(--border-subtle);
+    outline: none;
+    cursor: pointer;
+}
+
+.theme-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    background: var(--interactive-accent-primary);
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.theme-slider::-moz-range-thumb {
+    width: 1.25rem;
+    height: 1.25rem;
+    background: var(--interactive-accent-primary);
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Das Farbauswahl-Feld */
+.color-picker-input {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 40px;
+    margin-top: 0.5rem;
+    background-color: transparent;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    padding: 0;
+}
+
+.color-picker-input::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.color-picker-input::-webkit-color-swatch {
+    border-radius: 0.375rem;
+    border: 1px solid var(--border-subtle);
+}
+
+.color-picker-input::-moz-color-swatch {
+    border-radius: 0.375rem;
+    border: 1px solid var(--border-subtle);
+}
+
+
+/* ==========================================================================
+   RESULTS PAGE (Finale, korrigierte Version)
+   ========================================================================== */
+
+/* KORREKTUR: Der Haupt-Wrapper hat keinen eigenen Hintergrund mehr.
+   Er dient nur noch dem Layout und der maximalen Breite. */
+   #resultsPageWrapper {
+    width: 100%;
+    max-width: 56rem; /* Behält die maximale Breite bei */
+}
+
+/* Header der Ergebnisseite (Titel und Zurück-Button) */
+#resultsPageWrapper header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: none;
+    border: none;
+    padding: 0;
+    margin-bottom: 1.5rem; /* Abstand zur nächsten Box */
+}
+
+#resultsPageWrapper header #runningTestName {
+    font-weight: 600;
+    color: var(--interactive-accent-text);
+}
+
+#backToSetupButton {
+    text-decoration: none;
+}
+
+
+/* KORREKTUR: Spezifischer Selektor, der NUR die Summary-Box betrifft.
+   Wir zielen auf das <div>, das direkt nach dem <header> kommt. */
+#resultsPageWrapper > header + div {
+    margin-bottom: 1.5rem;
+    padding: 1.25rem;
+    border-radius: 0.5rem;
+    background-color: var(--surface-inset);
+    border: 1px solid var(--border-subtle);
+}
+
+/* Der Container für "Progress:" und die Prozentanzeige */
+#resultsPageWrapper > header + div > .flex.justify-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+/* Fortschrittsbalken */
+.progress-bar-bg {
+    height: 0.625rem;
+    border-radius: 9999px;
+    background-color: var(--surface-primary);
+    overflow: hidden;
+}
+.progress-bar-fill {
+    height: 100%;
+    border-radius: 9999px;
+    background-color: var(--interactive-accent-primary);
+    transition: width 0.3s ease-in-out;
+}
+
+/* Container für die Zähler (Total, Passed, etc.) */
+#resultsPageWrapper > header + div > .flex.justify-around {
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+    margin-top: 1.25rem;
+}
+
+/* Styling für die Labels ("Total Tests", "Passed", etc.) */
+#resultsPageWrapper > header + div > .flex.justify-around p.font-semibold {
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+    font-size: 0.95rem;
+}
+
+/* Styling für die Zahlen */
+#resultsPageWrapper > header + div > .flex.justify-around p.text-2xl {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+/* Farben für die Zahlen (bleibt gleich) */
+#totalTestsCount { color: var(--text-primary); }
+#passedTestsCount { color: var(--interactive-accent-primary); }
+#failedTestsCount { color: var(--color-danger); }
+#warningTestsCount { color: var(--color-warning); }
+
+
+/* --- Rest der Seite (bleibt unverändert, da es bereits funktioniert) --- */
+
+#testSuitesContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+.result-suite-card {
+    padding: 1.25rem;
+    border-radius: 0.5rem;
+    background-color: var(--surface-secondary);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-small);
+}
+.result-suite-card h2 {
+    font-size: 1.25rem;
+    margin: 0 0 1rem 0;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-divider);
+    color: var(--text-primary);
+}
+.subtests-area {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+.result-subtest {
+    border-left: 3px solid var(--border-divider);
+    padding: 0.25rem 0 0.25rem 1rem;
+}
+.result-subtest h3 {
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin: 0 0 0.5rem 0;
+    color: var(--text-primary);
+}
+.result-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    margin-top: 0.375rem;
+    border-radius: 0.375rem;
+    border-left-width: 4px;
+    border-left-style: solid;
+    font-size: 0.95rem;
+}
+.result-item .result-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.125rem;
+    height: 1.125rem;
+    margin-right: 0.75rem;
+    flex-shrink: 0;
+}
+.result-item .result-icon svg {
+    width: 100%;
+    height: 100%;
+}
+.result-item.passed {
+    background-color: color-mix(in srgb, var(--interactive-accent-primary) 10%, var(--surface-secondary));
+    border-color: var(--interactive-accent-primary);
+    color: var(--interactive-accent-text);
+}
+.result-item.passed .result-icon svg {
+    stroke: var(--interactive-accent-text);
+}
+.result-item.failed {
+    background-color: color-mix(in srgb, var(--color-danger) 10%, var(--surface-secondary));
+    border-color: var(--color-danger);
+    color: var(--color-danger-text);
+}
+.result-item.failed .result-icon svg {
+    stroke: var(--color-danger-text);
+}
+.result-item.warning {
+    background-color: color-mix(in srgb, var(--color-warning) 12%, var(--surface-secondary));
+    border-color: var(--color-warning);
+    color: var(--color-warning-text);
+}
+.result-item.warning .result-icon svg {
+    stroke: var(--color-warning-text);
+}
+.result-item.info {
+    background-color: var(--surface-primary);
+    border-color: var(--border-subtle);
+    color: var(--text-secondary);
+}
+.result-item.info .result-icon svg {
+    stroke: var(--text-secondary);
+}
+.result-item.running {
+    background-color: var(--surface-secondary);
+    border-color: var(--border-subtle);
+    color: var(--text-secondary);
+}
+.result-item.running .result-icon .result-icon-placeholder {
+    border-width: 2px;
+    border-style: solid;
+    border-color: transparent;
+    border-top-color: var(--interactive-accent-primary);
+    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}

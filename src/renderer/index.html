@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" class="">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemmar Testing</title>
+    <link rel="stylesheet" href="styles/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 transition-colors duration-300">
+
+    <!-- Title Bar -->
+    <div class="titlebar">
+        <div class="window-controls">
+            <button id="minimizeButton" title="Minimize" data-custom-tooltip="Minimize">
+                <svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0 5 H12 V6 H0z" fill="currentColor" />
+                </svg>
+            </button>
+            <button id="maximizeButton" title="Maximize" data-custom-tooltip="Maximize">
+                <svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2 2 H10 V10 H2z M0 0 H12 V12 H0z M3 3 V9 H9 V3z" fill="currentColor" />
+                </svg>
+            </button>
+            <button id="closeButton" title="Close" data-custom-tooltip="Close">
+                <svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 1 L11 11 M11 1 L1 11" stroke-width="1.5" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!--Custom Tooltip-->
+    <div id="customTooltip" class="custom-tooltip"></div>
+
+    <!--Modal Popups-->
+    <div id="modalOverlay" class="modal-overlay hidden-alt">
+        <div id="modalContainer" class="modal-container">
+            <div id="modalHeader" class="modal-header">
+                <h3 id="modalTitle" class="modal-title"></h3>
+                <div id="modalHeaderButtons" class="modal-header-buttons"></div>
+            </div>
+            <div id="modalContent" class="modal-content"></div>
+            <div id="modalActions" class="modal-actions"></div>
+        </div>
+    </div>
+
+    <!--Pinned Task Display-->
+    <div id="pinBox" class="info-box">
+        <div id="pinBoxTitle" class="info-box-title">Lade Aufgabeninfo...</div>
+        <div id="pinBoxSubtitle" class="info-box-subtitle">--:--</div>
+    </div>
+
+    <!--Version Display-->
+    <div id="versionBox" class="info-box">
+        <div id="versionBoxTitle" class="info-box-title">Lade Versionsnummer...</div>
+        <div id="versionBoxSubtitle" class="info-box-subtitle">Patchnotes anzeigen</div>
+    </div>
+
+    <!--Theme Manager Button-->
+    <label id="themeManagerButton" class="button-secondary">
+        <span class="sr-only">Themes verwalten</span>
+    </label>
+
+    <!--Main Content Wrapper-->
+    <div id="mainContentWrapper" class="content-wrapper w-full max-w-3xl mt-12 sm:mt-16">
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl sm:text-4xl font-bold">Gemmar Testing</h1>
+            <p class="mt-2">Choose a Test and upload your code to view the results</p>
+        </header>
+
+        <section id="testSelectionSection">
+            <h2 class="text-2xl font-semibold mb-6">1. Choose a test</h2>
+            <div id="testListContainer"
+                class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 test-grid-scrollable"></div>
+            <p id="noTestSelectedError" class="text-sm mt-2 hidden-alt">Choose a test first</p>
+        </section>
+
+        <section id="codeUploadSection" class="mt-10 hidden-alt">
+            <h2 class="text-2xl font-semibold mb-1">2. Upload your Java-Files</h2>
+            <p class="mb-6">Selected test: <strong id="selectedTestName"></strong></p>
+            <div class="p-6 rounded-lg border border-dashed text-center">
+                <label for="fileUpload" class="button-secondary">Upload Java-Files</label>
+                <input type="file" id="fileUpload" multiple accept=".java" class="hidden-input">
+                <p class="mt-4 text-sm">Select all relevant .java-files of your solution (including the interfaces)</p>
+                <p id="fileSelectionInfo" class="mt-2 text-sm font-medium"></p>
+                <p class="mt-2 text-xs">(Hold Strg/Cmd to select multiple files)</p>
+            </div>
+            <div class="mt-8 text-center">
+                <label id="runTestButton" class="button-primary" disabled>Run Test</label>
+            </div>
+        </section>
+    </div>
+
+    <!--Result Page-->
+    <div id="resultsPageWrapper" class="content-wrapper hidden-alt w-full max-w-5xl mt-12 sm:mt-16">
+        <header class="mb-6 flex justify-between items-center">
+            <div>
+                <h1 id="resultsPageTitle" class="text-2xl sm:text-3xl font-bold">Test Results</h1>
+                <p id="resultsPageSubtitle" class="mt-1">Tests ran for: <span id="runningTestName"
+                        class="font-semibold"></span></p>
+            </div>
+            <label id="backToSetupButton" class="button-secondary">&larr; Back to the Menu</label>
+        </header>
+
+        <div class="mb-6 p-4 rounded-lg shadow">
+            <div class="flex justify-between items-center mb-2 text-sm">
+                <span>Progress:</span>
+                <span id="progressPercentage">0%</span>
+            </div>
+            <div class="w-full progress-bar-bg rounded-full h-2.5 mb-4">
+                <div id="progressBar" class="progress-bar-fill h-2.5 rounded-full"></div>
+            </div>
+            <div class="flex justify-around text-center text-sm sm:text-base">
+                <div>
+                    <p class="font-semibold">Total Tests</p>
+                    <p id="totalTestsCount" class="text-2xl font-bold">0</p>
+                </div>
+                <div>
+                    <p class="font-semibold">Passed</p>
+                    <p id="passedTestsCount" class="text-2xl font-bold">0</p>
+                </div>
+                <div>
+                    <p class="font-semibold">Failed</p>
+                    <p id="failedTestsCount" class="text-2xl font-bold">0</p>
+                </div>
+                <div>
+                    <p class="font-semibold">Warnings</p>
+                    <p id="warningTestsCount" class="text-2xl font-bold">0</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="testSuitesContainer" class="space-y-6"></div>
+    </div>
+
+    <script type="module" src="./js/renderer.js"></script>
+</body>
+
+</html>

@@ -23,7 +23,7 @@ function showModal(options = {}) {
 
             options.headerButtons.forEach(btnConfig => {
 
-                const button = document.createElement('button');
+                const button = document.createElement('label');
                 button.className = btnConfig.class || 'modal-header-button';
                 if (btnConfig.tooltip) {
                     button.dataset.customTooltip = btnConfig.tooltip;
@@ -81,7 +81,7 @@ function showModal(options = {}) {
 
             options.actionButtons.forEach(btnConfig => {
 
-                const button = document.createElement('button');
+                const button = document.createElement('label');
                 button.textContent = btnConfig.text || '';
                 button.className = btnConfig.class || 'button-default';
                 if (btnConfig.tooltip) {
