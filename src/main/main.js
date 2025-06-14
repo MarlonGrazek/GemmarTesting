@@ -268,7 +268,7 @@ function downloadFile(url) {
  */
 function createTempDirectory() {
   return new Promise((resolve, reject) => {
-    const tempDirPrefix = path.join(os.tmpdir(), 'codetesthub-');
+    const tempDirPrefix = path.join(os.tmpdir(), 'gemmartesting-');
     fs.mkdtemp(tempDirPrefix, (err, folder) => {
       if (err) return reject(new Error(`Konnte temporären Ordner nicht erstellen: ${err.message}`));
       resolve(folder);
@@ -453,7 +453,7 @@ ipcMain.on('run-java-test', async (event, { userFiles, testConfig }) => {
     // 3. TestRunner.java Hilfsklasse lesen
     // Annahme: TestRunner.java liegt im Default-Package und wird im Wurzelverzeichnis des Projekts erwartet.
     // Pfad relativ zum Projekt-Root, wo main.js liegt.
-    const testRunnerPath = path.join(__dirname, 'src', 'java-helpers', 'TestRunner.java');
+    const testRunnerPath = path.join(__dirname, '../java-helpers/TestRunner.java');
     let testRunnerContent;
     try {
       testRunnerContent = await fs.promises.readFile(testRunnerPath, 'utf8');

@@ -157,7 +157,7 @@ function handleVersionBoxClick() {
 
 function showCustomRestartPrompt(updateDetails) {
 
-    if (!messageBox || !messageBoxContent) {
+    if (!showModal) {
         console.error("MessageBox-Elemente sind nicht verfügbar.");
         return;
     }
