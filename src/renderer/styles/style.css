@@ -6,6 +6,7 @@
     --color-danger-text: #dc2626;
     --color-warning: #f59e0b;
     --color-warning-text: #d97706;
+    --transition-duration: 0.2s;
 }
 
 /*  1.1 Icons (SVG) */
@@ -14,7 +15,6 @@
     height: 1.25em;
     display: inline-block;
     vertical-align: middle;
-    fill: currentColor;
 }
 
 /*  1.2. Utility Classes */
@@ -25,96 +25,210 @@
     pointer-events: none;
 }
 
-/*  1.3. Title Bar & Window Controls */
-.titlebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 32px;
-    background-color: transparent;
-    -webkit-app-region: drag;
-    z-index: 10000;
+/* ==========================================================================
+   HEADER & APP NAVIGATION
+   ========================================================================== */
+
+/* 1. Der Haupt-Header-Container
+   -------------------------------------------------------------------------- */
+#app-header {
+    position: relative;
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
-    padding-right: 6px;
-    box-sizing: border-box;
-}
-
-.window-controls {
-    display: flex;
-    height: 100%;
-}
-
-.window-controls button {
-    -webkit-app-region: no-drag;
-    background: none;
-    border: none;
-    color: var(--text-secondary);
     padding: 0 10px;
-    height: 100%;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
-    line-height: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    height: 52px;
+    /* NEU: Höhe von 64px auf 52px reduziert */
+    background-color: var(--surface-primary);
+    border-bottom: var(--border-divider);
+    flex-shrink: 0;
+    -webkit-app-region: drag;
 }
 
-.window-controls button:hover {
-    background-color: var(--modal-header-icon-button-hover-bg);
+/* 2. Die Zonen innerhalb des Headers
+   -------------------------------------------------------------------------- */
+#app-header>div {
+    display: flex;
+    align-items: center;
+}
+
+.header-left {
+    margin-left: 10px;
+    justify-content: flex-start;
+    gap: 16px;
+}
+
+.header-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 33%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.header-right {
+    justify-content: flex-end;
+    gap: 0;
+    /* NEU: Kein Abstand zwischen den Buttons mehr */
+}
+
+
+/* 3. Styling für die "Angepinnter Test"-Pille (#pinBox)
+   -------------------------------------------------------------------------- */
+#app-header #pinBox {
+    /* Layout für die Pille selbst */
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+    /* Abstand zwischen Icon, Titel und Subtitle */
+
+    /* Aussehen der Pille */
+    background-color: var(--surface-secondary);
+    border-radius: 9999px;
+    /* Pillen-Form */
+    padding: 6px 14px;
+    border: none;
+    font-size: 0.9rem;
+    /* Etwas kleinere Schrift in der Pille */
+    cursor: pointer;
+    transition: background-color var(--transition-duration);
+}
+
+/* Der App-Titel (etwas kleiner) */
+#app-header .app-title {
+    font-size: 1.5rem;
+    font-weight: bolder;
+    margin: 0;
+}
+
+#app-header #pinBox:hover {
+    background-color: var(--surface-secondary-hover);
+}
+
+/* Styling für die Elemente IN der Pille */
+#pinBoxIcon .icon {
+    width: 1.1em;
+    height: 1.1em;
+    color: var(--text-secondary);
+}
+
+#pinBoxTitle {
+    font-weight: 500;
     color: var(--text-primary);
 }
 
-.window-controls button#closeButton:hover {
-    background-color: #E81123;
-    color: white !important;
+#pinBoxSubtitle {
+    color: var(--text-secondary);
 }
 
-.window-controls button#closeButton:hover svg {
-    stroke: white !important;
+/* Fügt einen Trennstrich per CSS hinzu, damit JS sauber bleibt */
+#pinBoxTitle::after {
+    content: '-';
+    margin-left: 0.6em;
+    color: var(--text-secondary);
 }
 
-.window-controls button svg {
-    width: 10px;
-    height: 10px;
-    fill: currentColor;
+
+/* 4. Styling für die runden Icon-Buttons (z.B. Theme-Manager)
+   -------------------------------------------------------------------------- */
+#app-header .icon-button {
+    background-color: var(--surface-secondary);
+    border: none;
+    color: var(--text-secondary);
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color var(--transition-duration), color var(--transition-duration);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+    /* Ein kleiner Abstand zu den Window-Controls */
 }
 
-.window-controls button#closeButton svg {
+#app-header .icon-button:hover {
+    background-color: var(--surface-secondary-hover);
+    color: var(--text-primary);
+}
+
+
+/* 5. Styling für die Fenster-Kontroll-Buttons (Min, Max, Close)
+   -------------------------------------------------------------------------- */
+#app-header button.window-controls {
+    -webkit-app-region: no-drag;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: background-color var(--transition-duration), color var(--transition-duration);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+
+    width: 44px;
+    height: 32px;
+    border-radius: 4px;
+}
+
+/* Styling für die SVGs IN den Buttons */
+#app-header button.window-controls svg {
+    width: 1.25rem;
+    height: 1.25rem;
     stroke: currentColor;
-    fill: none;
+}
+
+
+/* Hover-Effekte bleiben gleich */
+#app-header button.window-controls:hover {
+    background-color: var(--surface-secondary-hover);
+    color: var(--text-primary);
+}
+
+#app-header button#closeButton.window-controls:hover {
+    background-color: #E81123;
+    color: white;
+}
+
+
+/* 6. Alle klickbaren Elemente von der Drag-Region ausnehmen
+   -------------------------------------------------------------------------- */
+#app-header h1,
+#app-header #pinBox,
+#app-header button,
+#app-header label {
+    -webkit-app-region: no-drag;
 }
 
 /* ==========================================================================
    2. GLOBAL LAYOUTS & BASIS TYPOGRAPHY
    ========================================================================== */
 /* 4.1. Grundlegendes Seiten-Layout (`body`) */
+html,
 body {
-    font-family: 'Inter', sans-serif;
     margin: 0;
-    min-height: 100vh;
-    box-sizing: border-box;
-    /* Stellt sicher, dass Padding die Größe nicht beeinflusst */
-
-    /* NEU: Flexbox für die Zentrierung nutzen */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    /* Horizontale Zentrierung */
-    justify-content: center;
-    /* Vertikale Zentrierung */
-
-    padding: 1.5rem;
-    /* Allgemeines Padding für den Viewport */
-    padding-top: calc(32px + 1.5rem);
-    /* Extra Padding für die Titelleiste */
-
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
     background-color: var(--surface-page);
     color: var(--text-primary);
-    transition: background-color 0.3s, color 0.3s;
+}
+
+#app-main {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 24px;
+}
+
+#app-header,
+#app-footer {
+    flex-shrink: 0;
 }
 
 /* Haupt-Container für den Inhalt */
@@ -585,22 +699,6 @@ button:disabled {
     color: var(--text-secondary);
 }
 
-
-/* --- Spezifische Positionierung --- */
-
-#pinBox {
-    /* Oben links, unter der Titelleiste */
-    top: calc(1.5rem + 32px);
-}
-
-#versionBox {
-    /* Unten links */
-    bottom: 1.5rem;
-    top: auto;
-    /* Verhindert vertikales Strecken */
-}
-
-
 /* --- Spezifische Zustände für die Version-Box --- */
 
 #versionBox.update-available {
@@ -863,8 +961,8 @@ input[type="file"].hidden-input {
    ========================================================================== */
 
 /* HINZUGEFÜGT: Sorgt für einen vertikalen Abstand zwischen den Karten */
-.theme-manager-list-item-card + .theme-manager-list-item-card,
-.theme-manager-list-item-card + .theme-create-card {
+.theme-manager-list-item-card+.theme-manager-list-item-card,
+.theme-manager-list-item-card+.theme-create-card {
     margin-top: 0.75rem;
 }
 
@@ -1076,9 +1174,10 @@ input[type="file"].hidden-input {
 
 /* KORREKTUR: Der Haupt-Wrapper hat keinen eigenen Hintergrund mehr.
    Er dient nur noch dem Layout und der maximalen Breite. */
-   #resultsPageWrapper {
+#resultsPageWrapper {
     width: 100%;
-    max-width: 56rem; /* Behält die maximale Breite bei */
+    max-width: 56rem;
+    /* Behält die maximale Breite bei */
 }
 
 /* Header der Ergebnisseite (Titel und Zurück-Button) */
@@ -1089,7 +1188,8 @@ input[type="file"].hidden-input {
     background: none;
     border: none;
     padding: 0;
-    margin-bottom: 1.5rem; /* Abstand zur nächsten Box */
+    margin-bottom: 1.5rem;
+    /* Abstand zur nächsten Box */
 }
 
 #resultsPageWrapper header #runningTestName {
@@ -1104,7 +1204,7 @@ input[type="file"].hidden-input {
 
 /* KORREKTUR: Spezifischer Selektor, der NUR die Summary-Box betrifft.
    Wir zielen auf das <div>, das direkt nach dem <header> kommt. */
-#resultsPageWrapper > header + div {
+#resultsPageWrapper>header+div {
     margin-bottom: 1.5rem;
     padding: 1.25rem;
     border-radius: 0.5rem;
@@ -1113,7 +1213,7 @@ input[type="file"].hidden-input {
 }
 
 /* Der Container für "Progress:" und die Prozentanzeige */
-#resultsPageWrapper > header + div > .flex.justify-between {
+#resultsPageWrapper>header+div>.flex.justify-between {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1129,6 +1229,7 @@ input[type="file"].hidden-input {
     background-color: var(--surface-primary);
     overflow: hidden;
 }
+
 .progress-bar-fill {
     height: 100%;
     border-radius: 9999px;
@@ -1137,7 +1238,7 @@ input[type="file"].hidden-input {
 }
 
 /* Container für die Zähler (Total, Passed, etc.) */
-#resultsPageWrapper > header + div > .flex.justify-around {
+#resultsPageWrapper>header+div>.flex.justify-around {
     display: flex;
     justify-content: space-around;
     text-align: center;
@@ -1145,7 +1246,7 @@ input[type="file"].hidden-input {
 }
 
 /* Styling für die Labels ("Total Tests", "Passed", etc.) */
-#resultsPageWrapper > header + div > .flex.justify-around p.font-semibold {
+#resultsPageWrapper>header+div>.flex.justify-around p.font-semibold {
     font-weight: 500;
     color: var(--text-primary);
     margin-bottom: 0.25rem;
@@ -1153,17 +1254,28 @@ input[type="file"].hidden-input {
 }
 
 /* Styling für die Zahlen */
-#resultsPageWrapper > header + div > .flex.justify-around p.text-2xl {
+#resultsPageWrapper>header+div>.flex.justify-around p.text-2xl {
     font-size: 2rem;
     font-weight: 700;
     line-height: 1;
 }
 
 /* Farben für die Zahlen (bleibt gleich) */
-#totalTestsCount { color: var(--text-primary); }
-#passedTestsCount { color: var(--interactive-accent-primary); }
-#failedTestsCount { color: var(--color-danger); }
-#warningTestsCount { color: var(--color-warning); }
+#totalTestsCount {
+    color: var(--text-primary);
+}
+
+#passedTestsCount {
+    color: var(--interactive-accent-primary);
+}
+
+#failedTestsCount {
+    color: var(--color-danger);
+}
+
+#warningTestsCount {
+    color: var(--color-warning);
+}
 
 
 /* --- Rest der Seite (bleibt unverändert, da es bereits funktioniert) --- */
@@ -1173,6 +1285,7 @@ input[type="file"].hidden-input {
     flex-direction: column;
     gap: 1.5rem;
 }
+
 .result-suite-card {
     padding: 1.25rem;
     border-radius: 0.5rem;
@@ -1180,6 +1293,7 @@ input[type="file"].hidden-input {
     border: 1px solid var(--border-subtle);
     box-shadow: var(--shadow-small);
 }
+
 .result-suite-card h2 {
     font-size: 1.25rem;
     margin: 0 0 1rem 0;
@@ -1187,21 +1301,25 @@ input[type="file"].hidden-input {
     border-bottom: 1px solid var(--border-divider);
     color: var(--text-primary);
 }
+
 .subtests-area {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
 }
+
 .result-subtest {
     border-left: 3px solid var(--border-divider);
     padding: 0.25rem 0 0.25rem 1rem;
 }
+
 .result-subtest h3 {
     font-size: 1.125rem;
     font-weight: 500;
     margin: 0 0 0.5rem 0;
     color: var(--text-primary);
 }
+
 .result-item {
     display: flex;
     align-items: center;
@@ -1212,6 +1330,7 @@ input[type="file"].hidden-input {
     border-left-style: solid;
     font-size: 0.95rem;
 }
+
 .result-item .result-icon {
     display: inline-flex;
     align-items: center;
@@ -1221,47 +1340,58 @@ input[type="file"].hidden-input {
     margin-right: 0.75rem;
     flex-shrink: 0;
 }
+
 .result-item .result-icon svg {
     width: 100%;
     height: 100%;
 }
+
 .result-item.passed {
     background-color: color-mix(in srgb, var(--interactive-accent-primary) 10%, var(--surface-secondary));
     border-color: var(--interactive-accent-primary);
     color: var(--interactive-accent-text);
 }
+
 .result-item.passed .result-icon svg {
     stroke: var(--interactive-accent-text);
 }
+
 .result-item.failed {
     background-color: color-mix(in srgb, var(--color-danger) 10%, var(--surface-secondary));
     border-color: var(--color-danger);
     color: var(--color-danger-text);
 }
+
 .result-item.failed .result-icon svg {
     stroke: var(--color-danger-text);
 }
+
 .result-item.warning {
     background-color: color-mix(in srgb, var(--color-warning) 12%, var(--surface-secondary));
     border-color: var(--color-warning);
     color: var(--color-warning-text);
 }
+
 .result-item.warning .result-icon svg {
     stroke: var(--color-warning-text);
 }
+
 .result-item.info {
     background-color: var(--surface-primary);
     border-color: var(--border-subtle);
     color: var(--text-secondary);
 }
+
 .result-item.info .result-icon svg {
     stroke: var(--text-secondary);
 }
+
 .result-item.running {
     background-color: var(--surface-secondary);
     border-color: var(--border-subtle);
     color: var(--text-secondary);
 }
+
 .result-item.running .result-icon .result-icon-placeholder {
     border-width: 2px;
     border-style: solid;
@@ -1272,6 +1402,9 @@ input[type="file"].hidden-input {
     height: 100%;
     animation: spin 1s linear infinite;
 }
+
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }

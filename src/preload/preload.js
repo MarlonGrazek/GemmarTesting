@@ -20,7 +20,8 @@ const validReceiveChannels = [
   'java-test-event',
   'update-found',
   'update-download',
-  'update-status'
+  'update-status',
+  'window-is-maximized'
 ];
 const validInvokeChannels = ['open-external-link']; // Für invoke/handle-Muster
 
@@ -111,7 +112,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
         ipcRenderer.send('close-window');
     }
   },
-  getAppVersion: () => ipcRenderer.invoke('get-app-version')
+  getAppVersion: () => ipcRenderer.invoke('get-app-version'),
+  onWindowMaximizeStatusChange: (callback) => {
+    ipcRenderer.on('window-is-maximized', (event, isMaximized) => callback(isMaximized))
+  }
 });
 
 console.log('Preload-Skript (preload.js) wurde geladen und electronAPI wurde exposed.');

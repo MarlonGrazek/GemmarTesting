@@ -9,7 +9,7 @@ let showModal;
 let onStartTest;
 
 // DOM Elements
-let pinBox, pinBoxTitle, pinBoxSubtitle, testListContainer, codeUploadSection,
+let pinBox, pinBoxIcon, pinBoxTitle, pinBoxSubtitle, testListContainer, codeUploadSection,
     selectedTestNameElem, fileUploadInput, fileSelectionInfo, runTestButton;
 
 // State
@@ -29,6 +29,7 @@ export async function initializeTestUIManager(dependencies) {
 
     // Query all DOM elements this module controls
     pinBox = document.getElementById('pinBox');
+    pinBoxIcon = document.getElementById('pinBoxIcon');
     pinBoxTitle = document.getElementById('pinBoxTitle');
     pinBoxSubtitle = document.getElementById('pinBoxSubtitle');
     testListContainer = document.getElementById('testListContainer');
@@ -83,6 +84,7 @@ function updatePinBox() {
         : null;
 
     if (testToDisplay) {
+        pinBoxIcon.innerHTML = SVG_PIN;
         pinBoxTitle.textContent = testToDisplay.title;
         if (testToDisplay.dueDate) {
             pinBoxSubtitle.style.display = 'block';

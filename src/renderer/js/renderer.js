@@ -4,10 +4,15 @@ import { initializeThemeManager, openThemeManager } from "./managers/theme-manag
 import { initializeTestUIManager } from "./managers/test-ui-manager.js";
 import { initializeTestRunner, startTestRun } from "./managers/test-run-manager.js";
 
+const SVG_CLOSE = `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+const SVG_MINIMIZE = `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="12" x2="7" y2="12"></line></svg>`;
+const SVG_RESTORE = `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"><g transform="translate(-2, 2)"><path d="M 7 8 A 1 1 0 0 1 8 7 H 16 A 1 1 0 0 1 17 8 V 16 A 1 1 0 0 1 16 17 H 8 A 1 1 0 0 1 7 16 Z" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M 11 4 A 1 1 0 0 1 12 3 H 20 A 1 1 0 0 1 21 4 V 12 A 1 1 0 0 1 20 13 H 17 L 17 7 L 11 7 L 11 4 Z" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="miter"/></g></svg>`;
+const SVG_MAXIMIZE = `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="1"></rect></svg>`;
+
 let htmlElement,
     minimizeButton, maximizeButton, closeButton,
     themeManagerButton,
-    testListContainer,
+
     customTooltip;
 
 let showModal;
@@ -28,6 +33,7 @@ function initializeWindowControls() {
 
     // Event-Listener für den Minimieren-Button
     if (minimizeButton) { // Prüfen, ob der Button im HTML gefunden wurde
+        minimizeButton.innerHTML = SVG_MINIMIZE;
         minimizeButton.addEventListener('click', () => {
             window.electronAPI.minimizeWindow(); // Aufruf der Funktion im Main-Prozess
         });
@@ -40,12 +46,28 @@ function initializeWindowControls() {
         maximizeButton.addEventListener('click', () => {
             window.electronAPI.maximizeWindow(); // Aufruf der Funktion im Main-Prozess
         });
+
+        if(window.electronAPI.onWindowMaximizeStatusChange) {
+            window.electronAPI.onWindowMaximizeStatusChange((isMaximized) => {
+                if(isMaximized) {
+                    maximizeButton.innerHTML = SVG_RESTORE;
+                    maximizeButton.setAttribute('data-custom-tooltip', 'Restore');
+                } else {
+                    maximizeButton.innerHTML = SVG_MAXIMIZE;
+                    maximizeButton.setAttribute('data-custom-tooltip', 'Maximize');
+                }
+            })
+        }
+
+        maximizeButton.innerHTML = SVG_MAXIMIZE;
+
     } else {
         console.warn("Maximize-Button (ID: 'maximizeButton') nicht gefunden. Bitte HTML überprüfen.");
     }
 
     // Event-Listener für den Schließen-Button
     if (closeButton) {
+        closeButton.innerHTML = SVG_CLOSE;
         closeButton.addEventListener('click', () => {
             window.electronAPI.closeWindow(); // Aufruf der Funktion im Main-Prozess
         });

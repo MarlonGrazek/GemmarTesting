@@ -32,7 +32,7 @@ function createWindow() {
     height: 850, // Starthöhe
     title: 'GemmarTesting', // NEU: Setzt den Fenstertitel
     icon: path.join(__dirname, '../assets/icon.png'), // NEU: Pfad zum Anwendungsicon (angenommen es liegt in 'assets/icon.png')
-                                                      // Für Windows: 'assets/icon.ico' wäre besser.
+    // Für Windows: 'assets/icon.ico' wäre besser.
     frame: false, // ENTFERNT den Standard-Fensterrahmen und die Titelleiste
     titleBarStyle: 'hidden', // Auf macOS für nahtlosere Integration (optional für Windows/Linux)
     webPreferences: {
@@ -69,6 +69,24 @@ function createWindow() {
   mainWindow.on('closed', function () {
     mainWindow = null; // Referenz aufheben, um Speicher freizugeben
   });
+
+  mainWindow.on('maximize', () => {
+    if (mainWindow && !mainWindow.isDestroyed()) { // Prüfen, ob das Fenster noch existiert
+      mainWindow.webContents.send('window-is-maximized', true);
+    }
+  });
+
+  mainWindow.on('unmaximize', () => {
+    if (mainWindow && !mainWindow.isDestroyed()) { // Prüfen, ob das Fenster noch existiert
+      mainWindow.webContents.send('window-is-maximized', false);
+    }
+  });
+
+  mainWindow.webContents.on('did-finish-load', () => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('window-is-maximized', mainWindow.isMaximized());
+    }
+});
 }
 
 // IPC-Handler für benutzerdefinierte Fensteraktionen
@@ -97,15 +115,15 @@ ipcMain.on('close-window', () => {
 let currentUpdateVersionInfo = null;
 ipcMain.on('update-download', (event, updateInfoFromRenderer) => {
 
-  if(updateInfoFromRenderer && updateInfoFromRenderer.version) {
+  if (updateInfoFromRenderer && updateInfoFromRenderer.version) {
     currentUpdateVersionInfo = updateInfoFromRenderer;
     log.info(`Main: User chose to download version ${updateInfoFromRenderer.version}. Starting download...`);
     autoUpdater.downloadUpdate();
     // Sende sofort einen initialen "downloading" Status, damit die UI reagiert
     sendStatusToWindow({ status: 'downloading', percent: 0, version: updateInfoFromRenderer.version });
-} else {
+  } else {
     log.error("Main: 'update-download' received without valid updateInfo.");
-}
+  }
 
   autoUpdater.downloadUpdate();
 });
@@ -140,7 +158,7 @@ app.whenReady().then(() => {
 
   autoUpdater.on('checking-for-update', () => {
     log.info('Checking for update...');
-    sendStatusToWindow({status: 'checking'});
+    sendStatusToWindow({ status: 'checking' });
   });
 
   autoUpdater.on('update-available', (info) => {
@@ -148,7 +166,7 @@ app.whenReady().then(() => {
     log.info('Version:', info.version);
     log.info('Release Date:', info.releaseDate);
 
-    if(mainWindow) {
+    if (mainWindow) {
       log.info('Sende IPC "update-found" an Renderer...')
       sendStatusToWindow({
         status: 'available',
@@ -172,14 +190,14 @@ app.whenReady().then(() => {
 
   autoUpdater.on('download-progress', (progressObj) => {
     log.info(`Main: Download Progress: ${progressObj.percent}%`);
-    sendStatusToWindow({ 
-      status: 'downloading', 
-      percent: Math.round(progressObj.percent), 
+    sendStatusToWindow({
+      status: 'downloading',
+      percent: Math.round(progressObj.percent),
       speed: progressObj.bytesPerSecond,
       // Du brauchst hier die Version, die gerade geladen wird.
       // Die müsstest du dir aus dem 'update-available' info-Objekt merken.
       // Angenommen, du hast sie in einer Variable `currentUpdateVersionInfo` gespeichert:
-      version: currentUpdateVersionInfo ? currentUpdateVersionInfo.version : '?.?.?' 
+      version: currentUpdateVersionInfo ? currentUpdateVersionInfo.version : '?.?.?'
     });
   });
 
@@ -200,7 +218,7 @@ app.whenReady().then(() => {
   try {
     autoUpdater.checkForUpdates();
     log.info('checkForUpdates() called.');
-  } catch(error) {
+  } catch (error) {
     log.error('Error calling checkForUpdates:', error);
   }
 
@@ -282,11 +300,11 @@ function createTempDirectory() {
  * @returns {string} Der Paketpfad (z.B. "com/example/app") oder eine leere Zeichenkette für Default-Package.
  */
 function getPackagePathFromFileContent(fileContent) {
-    const packageMatch = fileContent.match(/^package\s+([a-zA-Z0-9_.]+)\s*;/m);
-    if (packageMatch && packageMatch[1]) {
-        return packageMatch[1].trim().replace(/\./g, path.sep); // Ersetzt Punkte durch Pfadtrenner
-    }
-    return ''; // Default package
+  const packageMatch = fileContent.match(/^package\s+([a-zA-Z0-9_.]+)\s*;/m);
+  if (packageMatch && packageMatch[1]) {
+    return packageMatch[1].trim().replace(/\./g, path.sep); // Ersetzt Punkte durch Pfadtrenner
+  }
+  return ''; // Default package
 }
 
 /**
@@ -328,7 +346,7 @@ function findClassFQNBySimpleName(userJavaFiles, simpleClassNameToFind) {
       // Es sucht nach einer Klassendeklaration und extrahiert den Namen.
       // Wichtig: `\b` stellt sicher, dass es ein ganzes Wort ist.
       const classRegex = new RegExp(`(?:public\\s+)?(?:abstract\\s+)?(?:final\\s+)?class\\s+\\b${simpleClassNameToFind}\\b`);
-      
+
       if (classRegex.test(file.content)) {
         let packageName = '';
         const packageMatch = file.content.match(/^package\s+([a-zA-Z0-9_.]+)\s*;/m);
@@ -355,16 +373,16 @@ function compileJavaCode(directory, sendTestEvent) {
     const javaFilesToCompile = [];
     // Rekursive Suche nach allen .java-Dateien im temporären Verzeichnis
     function findJavaFilesRecursive(currentDir) {
-        const items = fs.readdirSync(currentDir, { withFileTypes: true });
-        for (const item of items) {
-            const fullPath = path.join(currentDir, item.name);
-            if (item.isFile() && item.name.endsWith('.java')) {
-                // Wichtig: Pfad relativ zum 'directory' (Kompilierungs-Root) für javac
-                javaFilesToCompile.push(path.relative(directory, fullPath));
-            } else if (item.isDirectory()) {
-                findJavaFilesRecursive(fullPath);
-            }
+      const items = fs.readdirSync(currentDir, { withFileTypes: true });
+      for (const item of items) {
+        const fullPath = path.join(currentDir, item.name);
+        if (item.isFile() && item.name.endsWith('.java')) {
+          // Wichtig: Pfad relativ zum 'directory' (Kompilierungs-Root) für javac
+          javaFilesToCompile.push(path.relative(directory, fullPath));
+        } else if (item.isDirectory()) {
+          findJavaFilesRecursive(fullPath);
         }
+      }
     }
     findJavaFilesRecursive(directory); // Startet die Suche vom Wurzelverzeichnis des tempDir
 
@@ -384,23 +402,23 @@ function compileJavaCode(directory, sendTestEvent) {
     javac.stdout.on('data', (data) => {
       const msg = data.toString().trim();
       if (msg) {
-          compileOutput += msg + '\n';
-          sendTestEvent({ event: 'log', level: 'info', message: `javac: ${msg}` });
+        compileOutput += msg + '\n';
+        sendTestEvent({ event: 'log', level: 'info', message: `javac: ${msg}` });
       }
     });
 
     javac.stderr.on('data', (data) => {
       const errorMsg = data.toString().trim();
       if (errorMsg) {
-          compileOutput += errorMsg + '\n';
-          // Stellt sicher, dass Compiler-Warnungen als 'warn' und Fehler als 'error' geloggt werden
-          if (errorMsg.toLowerCase().includes("error") || errorMsg.toLowerCase().includes("fehler")) {
-            sendTestEvent({ event: 'log', level: 'error', message: `javac: ${errorMsg}` });
-          } else if (errorMsg.toLowerCase().includes("warning") || errorMsg.toLowerCase().includes("warnung")) {
-            sendTestEvent({ event: 'log', level: 'warn', message: `javac: ${errorMsg}` });
-          } else {
-            sendTestEvent({ event: 'log', level: 'info', message: `javac: ${errorMsg}` }); // Fallback für unklare Ausgaben
-          }
+        compileOutput += errorMsg + '\n';
+        // Stellt sicher, dass Compiler-Warnungen als 'warn' und Fehler als 'error' geloggt werden
+        if (errorMsg.toLowerCase().includes("error") || errorMsg.toLowerCase().includes("fehler")) {
+          sendTestEvent({ event: 'log', level: 'error', message: `javac: ${errorMsg}` });
+        } else if (errorMsg.toLowerCase().includes("warning") || errorMsg.toLowerCase().includes("warnung")) {
+          sendTestEvent({ event: 'log', level: 'warn', message: `javac: ${errorMsg}` });
+        } else {
+          sendTestEvent({ event: 'log', level: 'info', message: `javac: ${errorMsg}` }); // Fallback für unklare Ausgaben
+        }
       }
     });
 
@@ -474,13 +492,13 @@ ipcMain.on('run-java-test', async (event, { userFiles, testConfig }) => {
       { name: 'TestRunner.java', content: testRunnerContent }
     ];
     for (const file of helperFiles) {
-        const filePath = path.join(tempDir, file.name); // Direkter Pfad im tempDir-Root
-        try {
-            await fs.promises.writeFile(filePath, file.content, 'utf8');
-            sendTestEvent({ event: 'log', level: 'info', message: `Hilfsdatei geschrieben: ${file.name} (in Temp-Root)` });
-        } catch (err) {
-            throw new Error(`Fehler beim Schreiben der Hilfsdatei ${file.name} nach ${filePath}: ${err.message}`);
-        }
+      const filePath = path.join(tempDir, file.name); // Direkter Pfad im tempDir-Root
+      try {
+        await fs.promises.writeFile(filePath, file.content, 'utf8');
+        sendTestEvent({ event: 'log', level: 'info', message: `Hilfsdatei geschrieben: ${file.name} (in Temp-Root)` });
+      } catch (err) {
+        throw new Error(`Fehler beim Schreiben der Hilfsdatei ${file.name} nach ${filePath}: ${err.message}`);
+      }
     }
     sendTestEvent({ event: 'log', level: 'info', message: 'Alle Java-Dateien in temporären Ordner geschrieben.' });
 
@@ -504,7 +522,7 @@ ipcMain.on('run-java-test', async (event, { userFiles, testConfig }) => {
       // Die Test-Hauptklasse (z.B. PVL3Test) wird als im Default-Package liegend angenommen.
       // Die Nutzer-Klasse wird mit ihrem FQN übergeben.
       const java = spawn('java', ['-cp', '.', testConfig.mainTestClassName, userClassFQN], { cwd: tempDir, shell: true });
-      
+
       let stdErrOutput = ""; // Sammelt stderr für den Fall eines Fehlers während der Ausführung
 
       // stdout des Java-Prozesses abfangen (hier kommen die JSON-Events von TestRunner)
@@ -527,8 +545,8 @@ ipcMain.on('run-java-test', async (event, { userFiles, testConfig }) => {
       java.stderr.on('data', (data) => {
         const errorMsg = data.toString().trim();
         if (errorMsg) {
-            stdErrOutput += errorMsg + "\n";
-            sendTestEvent({ event: 'log', level: 'error', message: `Java stderr: ${errorMsg}` });
+          stdErrOutput += errorMsg + "\n";
+          sendTestEvent({ event: 'log', level: 'error', message: `Java stderr: ${errorMsg}` });
         }
       });
 
