@@ -1,15 +1,15 @@
 /* ==========================================================================
-   2.2: Footer
-   Styles for the main application footer and the version info box.
+   FOOTER
    ========================================================================== */
 
-   #app-footer {
+#app-footer {
     height: 48px;
     background-color: var(--surface-primary);
     border-top: var(--border-divider);
     display: flex;
     align-items: center;
-    padding: 0 1.5rem; /* 24px */
+    padding: 0 1.5rem;
+    /* 24px */
     justify-content: flex-start;
 }
 
@@ -19,16 +19,12 @@
     transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
     background-color: var(--surface-secondary);
     box-shadow: var(--shadow-small);
-
-    /* Pillenform und Flexbox-Layout */
     border-radius: 9999px; 
     padding: 6px 14px;
     display: flex;
     align-items: center;
     gap: 0.6em;
     font-size: 0.9rem;
-    
-    /* Rand ist immer da, aber standardmäßig unsichtbar */
     border: 2px solid var(--surface-primary); 
 }
 
@@ -54,25 +50,56 @@
 /* --- Spezifische Zustände für die Version-Box --- */
 
 #versionBox.update-available {
+    /* Setzt den sichtbaren Rand auf die Akzentfarbe */
     border-color: var(--interactive-accent-primary);
 }
 
+/* @property-Definitionen für die Animationen (unverändert) */
+@property --gradient-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+}
+
+@keyframes spin-border {
+    0% {
+        --gradient-angle: 0deg;
+    }
+
+    100% {
+        --gradient-angle: 360deg;
+    }
+}
+
 #versionBox.update-checking {
-    border-color: transparent;
+    border: 2px solid transparent;
     background-image:
         linear-gradient(var(--surface-secondary), var(--surface-secondary)),
         conic-gradient(from var(--gradient-angle), var(--interactive-accent-primary) 0% 15%, transparent 15% 100%);
     background-origin: border-box;
-    background-clip: content-box, border-box;
+    background-clip: padding-box, border-box;
     animation: spin-border 1.5s linear infinite;
 }
 
+#versionBox.update-checking:hover {
+    background-image:
+        linear-gradient(var(--surface-secondary-hover), var(--surface-secondary-hover)),
+        conic-gradient(from var(--gradient-angle), var(--interactive-accent-primary) 0% 15%, transparent 15% 100%);
+}
+
+/* @property für den Download-Fortschritt (unverändert) */
+@property --download-progress {
+    syntax: '<percentage>';
+    initial-value: 0%;
+    inherits: false;
+}
+
 #versionBox.update-downloading {
-    border-color: transparent;
+    border: 2px solid transparent;
     background-image:
         linear-gradient(var(--surface-secondary), var(--surface-secondary)),
         conic-gradient(var(--interactive-accent-primary) var(--download-progress, 0%), var(--surface-secondary) 0);
     background-origin: border-box;
-    background-clip: content-box, border-box;
+    background-clip: padding-box, border-box;
     transition: --download-progress 0.2s linear;
 }
