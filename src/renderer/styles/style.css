@@ -52,6 +52,25 @@
     align-items: center;
 }
 
+#appLogo svg { /* Zielt auf das direkt eingebettete SVG */
+    width: 5rem; /* Beispielgröße für ein Logo oben links */
+    height: 5rem;
+    display: block; /* Stellt sicher, dass es ein Block-Element ist */
+    transition: all 0.3s ease-in-out;
+}
+
+/* Steuert die Farbe des Hauptteils des Logos (das "GT") */
+#appLogo .logo-main {
+    fill: var(--text-primary);
+    transition: fill 0.3s ease-in-out; /* Sanfter Farbwechsel */
+}
+
+/* Steuert die Farbe des Akzentteils des Logos (das Dreieck) */
+#appLogo .logo-accent {
+    fill: var(--interactive-accent-primary);
+    transition: fill 0.3s ease-in-out; /* Sanfter Farbwechsel */
+}
+
 .header-left {
     margin-left: 10px;
     justify-content: flex-start;
