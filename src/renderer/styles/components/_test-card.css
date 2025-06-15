@@ -1,0 +1,151 @@
+/* ==========================================================================
+   3.2: Test Selection Cards
+   Styles for the test selection grid and the individual test cards.
+   ========================================================================== */
+
+   #testListContainer {
+    display: grid;
+    gap: 0.875rem;
+}
+
+/* Responsive Grid */
+@media (min-width: 640px) {
+    #testListContainer {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1.25rem;
+    }
+}
+
+@media (min-width: 1280px) {
+    #testListContainer {
+        /* In a two-column layout, this might be too wide. Let's adjust. */
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1536px) {
+     #testListContainer {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+.test-card {
+    padding: 0.875rem;
+    border-radius: 0.5rem;
+    border: 2px solid var(--border-subtle);
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 4rem;
+    background-color: var(--surface-secondary);
+    box-shadow: var(--shadow-small);
+}
+
+.test-card:not(.selected):hover {
+    background-color: var(--surface-secondary-hover);
+    border-color: var(--border-interactive);
+    box-shadow: var(--shadow-medium);
+}
+
+.test-card.selected {
+    border-color: var(--interactive-accent-primary) !important;
+    background-color: color-mix(in srgb, var(--interactive-accent-primary) 10%, var(--surface-secondary)) !important;
+    box-shadow: none !important;
+}
+
+.test-card h3 {
+    font-weight: 600;
+    font-size: 1.125rem;
+    margin: 0;
+    color: var(--text-primary);
+    flex-grow: 1;
+    margin-right: 0.5rem;
+}
+
+.test-card-info-button {
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.2s ease-in-out;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+}
+
+.test-card-info-button:hover {
+    background-color: var(--surface-secondary-hover);
+    color: var(--text-primary);
+}
+
+.test-card-info-button .icon {
+    width: 1.5em;
+    height: 1.5em;
+    display: block;
+}
+
+/* Also includes styles for the associated file upload section */
+#codeUploadSection {
+    margin-top: 2rem;
+}
+
+#codeUploadSection>p:first-of-type {
+    margin-bottom: 0.75rem;
+    color: var(--text-secondary);
+}
+
+#selectedTestName {
+    font-weight: 600;
+    color: var(--interactive-accent-text);
+}
+
+#codeUploadSection>div:first-of-type {
+    padding: 1.25rem;
+    border-radius: 0.5rem;
+    border: 1px dashed var(--border-subtle);
+    text-align: center;
+    background-color: var(--surface-inset);
+}
+
+input[type="file"].hidden-input {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+}
+
+#codeUploadSection>div:first-of-type>p {
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+    color: var(--text-primary);
+}
+
+#codeUploadSection>div:first-of-type>p:nth-of-type(1) {
+    margin-top: 0.75rem;
+}
+
+#fileSelectionInfo {
+    font-weight: 500;
+    margin-top: 0.375rem;
+    color: var(--color-success-text);
+}
+
+#codeUploadSection>div:first-of-type>p:nth-of-type(3) {
+    font-size: 0.75rem;
+    margin-top: 0.375rem;
+    color: var(--text-subtle);
+}
+
+#codeUploadSection>div:last-of-type {
+    margin-top: 1.5rem;
+    text-align: center;
+}

@@ -1,0 +1,26 @@
+/* ==========================================================================
+   CUSTOM TOOLTIP
+   ========================================================================== */
+   .custom-tooltip {
+    position: fixed;
+    display: none;
+    padding: 0.5em 0.8em;
+    background-color: var(--surface-secondary-hover);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-interactive);
+    border-radius: 0.5rem;
+    box-shadow: var(--shadow-medium);
+    font-size: 0.85em;
+    line-height: 1.45;
+    max-width: 320px;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.1s ease-out;
+    white-space: pre-wrap;
+}
+
+.custom-tooltip.visible {
+    display: block;
+    opacity: 1;
+}

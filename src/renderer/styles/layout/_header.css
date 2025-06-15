@@ -1,0 +1,183 @@
+/* ==========================================================================
+   2.1: Header
+   Styles for the main application header, logo, pin box, and window controls.
+   ========================================================================== */
+
+   #app-header {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px;
+    height: 52px;
+    background-color: var(--surface-primary);
+    border-bottom: var(--border-divider);
+    flex-shrink: 0;
+    -webkit-app-region: drag;
+}
+
+#app-header > div {
+    display: flex;
+    align-items: center;
+}
+
+#appLogo svg {
+    width: 5rem;
+    height: 5rem;
+    display: block;
+    transition: all 0.3s ease-in-out;
+}
+
+#appLogo .logo-main {
+    fill: var(--text-primary);
+    transition: fill 0.3s ease-in-out;
+}
+
+#appLogo .logo-accent {
+    fill: var(--interactive-accent-primary);
+    transition: fill 0.3s ease-in-out;
+}
+
+.header-left {
+    margin-left: 10px;
+    justify-content: flex-start;
+    gap: 16px;
+}
+
+.header-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 33%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.header-right {
+    justify-content: flex-end;
+    gap: 0;
+}
+
+#app-header #pinBox {
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+    background-color: var(--surface-secondary);
+    border-radius: 9999px;
+    padding: 6px 14px;
+    border: none;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color var(--transition-duration);
+}
+
+#app-header .app-title {
+    font-size: 1.5rem;
+    font-weight: bolder;
+    margin: 0;
+}
+
+#app-header #pinBox:hover {
+    background-color: var(--surface-secondary-hover);
+}
+
+#pinBoxIcon .icon {
+    width: 1.1em;
+    height: 1.1em;
+    color: var(--text-secondary);
+}
+
+#pinBoxTitle {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+#pinBoxSubtitle {
+    color: var(--text-secondary);
+}
+
+#pinBoxTitle::after {
+    content: '-';
+    margin-left: 0.6em;
+    color: var(--text-secondary);
+}
+
+#app-header .icon-button {
+    background-color: transparent;
+    color: var(--text-secondary);
+    border-radius: 0.375rem;
+    border: none;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#app-header .icon-button:hover {
+    background-color: var(--surface-secondary-hover);
+    color: var(--text-primary);
+}
+
+#app-header .icon-button svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: var(--text-secondary);
+    transition: 0.2s ease-in-out;
+}
+
+#app-header .icon-button:hover svg {
+    fill: var(--text-primary);
+}
+
+.divider {
+    width: 2px;
+    height: 32px;
+    background-color: var(--surface-secondary-hover);
+    margin: 0 10px;
+    border-radius: 25px;
+}
+
+#app-header button.window-controls {
+    -webkit-app-region: no-drag;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: background-color var(--transition-duration), color var(--transition-duration);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    width: 44px;
+    height: 32px;
+    border-radius: 4px;
+}
+
+#app-header button.window-controls svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    stroke: currentColor;
+    transition: 0.2s ease-in-out;
+}
+
+#app-header button.window-controls:hover {
+    background-color: var(--surface-secondary-hover);
+    color: var(--text-primary);
+}
+
+#app-header button#closeButton.window-controls:hover {
+    background-color: #E81123;
+    color: white;
+}
+
+#app-header h1,
+#app-header #pinBox,
+#app-header button,
+#app-header label {
+    -webkit-app-region: no-drag;
+}

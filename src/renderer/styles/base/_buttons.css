@@ -1,0 +1,59 @@
+/* ==========================================================================
+   1.3: Buttons
+   Defines the styles for common button types used throughout the app.
+   ========================================================================== */
+
+   .button-primary {
+    cursor: pointer;
+    display: inline-block;
+    padding: 0.6875rem 1.375rem;
+    background-color: var(--interactive-accent-primary);
+    color: var(--text-on-accent);
+    border-radius: 0.375rem;
+    font-weight: 500;
+    transition: background-color 0.2s;
+    border: none;
+}
+
+.button-primary:hover {
+    background-color: var(--interactive-accent-hover);
+}
+
+.button-secondary {
+    cursor: pointer;
+    display: inline-block;
+    padding: 0.6875rem 1.375rem;
+    background-color: var(--surface-secondary);
+    color: var(--text-primary);
+    border-radius: 0.375rem;
+    font-weight: 500;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+    border: none;
+}
+
+.button-secondary:hover {
+    background-color: var(--surface-secondary-hover);
+    color: var(--text-primary);
+}
+
+.button-danger {
+    cursor: pointer;
+    display: inline-block;
+    padding: 0.6875rem 1.375rem;
+    background-color: #DC2626;
+    color: var(--text-on-accent);
+    border-radius: 0.375rem;
+    font-weight: 500;
+    transition: background-color 0.2s;
+    border: none;
+}
+
+.button-danger:hover {
+    background-color: #B22222;
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}

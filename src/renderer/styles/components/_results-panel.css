@@ -1,0 +1,192 @@
+/* ==========================================================================
+   3.3: Results Panel
+   Styles for the entire right-side panel that displays test run results.
+   ========================================================================== */
+
+   .results-panel header {
+    flex-shrink: 0; /* Prevents the header from shrinking */
+}
+
+#resultsPageWrapper header #runningTestName {
+    font-weight: 600;
+    color: var(--interactive-accent-text);
+}
+
+/* --- Summary Box --- */
+.results-summary {
+    margin-bottom: 1.5rem;
+    padding: 1.25rem;
+    border-radius: 0.5rem;
+    background-color: var(--surface-inset);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-small);
+}
+
+.results-progress .progress-text {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.progress-bar-bg {
+    height: 0.625rem;
+    border-radius: 9999px;
+    background-color: var(--surface-primary);
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    border-radius: 9999px;
+    background-color: var(--interactive-accent-primary);
+    transition: width 0.3s ease-in-out;
+}
+
+.results-tests {
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+    margin-top: 1.25rem;
+}
+
+.results-tests-title {
+    font-weight: 500;
+    color: var(--text-primary);
+    margin: 0 0 0.25rem 0;
+    font-size: 0.95rem;
+}
+
+.results-tests-number {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+    margin: 0;
+}
+
+#totalTestsCount { color: var(--text-primary); }
+#passedTestsCount { color: var(--interactive-accent-primary); }
+#failedTestsCount { color: var(--color-danger); }
+#warningTestsCount { color: var(--color-warning); }
+
+
+/* --- Individual Result Items --- */
+#testSuitesContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.result-suite-card {
+    padding: 1.25rem;
+    border-radius: 0.5rem;
+    background-color: var(--surface-secondary);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-small);
+}
+
+.result-suite-card h2 {
+    font-size: 1.25rem;
+    margin: 0 0 1rem 0;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-divider);
+    color: var(--text-primary);
+}
+
+.subtests-area {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.result-subtest {
+    border-left: 3px solid var(--border-divider);
+    padding: 0.25rem 0 0.25rem 1rem;
+}
+
+.result-subtest h3 {
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin: 0 0 0.5rem 0;
+    color: var(--text-primary);
+}
+
+.result-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    margin-top: 0.375rem;
+    border-radius: 0.375rem;
+    border-left-width: 4px;
+    border-left-style: solid;
+    font-size: 0.95rem;
+}
+
+.result-item .result-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.125rem;
+    height: 1.125rem;
+    margin-right: 0.75rem;
+    flex-shrink: 0;
+}
+
+.result-item .result-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.result-item.passed {
+    background-color: color-mix(in srgb, var(--interactive-accent-primary) 10%, var(--surface-secondary));
+    border-color: var(--interactive-accent-primary);
+    color: var(--interactive-accent-text);
+}
+
+.result-item.passed .result-icon svg {
+    stroke: var(--interactive-accent-text);
+}
+
+.result-item.failed {
+    background-color: color-mix(in srgb, var(--color-danger) 10%, var(--surface-secondary));
+    border-color: var(--color-danger);
+    color: var(--color-danger-text);
+}
+
+.result-item.failed .result-icon svg {
+    stroke: var(--color-danger-text);
+}
+
+.result-item.warning {
+    background-color: color-mix(in srgb, var(--color-warning) 12%, var(--surface-secondary));
+    border-color: var(--color-warning);
+    color: var(--color-warning-text);
+}
+
+.result-item.warning .result-icon svg {
+    stroke: var(--color-warning-text);
+}
+
+.result-item.info {
+    background-color: var(--surface-primary);
+    border-color: var(--border-subtle);
+    color: var(--text-secondary);
+}
+
+.result-item.info .result-icon svg {
+    stroke: var(--text-secondary);
+}
+
+.result-item.running .result-icon .result-icon-placeholder {
+    border-width: 2px;
+    border-style: solid;
+    border-color: transparent;
+    border-top-color: var(--interactive-accent-primary);
+    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+    animation: spin 1s linear infinite;
+}

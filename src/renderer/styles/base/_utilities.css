@@ -1,0 +1,11 @@
+/* ==========================================================================
+   1.4: Utility Classes
+   Contains helper classes for common tasks, like hiding elements.
+   ========================================================================== */
+
+   .hidden-alt {
+    display: none !important;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}

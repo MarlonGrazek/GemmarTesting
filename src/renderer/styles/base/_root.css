@@ -1,0 +1,12 @@
+/* ==========================================================================
+   1.1: Root Variables
+   Defines global CSS variables for colors and transitions.
+   ========================================================================== */
+
+   :root {
+    --color-danger: #ef4444;
+    --color-danger-text: #dc2626;
+    --color-warning: #f59e0b;
+    --color-warning-text: #d97706;
+    --transition-duration: 0.2s;
+}
