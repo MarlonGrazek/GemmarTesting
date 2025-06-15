@@ -250,7 +250,6 @@ body {
     margin: 0;
     padding: 0;
     height: 100%;
-    overflow: hidden;
     font-family: 'Inter', sans-serif;
     background-color: var(--surface-page);
     color: var(--text-primary);
