@@ -1,4 +1,4 @@
-// src/test-runner.js
+// src/renderer/js/managers/test-run-manager.js
 
 // --- SVG Icons for Results ---
 const SVG_CHECK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
@@ -13,7 +13,7 @@ let electronAPI;
 let javaTestEventListenerUnsubscribe = null;
 
 // DOM Elements for the results page
-let mainContentWrapper, resultsPageWrapper, runningTestNameElem, backToSetupButton,
+let resultsPlaceholder, resultsContent, runningTestNameElem,
     progressBar, progressPercentage, totalTestsCountElem, passedTestsCountElem,
     failedTestsCountElem, warningTestsCountElem, testSuitesContainer;
 
@@ -37,7 +37,6 @@ export function initializeTestRunner(dependencies) {
     electronAPI = dependencies.electronAPI;
 
     _queryDOMElements();
-    _bindEventListeners();
 }
 
 /**
@@ -53,14 +52,17 @@ export async function startTestRun(testConfig, files) {
     state.currentTestConfig = testConfig;
 
     _resetResultsState();
-    _showResultsPage();
+
+    // UI-Umschaltung: Platzhalter ausblenden, Ergebnisse einblenden
+    if (resultsPlaceholder) resultsPlaceholder.classList.add('hidden-alt');
+    if (resultsContent) resultsContent.classList.remove('hidden-alt');
     if (runningTestNameElem) runningTestNameElem.textContent = testConfig.title;
 
     try {
         const userFileContents = await _readFilesAsText(files);
 
         if (javaTestEventListenerUnsubscribe) javaTestEventListenerUnsubscribe();
-        
+
         javaTestEventListenerUnsubscribe = window.electronAPI.receive('java-test-event', _handleJavaTestEvent);
         console.log("Java test event listener registered.");
 
@@ -87,11 +89,13 @@ export async function startTestRun(testConfig, files) {
  * Queries and assigns all necessary DOM elements for the results page.
  */
 function _queryDOMElements() {
-    mainContentWrapper = document.getElementById('mainContentWrapper');
-    resultsPageWrapper = document.getElementById('resultsPageWrapper');
+    resultsPlaceholder = document.getElementById('resultsPlaceholder');
+    resultsContent = document.getElementById('resultsContent');
     runningTestNameElem = document.getElementById('runningTestName');
-    backToSetupButton = document.getElementById('backToSetupButton');
-    progressBar = document.getElementById('progressBar');
+
+    // KORREKTUR: Zielt auf das neue Füllelement
+    progressBar = document.getElementById('progressBarFill');
+
     progressPercentage = document.getElementById('progressPercentage');
     totalTestsCountElem = document.getElementById('totalTestsCount');
     passedTestsCountElem = document.getElementById('passedTestsCount');
@@ -100,14 +104,6 @@ function _queryDOMElements() {
     testSuitesContainer = document.getElementById('testSuitesContainer');
 }
 
-/**
- * Binds event listeners for the results page.
- */
-function _bindEventListeners() {
-    if (backToSetupButton) {
-        backToSetupButton.addEventListener('click', _showHomePage);
-    }
-}
 
 /**
  * Reads a list of files and returns their content as an array of objects.
@@ -127,38 +123,6 @@ function _readFilesAsText(files) {
 }
 
 /**
- * Switches the view from the main page to the results page.
- */
-function _showResultsPage() {
-    if (mainContentWrapper) mainContentWrapper.classList.add('hidden-alt');
-    if (resultsPageWrapper) {
-        resultsPageWrapper.classList.remove('hidden-alt');
-        resultsPageWrapper.style.opacity = "0";
-        setTimeout(() => { if (resultsPageWrapper) resultsPageWrapper.style.opacity = "1"; }, 50);
-    }
-}
-
-/**
- * Switches the view back to the main setup page and cleans up listeners.
- */
-function _showHomePage() {
-    if (resultsPageWrapper) resultsPageWrapper.classList.add('hidden-alt');
-    if (mainContentWrapper) {
-        mainContentWrapper.classList.remove('hidden-alt');
-        mainContentWrapper.style.opacity = "0";
-        setTimeout(() => { if (mainContentWrapper) mainContentWrapper.style.opacity = "1"; }, 50);
-    }
-    
-    // Unsubscribe from Java test events when leaving the results page
-    if (javaTestEventListenerUnsubscribe) {
-        javaTestEventListenerUnsubscribe();
-        javaTestEventListenerUnsubscribe = null;
-        console.log("Java test event listener removed.");
-    }
-    // Note: The UI state of test-ui-manager (selection, files) should be reset there.
-}
-
-/**
  * Resets all statistics and clears the results container for a new run.
  */
 function _resetResultsState() {
@@ -169,7 +133,7 @@ function _resetResultsState() {
     state.currentSuiteElement = null;
     state.currentSubtestElement = null;
     if (testSuitesContainer) testSuitesContainer.innerHTML = '';
-    
+
     _updateSummaryDisplay();
     if (progressBar) progressBar.style.width = `0%`;
     if (progressPercentage) progressPercentage.textContent = `0%`;
@@ -222,7 +186,7 @@ function _addSuite(suiteName) {
     suiteCard.innerHTML = `<h2>${suiteName}</h2><div class="subtests-area"></div>`;
     testSuitesContainer.appendChild(suiteCard);
     state.currentSuiteElement = suiteCard;
-    state.currentSubtestElement = null; // Reset subtest when a new suite starts
+    state.currentSubtestElement = null;
 }
 
 /**
@@ -231,12 +195,12 @@ function _addSuite(suiteName) {
  */
 function _addSubtest(subtestName) {
     if (!state.currentSuiteElement) {
-        _addSuite("General Tests"); // Create a fallback suite
+        _addSuite("General Tests");
     }
     const subtestDiv = document.createElement('div');
     subtestDiv.className = 'result-subtest';
     subtestDiv.innerHTML = `<h3>${subtestName}</h3><div class="result-items-container"></div>`;
-    
+
     const subtestsArea = state.currentSuiteElement.querySelector('.subtests-area');
     subtestsArea.appendChild(subtestDiv);
     state.currentSubtestElement = subtestDiv;
@@ -254,7 +218,7 @@ function _logResult(message, status = 'info') {
     } else if (state.currentSuiteElement) {
         targetContainer = state.currentSuiteElement.querySelector('.subtests-area');
     } else {
-        _addSuite("General Logs"); // Fallback for logs outside a suite
+        _addSuite("General Logs");
         targetContainer = state.currentSuiteElement.querySelector('.subtests-area');
     }
 
@@ -271,7 +235,6 @@ function _logResult(message, status = 'info') {
 
 /**
  * Handles incoming test events from the Java backend via IPC.
- * This is the core function that drives the results UI updates.
  * @param {object} eventData - The event data from the backend.
  */
 function _handleJavaTestEvent(eventData) {
@@ -291,37 +254,35 @@ function _handleJavaTestEvent(eventData) {
             break;
 
         case 'assert':
-            // An assertion always counts as one test in the plan
             state.totalTestsInPlan++;
-            _logResult(eventData.message, eventData.status.toLowerCase()); // status is 'passed' or 'failed'
+            _logResult(eventData.message, eventData.status.toLowerCase());
             break;
-            
+
         case 'log':
-            // A simple log message, maps to info/warning status but doesn't count as a test
             const level = eventData.level?.toLowerCase() || 'info';
             _logResult(eventData.message, level === 'warn' ? 'warning' : 'info');
             break;
 
         case 'run_finish':
             if (progressPercentage) {
-                 progressPercentage.textContent = `Finished in ${eventData.duration} ms`;
+                progressPercentage.textContent = `Finished in ${eventData.duration} ms`;
             }
-             _updateSummaryDisplay(); // Final update
+            _updateSummaryDisplay();
 
             const summaryMessage = `Test run for "${state.currentTestConfig.title}" completed.<br>
                                   Result: ${state.passedTests} Passed, ${state.failedTests} Failed, ${state.warningTests} Warnings.`;
-                                  showModal({
-                                    title: "Test Run Finished",
-                                    content: summaryMessage,
-                                    size: 'medium',
-                                    actionButtons: [
-                                        {
-                                            text: 'Okay',
-                                            class: 'button-primary',
-                                            onClick: (modal) => modal.close()
-                                        }
-                                    ]
-                                });
+            showModal({
+                title: "Test Run Finished",
+                content: summaryMessage,
+                size: 'medium',
+                actionButtons: [
+                    {
+                        text: 'Okay',
+                        class: 'button-primary',
+                        onClick: (modal) => modal.close()
+                    }
+                ]
+            });
             break;
 
         default:

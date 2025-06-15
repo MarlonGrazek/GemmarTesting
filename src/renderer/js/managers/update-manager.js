@@ -26,17 +26,17 @@ export function initializeUpdateRenderer(dependencies) {
         console.log('Update-Renderer: IPC "update-status" empfangen mit Payload:', payload);
 
         if (payload.status === 'available') {
-
             availableUpdateInfo = payload;
-            // Rufe dein Pop-up auf (diese Funktion verschieben wir als Nächstes)
             showCustomUpdatePrompt(payload);
         } else if (payload.status == 'downloaded') {
+            if(availableUpdateInfo) availableUpdateInfo.status = 'downloaded';
             showCustomRestartPrompt(payload);
         } else if (payload.status === 'not-available' || payload.status === 'error') {
-            availableUpdateInfo = null; // Setze zurück, wenn kein Update da ist oder ein Fehler auftritt
+            availableUpdateInfo = null;
         }
 
         updateVersionBox(payload.status, payload);
+
     });
 }
 
@@ -143,7 +143,7 @@ function handleVersionBoxClick() {
                 break;
 
             case 'downloaded':
-                showRestartPrompt(availableUpdateInfo);
+                showCustomRestartPrompt(availableUpdateInfo);
                 break;
 
             default:

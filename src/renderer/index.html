@@ -37,77 +37,80 @@
 
     <main id="app-main">
 
-        <!--Main Content Wrapper-->
-        <div id="mainContentWrapper" class="content-wrapper w-full max-w-3xl mt-12 sm:mt-16">
-            <header class="mb-8 text-center">
-                <h1 class="text-3xl sm:text-4xl font-bold">Gemmar Testing</h1>
-                <p class="mt-2">Choose a Test and upload your code to view the results</p>
-            </header>
+        <div id="splitViewContainer">
 
-            <section id="testSelectionSection">
-                <h2 class="text-2xl font-semibold mb-6">1. Choose a test</h2>
-                <div id="testListContainer"
-                    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 test-grid-scrollable"></div>
-                <p id="noTestSelectedError" class="text-sm mt-2 hidden-alt">Choose a test first</p>
-            </section>
-
-            <section id="codeUploadSection" class="mt-10 hidden-alt">
-                <h2 class="text-2xl font-semibold mb-1">2. Upload your Java-Files</h2>
-                <p class="mb-6">Selected test: <strong id="selectedTestName"></strong></p>
-                <div class="p-6 rounded-lg border border-dashed text-center">
-                    <label for="fileUpload" class="button-secondary">Upload Java-Files</label>
-                    <input type="file" id="fileUpload" multiple accept=".java" class="hidden-input">
-                    <p class="mt-4 text-sm">Select all relevant .java-files of your solution (including the interfaces)
-                    </p>
-                    <p id="fileSelectionInfo" class="mt-2 text-sm font-medium"></p>
-                    <p class="mt-2 text-xs">(Hold Strg/Cmd to select multiple files)</p>
-                </div>
-                <div class="mt-8 text-center">
-                    <label id="runTestButton" class="button-primary" disabled>Run Test</label>
-                </div>
-            </section>
-        </div>
-
-        <!--Result Page-->
-        <div id="resultsPageWrapper" class="content-wrapper hidden-alt w-full max-w-5xl mt-12 sm:mt-16">
-            <header class="mb-6 flex justify-between items-center">
-                <div>
-                    <h1 id="resultsPageTitle" class="text-2xl sm:text-3xl font-bold">Test Results</h1>
-                    <p id="resultsPageSubtitle" class="mt-1">Tests ran for: <span id="runningTestName"
-                            class="font-semibold"></span></p>
-                </div>
-                <label id="backToSetupButton" class="button-secondary">&larr; Back to the Menu</label>
-            </header>
-
-            <div class="mb-6 p-4 rounded-lg shadow">
-                <div class="flex justify-between items-center mb-2 text-sm">
-                    <span>Progress:</span>
-                    <span id="progressPercentage">0%</span>
-                </div>
-                <div class="w-full progress-bar-bg rounded-full h-2.5 mb-4">
-                    <div id="progressBar" class="progress-bar-fill h-2.5 rounded-full"></div>
-                </div>
-                <div class="flex justify-around text-center text-sm sm:text-base">
-                    <div>
-                        <p class="font-semibold">Total Tests</p>
-                        <p id="totalTestsCount" class="text-2xl font-bold">0</p>
+            <div class="setup-panel">
+                <header class="mb-8 text-center">
+                    <h1 class="text-3xl sm:text-4xl font-bold">Gemmar Testing</h1>
+                    <p class="mt-2">Choose a Test and upload your code to view the results</p>
+                </header>
+    
+                <section id="testSelectionSection">
+                    <h2 class="text-2xl font-semibold mb-6">1. Choose a test</h2>
+                    <div id="testListContainer"
+                        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 test-grid-scrollable"></div>
+                    <p id="noTestSelectedError" class="text-sm mt-2 hidden-alt">Choose a test first</p>
+                </section>
+    
+                <section id="codeUploadSection" class="mt-10 hidden-alt">
+                    <h2 class="text-2xl font-semibold mb-1">2. Upload your Java-Files</h2>
+                    <p class="mb-6">Selected test: <strong id="selectedTestName"></strong></p>
+                    <div class="p-6 rounded-lg border border-dashed text-center">
+                        <label for="fileUpload" class="button-secondary">Upload Java-Files</label>
+                        <input type="file" id="fileUpload" multiple accept=".java" class="hidden-input">
+                        <p class="mt-4 text-sm">Select all relevant .java-files of your solution (including the interfaces)
+                        </p>
+                        <p id="fileSelectionInfo" class="mt-2 text-sm font-medium"></p>
+                        <p class="mt-2 text-xs">(Hold Strg/Cmd to select multiple files)</p>
                     </div>
-                    <div>
-                        <p class="font-semibold">Passed</p>
-                        <p id="passedTestsCount" class="text-2xl font-bold">0</p>
+                    <div class="mt-8 text-center">
+                        <label id="runTestButton" class="button-primary" disabled>Run Test</label>
                     </div>
-                    <div>
-                        <p class="font-semibold">Failed</p>
-                        <p id="failedTestsCount" class="text-2xl font-bold">0</p>
-                    </div>
-                    <div>
-                        <p class="font-semibold">Warnings</p>
-                        <p id="warningTestsCount" class="text-2xl font-bold">0</p>
-                    </div>
-                </div>
+                </section>
             </div>
 
-            <div id="testSuitesContainer" class="space-y-6"></div>
+            <div class="results-panel">
+                <header class="mb-6 flex justify-between items-center">
+                    <div>
+                        <h1 id="resultsPageTitle" class="text-2xl sm:text-3xl font-bold">Test Results</h1>
+                        <p id="resultsPageSubtitle" class="mt-1">Tests ran for: <span id="runningTestName"
+                                class="font-semibold"></span></p>
+                    </div>
+                    <label id="backToSetupButton" class="button-secondary">&larr; Back to the Menu</label>
+                </header>
+    
+                <div class="results-summary">
+                    <div class="results-progress">
+                        <div class="progress-text">
+                            <span>Progress:</span>
+                            <span id="progressPercentage">0%</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div id="progressBarFill" class="progress-bar-fill"></div>
+                        </div>
+                    </div>
+                    <div class="results-tests">
+                        <div>
+                            <p class="results-tests-title">Total Tests</p>
+                            <p id="totalTestsCount" class="results-tests-number">0</p>
+                        </div>
+                        <div>
+                            <p class="results-tests-title">Passed</p>
+                            <p id="passedTestsCount" class="results-tests-number">0</p>
+                        </div>
+                        <div>
+                            <p class="results-tests-title">Failed</p>
+                            <p id="failedTestsCount" class="results-tests-number">0</p>
+                        </div>
+                        <div>
+                            <p class="results-tests-title">Warnings</p>
+                            <p id="warningTestsCount" class="results-tests-number">0</p>
+                        </div>
+                    </div>
+                </div>
+    
+                <div id="testSuitesContainer" class="space-y-6"></div>
+            </div>
         </div>
 
     </main>

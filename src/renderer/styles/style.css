@@ -26,11 +26,128 @@
 }
 
 /* ==========================================================================
+   2. GLOBAL LAYOUTS & BASIS TYPOGRAPHY
+   ========================================================================== */
+html {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    font-family: 'Inter', sans-serif;
+    background-color: var(--surface-page);
+    color: var(--text-primary);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+#app-header,
+#app-footer {
+    flex-shrink: 0;
+}
+
+#app-main {
+    flex-grow: 1;
+    padding: 24px;
+    box-sizing: border-box;
+    display: flex;
+    min-height: 0;
+}
+
+#splitViewContainer {
+    display: flex;
+    flex-grow: 1;
+    gap: 24px;
+    width: 100%;
+    min-width: 0;
+}
+
+.setup-panel,
+.results-panel {
+    flex: 1;
+    background-color: var(--surface-primary);
+    border-radius: 0.5rem;
+    box-shadow: var(--shadow-medium);
+    padding: 1.5rem;
+    overflow-y: auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+#mainContentWrapper,
+#resultsPageWrapper {
+    width: 100%;
+    margin: 0;
+    border-radius: 0;
+    background-color: transparent;
+    box-shadow: none;
+    padding: 0;
+    transition: none;
+}
+
+.setup-panel header,
+.results-panel header {
+    margin-bottom: 1.5rem;
+}
+
+.setup-panel header {
+    text-align: center;
+}
+
+.setup-panel header h1,
+.results-panel #resultsPageTitle {
+    font-size: 1.875rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text-primary);
+}
+
+@media (min-width: 640px) {
+
+    .setup-panel header h1,
+    .results-panel #resultsPageTitle {
+        font-size: 2.25rem;
+    }
+}
+
+.setup-panel header p,
+.results-panel #resultsPageSubtitle {
+    margin-top: 0.375rem;
+    color: var(--text-secondary);
+}
+
+.setup-panel #testSelectionSection h2,
+.setup-panel #codeUploadSection h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+#resultsPlaceholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 100%;
+    flex-grow: 1;
+    color: var(--text-secondary);
+    border: 2px dashed var(--border-subtle);
+    border-radius: 0.5rem;
+    background-color: var(--surface-inset);
+    padding: 2rem;
+}
+
+
+/* ==========================================================================
    HEADER & APP NAVIGATION
    ========================================================================== */
 
-/* 1. Der Haupt-Header-Container
-   -------------------------------------------------------------------------- */
 #app-header {
     position: relative;
     display: flex;
@@ -38,37 +155,32 @@
     align-items: center;
     padding: 0 10px;
     height: 52px;
-    /* NEU: Höhe von 64px auf 52px reduziert */
     background-color: var(--surface-primary);
     border-bottom: var(--border-divider);
     flex-shrink: 0;
     -webkit-app-region: drag;
 }
 
-/* 2. Die Zonen innerhalb des Headers
-   -------------------------------------------------------------------------- */
 #app-header>div {
     display: flex;
     align-items: center;
 }
 
-#appLogo svg { /* Zielt auf das direkt eingebettete SVG */
-    width: 5rem; /* Beispielgröße für ein Logo oben links */
+#appLogo svg {
+    width: 5rem;
     height: 5rem;
-    display: block; /* Stellt sicher, dass es ein Block-Element ist */
+    display: block;
     transition: all 0.3s ease-in-out;
 }
 
-/* Steuert die Farbe des Hauptteils des Logos (das "GT") */
 #appLogo .logo-main {
     fill: var(--text-primary);
-    transition: fill 0.3s ease-in-out; /* Sanfter Farbwechsel */
+    transition: fill 0.3s ease-in-out;
 }
 
-/* Steuert die Farbe des Akzentteils des Logos (das Dreieck) */
 #appLogo .logo-accent {
     fill: var(--interactive-accent-primary);
-    transition: fill 0.3s ease-in-out; /* Sanfter Farbwechsel */
+    transition: fill 0.3s ease-in-out;
 }
 
 .header-left {
@@ -91,32 +203,21 @@
 .header-right {
     justify-content: flex-end;
     gap: 0;
-    /* NEU: Kein Abstand zwischen den Buttons mehr */
 }
 
-
-/* 3. Styling für die "Angepinnter Test"-Pille (#pinBox)
-   -------------------------------------------------------------------------- */
 #app-header #pinBox {
-    /* Layout für die Pille selbst */
     display: flex;
     align-items: center;
     gap: 0.6em;
-    /* Abstand zwischen Icon, Titel und Subtitle */
-
-    /* Aussehen der Pille */
     background-color: var(--surface-secondary);
     border-radius: 9999px;
-    /* Pillen-Form */
     padding: 6px 14px;
     border: none;
     font-size: 0.9rem;
-    /* Etwas kleinere Schrift in der Pille */
     cursor: pointer;
     transition: background-color var(--transition-duration);
 }
 
-/* Der App-Titel (etwas kleiner) */
 #app-header .app-title {
     font-size: 1.5rem;
     font-weight: bolder;
@@ -127,7 +228,6 @@
     background-color: var(--surface-secondary-hover);
 }
 
-/* Styling für die Elemente IN der Pille */
 #pinBoxIcon .icon {
     width: 1.1em;
     height: 1.1em;
@@ -143,16 +243,12 @@
     color: var(--text-secondary);
 }
 
-/* Fügt einen Trennstrich per CSS hinzu, damit JS sauber bleibt */
 #pinBoxTitle::after {
     content: '-';
     margin-left: 0.6em;
     color: var(--text-secondary);
 }
 
-
-/* 4. Styling für die runden Icon-Buttons (z.B. Theme-Manager)
-   -------------------------------------------------------------------------- */
 #app-header .icon-button {
     background-color: transparent;
     color: var(--text-secondary);
@@ -191,9 +287,6 @@
     border-radius: 25px;
 }
 
-
-/* 5. Styling für die Fenster-Kontroll-Buttons (Min, Max, Close)
-   -------------------------------------------------------------------------- */
 #app-header button.window-controls {
     -webkit-app-region: no-drag;
     background: transparent;
@@ -205,13 +298,11 @@
     align-items: center;
     justify-content: center;
     padding: 0;
-
     width: 44px;
     height: 32px;
     border-radius: 4px;
 }
 
-/* Styling für die SVGs IN den Buttons */
 #app-header button.window-controls svg {
     width: 1.25rem;
     height: 1.25rem;
@@ -219,8 +310,6 @@
     transition: 0.2s ease-in-out;
 }
 
-
-/* Hover-Effekte bleiben gleich */
 #app-header button.window-controls:hover {
     background-color: var(--surface-secondary-hover);
     color: var(--text-primary);
@@ -231,9 +320,6 @@
     color: white;
 }
 
-
-/* 6. Alle klickbaren Elemente von der Drag-Region ausnehmen
-   -------------------------------------------------------------------------- */
 #app-header h1,
 #app-header #pinBox,
 #app-header button,
@@ -242,117 +328,108 @@
 }
 
 /* ==========================================================================
-   2. GLOBAL LAYOUTS & BASIS TYPOGRAPHY
+   FOOTER
    ========================================================================== */
-/* 4.1. Grundlegendes Seiten-Layout (`body`) */
-html,
-body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    font-family: 'Inter', sans-serif;
-    background-color: var(--surface-page);
-    color: var(--text-primary);
-}
 
-#app-main {
-    flex-grow: 1;
-    overflow-y: auto;
-    padding: 24px;
-}
-
-#app-header,
-#app-footer {
-    flex-shrink: 0;
-}
-
-/* Haupt-Container für den Inhalt */
-#mainContentWrapper,
-#resultsPageWrapper {
-    width: 100%;
-    /* GEÄNDERT: margin-top und margin-bottom entfernt, um die Zentrierung zu erlauben */
-    margin: 0;
-    border-radius: 0.5rem;
+   #app-footer {
+    height: 48px;
     background-color: var(--surface-primary);
-    box-shadow: var(--shadow-medium);
-    /* Ein konsistenter Schatten */
-    transition: opacity 0.3s ease-in-out;
-    padding: 1.5rem;
+    border-top: var(--border-divider);
+    display: flex;
+    align-items: center;
+    padding: 0 1.5rem; /* 24px */
+    justify-content: flex-start;
 }
 
-@media (min-width: 640px) {
+.info-box {
+    position: relative;
+    cursor: pointer;
+    transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+    background-color: var(--surface-secondary);
+    box-shadow: var(--shadow-small);
 
-    #mainContentWrapper,
-    #resultsPageWrapper {
-        padding: 1.75rem;
-    }
+    /* Pillenform und Flexbox-Layout */
+    border-radius: 9999px; 
+    padding: 6px 14px;
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+    font-size: 0.9rem;
+    
+    /* FINAL: Der Rand ist immer 2px breit für die Stabilität, aber standardmäßig unsichtbar. */
+    border: 2px solid var(--surface-primary);
 }
 
-@media (min-width: 768px) {
-
-    #mainContentWrapper,
-    #resultsPageWrapper {
-        padding: 2.25rem;
-    }
+.info-box:hover {
+    background-color: var(--surface-secondary-hover);
 }
 
-#mainContentWrapper {
-    max-width: 56rem;
-}
-
-#resultsPageWrapper {
-    max-width: 64rem;
-}
-
-
-/* Allgemeine Überschriften & Text-Stile */
-#mainContentWrapper header,
-#resultsPageWrapper header {
-    margin-bottom: 1.5rem;
-}
-
-#mainContentWrapper header {
-    text-align: center;
-}
-
-#mainContentWrapper header h1,
-#resultsPageWrapper header #resultsPageTitle {
-    font-size: 1.875rem;
-    font-weight: 700;
-    margin: 0;
+.info-box-title {
+    margin-bottom: 0; 
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     color: var(--text-primary);
 }
 
-@media (min-width: 640px) {
-
-    #mainContentWrapper header h1,
-    #resultsPageWrapper header #resultsPageTitle {
-        font-size: 2.25rem;
-    }
-}
-
-#mainContentWrapper header p,
-#resultsPageWrapper header #resultsPageSubtitle {
-    margin-top: 0.375rem;
+.info-box-subtitle {
+    font-size: 0.9em;
     color: var(--text-secondary);
+    white-space: nowrap;
 }
 
-#testSelectionSection h2,
-#codeUploadSection h2 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 1rem;
+/* --- Spezifische Zustände für die Version-Box (UNVERÄNDERT) --- */
+
+#versionBox.update-available {
+    border: 2px solid var(--interactive-accent-primary);
 }
+
+@property --gradient-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+}
+
+@keyframes spin-border {
+    0% { --gradient-angle: 0deg; }
+    100% { --gradient-angle: 360deg; }
+}
+
+#versionBox.update-checking {
+    border: 2px solid transparent;
+    background-image:
+        linear-gradient(var(--surface-secondary), var(--surface-secondary)),
+        conic-gradient(from var(--gradient-angle), var(--interactive-accent-primary) 0% 15%, transparent 15% 100%);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    animation: spin-border 1.5s linear infinite;
+}
+
+@property --download-progress {
+    syntax: '<percentage>';
+    initial-value: 0%;
+    inherits: false;
+}
+
+#versionBox.update-downloading {
+    border: 2px solid transparent;
+    background-image:
+        linear-gradient(var(--surface-secondary), var(--surface-secondary)),
+        conic-gradient(var(--interactive-accent-primary) var(--download-progress, 0%), var(--surface-secondary) 0);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    transition: --download-progress 0.2s linear;
+}
+
 
 /* ==========================================================================
-   3. MODALS (Angepasst an die neuen semantischen Farbvariablen)
+   MODALS
    ========================================================================== */
 .modal-overlay {
     position: fixed;
     inset: 0;
     background-color: rgba(0, 0, 0, 0.5);
-    /* Beibehalten, da es eine spezifische Abdunklung ist */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -371,20 +448,15 @@ body {
 
 .modal-container {
     background-color: var(--surface-primary);
-    /* NEU */
     border: 1px solid var(--border-divider);
-    /* NEU */
     box-shadow: var(--shadow-large);
-    /* NEU */
     border-radius: 0.5rem;
     display: flex;
     flex-direction: column;
     max-height: 90vh;
     width: 100%;
-    /* padding wird in den inneren Containern definiert */
 }
 
-/* Größenklassen */
 .modal-container.size-small {
     max-width: 28rem;
 }
@@ -403,7 +475,6 @@ body {
     align-items: center;
     padding: 1.5rem;
     border-bottom: 1px solid var(--border-divider);
-    /* NEU */
     flex-shrink: 0;
 }
 
@@ -411,7 +482,6 @@ body {
     font-size: 1.125rem;
     font-weight: 600;
     color: var(--text-primary);
-    /* NEU */
     margin: 0;
 }
 
@@ -423,11 +493,10 @@ body {
 .modal-header-button {
     background-color: transparent;
     color: var(--text-secondary);
-    /* NEU */
     border-radius: 0.375rem;
     border: none;
     cursor: pointer;
-    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+    transition: background-color 0.2s, color 0.2s;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -438,15 +507,7 @@ body {
 
 .modal-header-button:hover {
     background-color: var(--surface-secondary-hover);
-    /* NEU */
     color: var(--text-primary);
-    /* NEU */
-}
-
-.modal-header-button:focus-visible {
-    outline: 2px solid var(--interactive-accent-primary);
-    /* NEU */
-    outline-offset: 1px;
 }
 
 .modal-header-button svg {
@@ -454,20 +515,18 @@ body {
     height: 1.5rem;
 }
 
-.modal-header-button.close-button svg {
-    stroke-width: 2.5;
+.modal-header-button.pin-button.active {
+    color: var(--interactive-accent-primary);
 }
 
 .modal-header-button.pin-button svg {
     stroke-width: 0;
 }
 
-.modal-header-button.pin-button.active {
-    color: var(--interactive-accent-primary);
-    /* NEU */
+.modal-header-button.close-button svg {
+    stroke-width: 2.5;
 }
 
-/* Content, Actions, Flags Container */
 .modal-content {
     padding: 1.5rem;
     overflow-y: auto;
@@ -477,20 +536,14 @@ body {
 .modal-actions {
     padding: 1.5rem;
     border-top: 1px solid var(--border-divider);
-    /* NEU */
     flex-shrink: 0;
     display: flex;
     justify-content: flex-end;
     gap: 0.75rem;
 }
 
-.modal-actions.full-width button {
-    flex: 1;
-}
-
 .modal-description-text {
     color: var(--text-secondary);
-    /* NEU */
     font-size: 0.95rem;
     line-height: 1.7;
     margin: 0;
@@ -501,7 +554,6 @@ body {
 
 .modal-description-text strong {
     color: var(--text-primary);
-    /* NEU */
     font-weight: 600;
 }
 
@@ -519,20 +571,15 @@ body {
 .modal-flag-item,
 .modal-flags-container .countdown-pill.modal-header-countdown-pill {
     background-color: var(--surface-secondary);
-    /* NEU */
     color: var(--text-secondary);
-    /* NEU */
     border: 1px solid var(--border-subtle);
-    /* NEU */
     padding: 0.3em 0.7em;
     border-radius: 9999px;
     font-size: 0.90rem;
     font-weight: 500;
     cursor: default;
-    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
     white-space: nowrap;
     box-shadow: var(--shadow-small);
-    /* NEU */
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -542,64 +589,19 @@ body {
 .modal-flag-item:hover,
 .modal-flags-container .countdown-pill.modal-header-countdown-pill:hover {
     background-color: var(--surface-secondary-hover);
-    /* NEU */
     border-color: var(--border-interactive);
-    /* NEU */
     color: var(--text-primary);
-    /* NEU */
     box-shadow: var(--shadow-medium);
-    /* NEU */
 }
 
 .modal-flags-container .countdown-pill.modal-header-countdown-pill {
     background-color: var(--interactive-accent-primary) !important;
-    /* NEU */
     color: var(--text-on-accent) !important;
-    /* NEU */
     border-color: var(--interactive-accent-primary) !important;
-    /* NEU */
-}
-
-.modal-action-button.submit-solution-button {
-    /* Dieses Element wird von render.js erstellt */
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.55rem 1rem;
-    margin-top: 0.25rem;
-    margin-bottom: 0.75rem;
-    margin-left: auto;
-    margin-right: auto;
-    background-color: var(--interactive-accent-primary);
-    /* NEU */
-    color: var(--text-on-accent);
-    /* NEU */
-    border: none;
-    border-radius: 0.375rem;
-    font-weight: 500;
-    font-size: 0.875rem;
-    text-decoration: none;
-    text-align: center;
-    cursor: pointer;
-    transition: background-color 0.2s ease-in-out, opacity 0.2s ease-in-out, background-image 0.2s ease-in-out, filter 0.2s ease-in-out;
-    flex-shrink: 0;
-}
-
-html .modal-action-button.submit-solution-button:hover {
-    background-color: var(--interactive-accent-hover);
-    /* NEU */
-    opacity: 0.9;
-}
-
-.modal-action-button.submit-solution-button .icon {
-    width: 1em;
-    height: 1em;
-    margin-right: 0.4em;
-    vertical-align: middle;
 }
 
 /* ==========================================================================
-   4. BUTTONS
+   BUTTONS
    ========================================================================== */
 .button-primary {
     cursor: pointer;
@@ -609,7 +611,7 @@ html .modal-action-button.submit-solution-button:hover {
     color: var(--text-on-accent);
     border-radius: 0.375rem;
     font-weight: 500;
-    transition: background-color 0.2s ease-in-out;
+    transition: background-color 0.2s;
     border: none;
 }
 
@@ -625,7 +627,7 @@ html .modal-action-button.submit-solution-button:hover {
     color: var(--text-primary);
     border-radius: 0.375rem;
     font-weight: 500;
-    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, color 0.2s ease-in-out;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
     border: none;
 }
 
@@ -648,7 +650,6 @@ html .modal-action-button.submit-solution-button:hover {
 
 .button-danger:hover {
     background-color: #B22222;
-    /* NEU */
 }
 
 button:disabled {
@@ -658,21 +659,17 @@ button:disabled {
 }
 
 /* ==========================================================================
-   4. CUSTOM TOOLTIP
+   CUSTOM TOOLTIP
    ========================================================================== */
 .custom-tooltip {
     position: fixed;
     display: none;
     padding: 0.5em 0.8em;
     background-color: var(--surface-secondary-hover);
-    /* NEU */
     color: var(--text-secondary);
-    /* NEU */
     border: 1px solid var(--border-interactive);
-    /* NEU */
     border-radius: 0.5rem;
     box-shadow: var(--shadow-medium);
-    /* NEU */
     font-size: 0.85em;
     line-height: 1.45;
     max-width: 320px;
@@ -689,143 +686,31 @@ button:disabled {
 }
 
 /* ==========================================================================
-   5. INFO BOXES
-   ========================================================================== */
-
-.info-box {
-    text-align: left;
-    position: fixed;
-    z-index: 40;
-    max-width: 350px;
-    width: auto;
-    left: 1.5rem;
-    cursor: pointer;
-    border-radius: 0.5rem;
-    padding: 0.875rem;
-    transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
-
-    /* NEU: Angewendet auf das semantische System */
-    background-color: var(--surface-secondary);
-    border: 2px solid var(--border-subtle);
-    box-shadow: var(--shadow-small);
-}
-
-.info-box:hover {
-    /* NEU: Angewendet auf das semantische System */
-    background-color: var(--surface-secondary-hover);
-    border-color: var(--border-interactive);
-    box-shadow: var(--shadow-medium);
-}
-
-.info-box-title {
-    font-size: 1.05em;
-    font-weight: 600;
-    margin-bottom: 0.3rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    /* NEU: Angewendet auf das semantische System */
-    color: var(--text-primary);
-}
-
-.info-box-subtitle {
-    font-size: 0.9em;
-    /* NEU: Angewendet auf das semantische System */
-    color: var(--text-secondary);
-}
-
-/* --- Spezifische Zustände für die Version-Box --- */
-
-#versionBox.update-available {
-    /* NEU: Nutzt die Akzentfarbe für den Rand */
-    border: 2px solid var(--interactive-accent-primary);
-}
-
-/* @property-Definitionen für die Animationen (unverändert) */
-@property --gradient-angle {
-    syntax: '<angle>';
-    initial-value: 0deg;
-    inherits: false;
-}
-
-@keyframes spin-border {
-    0% {
-        --gradient-angle: 0deg;
-    }
-
-    100% {
-        --gradient-angle: 360deg;
-    }
-}
-
-#versionBox.update-checking {
-    border: 2px solid transparent;
-    /* NEU: Nutzt semantische Variablen für die Hintergrundfarben */
-    background-image:
-        linear-gradient(var(--surface-secondary), var(--surface-secondary)),
-        conic-gradient(from var(--gradient-angle), var(--interactive-accent-primary) 0% 15%, transparent 15% 100%);
-    background-origin: border-box;
-    background-clip: padding-box, border-box;
-    animation: spin-border 1.5s linear infinite;
-}
-
-/* @property für den Download-Fortschritt (unverändert) */
-@property --download-progress {
-    syntax: '<percentage>';
-    initial-value: 0%;
-    inherits: false;
-}
-
-#versionBox.update-downloading {
-    border: 2px solid transparent;
-    /* NEU: Nutzt semantische Variablen für die Hintergrundfarben */
-    background-image:
-        linear-gradient(var(--surface-secondary), var(--surface-secondary)),
-        conic-gradient(var(--interactive-accent-primary) var(--download-progress, 0%), var(--surface-secondary) 0);
-    background-origin: border-box;
-    background-clip: padding-box, border-box;
-    transition: --download-progress 0.2s linear;
-}
-
-/* ==========================================================================
    CUSTOM SCROLLBAR
    ========================================================================== */
-
-/* Wirkt sich auf alle Scrollbars in Webkit-Browsern (Chrome, Edge, Safari) aus */
 ::-webkit-scrollbar {
     width: 8px;
-    /* Breite der Scrollbar */
     height: 8px;
-    /* Höhe für horizontale Scrollbars */
 }
 
-/* Der "Track", also die Leiste, auf der der Schieber läuft */
 ::-webkit-scrollbar-track {
     background: transparent;
-    /* Macht den Hintergrund unsichtbar */
 }
 
-/* Der "Thumb", also der Schieber selbst */
 ::-webkit-scrollbar-thumb {
     background-color: var(--border-subtle);
-    /* Eine subtile Farbe für den Standardzustand */
     border-radius: 10px;
-    /* Vollständig abgerundete Ecken */
     border: 2px solid transparent;
-    /* Erzeugt einen kleinen Abstand zum Rand */
     background-clip: content-box;
-    /* Stellt sicher, dass der Border-Abstand transparent ist */
     transition: background-color 0.2s;
 }
 
-/* Hover-Zustand für den Schieber */
 ::-webkit-scrollbar-thumb:hover {
     background-color: var(--border-interactive);
-    /* Eine etwas auffälligere Farbe bei Hover */
 }
 
 /* ==========================================================================
-   5. TEST SELECTION & CARDS
+   TEST SELECTION & CARDS
    ========================================================================== */
 
 #testListContainer {
@@ -833,7 +718,6 @@ button:disabled {
     gap: 0.875rem;
 }
 
-/* Responsive Grid: 2 Spalten auf kleinen Bildschirmen */
 @media (min-width: 640px) {
     #testListContainer {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -841,8 +725,13 @@ button:disabled {
     }
 }
 
-/* 3 Spalten auf größeren Bildschirmen */
-@media (min-width: 1024px) {
+@media (min-width: 1280px) {
+    #testListContainer {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1536px) {
     #testListContainer {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
@@ -851,18 +740,14 @@ button:disabled {
 .test-card {
     padding: 0.875rem;
     border-radius: 0.5rem;
-    border-width: 2px;
-    border-style: solid;
+    border: 2px solid var(--border-subtle);
     cursor: pointer;
-    transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    transition: all 0.2s ease-in-out;
     display: flex;
     justify-content: space-between;
     align-items: center;
     min-height: 4rem;
-
-    /* Farben & Schatten aus dem Theme-System */
     background-color: var(--surface-secondary);
-    border-color: var(--border-subtle);
     box-shadow: var(--shadow-small);
 }
 
@@ -873,9 +758,7 @@ button:disabled {
 }
 
 .test-card.selected {
-    /* Wichtig-Flag, um sicherzustellen, dass die Akzentfarbe immer gewinnt */
     border-color: var(--interactive-accent-primary) !important;
-    /* Mischt die Akzentfarbe leicht in den Hintergrund ein */
     background-color: color-mix(in srgb, var(--interactive-accent-primary) 10%, var(--surface-secondary)) !important;
     box-shadow: none !important;
 }
@@ -896,7 +779,7 @@ button:disabled {
     border-radius: 0.375rem;
     cursor: pointer;
     color: var(--text-secondary);
-    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+    transition: all 0.2s ease-in-out;
     flex-shrink: 0;
     display: inline-flex;
     align-items: center;
@@ -920,18 +803,16 @@ button:disabled {
     font-size: 0.875rem;
     margin-top: 0.375rem;
     color: var(--color-danger);
-    /* Feste Fehlerfarbe */
 }
 
 /* ==========================================================================
-   6. CODE UPLOAD & START BUTTON
+   CODE UPLOAD & START BUTTON
    ========================================================================== */
 
 #codeUploadSection {
     margin-top: 2rem;
 }
 
-/* Der Titel über der Upload-Box */
 #codeUploadSection>p:first-of-type {
     margin-bottom: 0.75rem;
     color: var(--text-secondary);
@@ -942,7 +823,6 @@ button:disabled {
     color: var(--interactive-accent-text);
 }
 
-/* Die Box mit dem gestrichelten Rand */
 #codeUploadSection>div:first-of-type {
     padding: 1.25rem;
     border-radius: 0.5rem;
@@ -951,7 +831,6 @@ button:disabled {
     background-color: var(--surface-inset);
 }
 
-/* Verstecktes <input type="file"> Element */
 input[type="file"].hidden-input {
     width: 0.1px;
     height: 0.1px;
@@ -961,7 +840,6 @@ input[type="file"].hidden-input {
     z-index: -1;
 }
 
-/* Texte in der Upload-Box */
 #codeUploadSection>div:first-of-type>p {
     font-size: 0.875rem;
     margin-bottom: 0.25rem;
@@ -984,8 +862,6 @@ input[type="file"].hidden-input {
     color: var(--text-subtle);
 }
 
-
-/* Der Container für den "Run Test" Button, sorgt für Zentrierung */
 #codeUploadSection>div:last-of-type {
     margin-top: 1.5rem;
     text-align: center;
@@ -995,13 +871,11 @@ input[type="file"].hidden-input {
    THEME MANAGER
    ========================================================================== */
 
-/* HINZUGEFÜGT: Sorgt für einen vertikalen Abstand zwischen den Karten */
 .theme-manager-list-item-card+.theme-manager-list-item-card,
 .theme-manager-list-item-card+.theme-create-card {
     margin-top: 0.75rem;
 }
 
-/* Styling für eine einzelne Theme-Karte und den "Erstellen"-Button */
 .theme-manager-list-item-card,
 .theme-create-card {
     display: flex;
@@ -1017,7 +891,6 @@ input[type="file"].hidden-input {
     min-height: 50px;
 }
 
-/* Hover-Effekt für die Karten */
 .theme-manager-list-item-card:hover,
 .theme-create-card:hover {
     background-color: var(--surface-secondary-hover);
@@ -1025,14 +898,12 @@ input[type="file"].hidden-input {
     box-shadow: var(--shadow-medium);
 }
 
-/* Spezielles Styling für die aktive Theme-Karte */
 .theme-manager-list-item-card.active-theme {
     border-color: var(--interactive-accent-primary) !important;
     background-color: color-mix(in srgb, var(--interactive-accent-primary) 10%, var(--surface-secondary));
     box-shadow: none !important;
 }
 
-/* Der Text innerhalb der Karte */
 .theme-name-display {
     font-weight: 500;
     color: var(--text-primary);
@@ -1040,13 +911,11 @@ input[type="file"].hidden-input {
     margin-right: 0.5rem;
 }
 
-/* Hervorhebung für den Text des aktiven Themes */
 .theme-manager-list-item-card.active-theme .theme-name-display {
     color: var(--interactive-accent-primary);
     font-weight: 600;
 }
 
-/* Spezielles Styling für die "Erstellen"-Karte */
 .theme-create-card {
     border-style: dashed;
     justify-content: center;
@@ -1057,7 +926,6 @@ input[type="file"].hidden-input {
     margin-right: 0;
 }
 
-/* Der "Bearbeiten"-Button (Stift-Icon) */
 .theme-edit-button {
     background: none;
     border: none;
@@ -1084,17 +952,15 @@ input[type="file"].hidden-input {
 }
 
 /* ==========================================================================
-   THEME MANAGER - EDITOR VIEW (Finale, korrigierte Version)
+   THEME MANAGER - EDITOR VIEW
    ========================================================================== */
 
-/* Container für alle Einstellungen */
 .theme-editor-content {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
 }
 
-/* Styling für alle Labels im Editor */
 .theme-editor-label {
     display: block;
     font-size: 1rem;
@@ -1103,7 +969,6 @@ input[type="file"].hidden-input {
     margin: 0;
 }
 
-/* Eingabefeld für den Namen */
 .modal-input {
     width: 100%;
     box-sizing: border-box;
@@ -1112,7 +977,6 @@ input[type="file"].hidden-input {
     border-radius: 0.375rem;
     font-size: 1rem;
     border: none;
-    /* KORREKTUR: Nutzt die hellere Hintergrundfarbe */
     background-color: var(--surface-secondary);
     color: var(--text-primary);
     transition: box-shadow 0.2s;
@@ -1123,7 +987,6 @@ input[type="file"].hidden-input {
     box-shadow: 0 0 0 2px var(--interactive-accent-primary) inset;
 }
 
-/* Container für die Slider-Beschriftung */
 .slider-label-container {
     display: flex;
     justify-content: space-between;
@@ -1136,7 +999,6 @@ input[type="file"].hidden-input {
     color: var(--text-secondary);
 }
 
-/* Die Slider selbst */
 .theme-slider {
     -webkit-appearance: none;
     appearance: none;
@@ -1144,7 +1006,6 @@ input[type="file"].hidden-input {
     height: 8px;
     margin-top: 0.75rem;
     border-radius: 9999px;
-    /* KORREKTUR: Nutzt die hellere Hintergrundfarbe */
     background: var(--surface-secondary);
     border: 1px solid var(--border-subtle);
     outline: none;
@@ -1173,7 +1034,6 @@ input[type="file"].hidden-input {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
-/* Das Farbauswahl-Feld */
 .color-picker-input {
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -1204,51 +1064,19 @@ input[type="file"].hidden-input {
 
 
 /* ==========================================================================
-   RESULTS PAGE (Finale, korrigierte Version)
+   RESULTS PAGE COMPONENTS
    ========================================================================== */
 
-/* KORREKTUR: Der Haupt-Wrapper hat keinen eigenen Hintergrund mehr.
-   Er dient nur noch dem Layout und der maximalen Breite. */
-#resultsPageWrapper {
-    width: 100%;
-    max-width: 56rem;
-    /* Behält die maximale Breite bei */
-}
-
-/* Header der Ergebnisseite (Titel und Zurück-Button) */
-#resultsPageWrapper header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: none;
-    border: none;
-    padding: 0;
-    margin-bottom: 1.5rem;
-    /* Abstand zur nächsten Box */
-}
-
-#resultsPageWrapper header #runningTestName {
-    font-weight: 600;
-    color: var(--interactive-accent-text);
-}
-
-#backToSetupButton {
-    text-decoration: none;
-}
-
-
-/* KORREKTUR: Spezifischer Selektor, der NUR die Summary-Box betrifft.
-   Wir zielen auf das <div>, das direkt nach dem <header> kommt. */
-#resultsPageWrapper>header+div {
+.results-summary {
     margin-bottom: 1.5rem;
     padding: 1.25rem;
     border-radius: 0.5rem;
     background-color: var(--surface-inset);
     border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-small);
 }
 
-/* Der Container für "Progress:" und die Prozentanzeige */
-#resultsPageWrapper>header+div>.flex.justify-between {
+.results-progress .progress-text {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1257,12 +1085,12 @@ input[type="file"].hidden-input {
     margin-bottom: 0.5rem;
 }
 
-/* Fortschrittsbalken */
 .progress-bar-bg {
     height: 0.625rem;
     border-radius: 9999px;
     background-color: var(--surface-primary);
     overflow: hidden;
+    margin-bottom: 1rem;
 }
 
 .progress-bar-fill {
@@ -1272,30 +1100,27 @@ input[type="file"].hidden-input {
     transition: width 0.3s ease-in-out;
 }
 
-/* Container für die Zähler (Total, Passed, etc.) */
-#resultsPageWrapper>header+div>.flex.justify-around {
+.results-tests {
     display: flex;
     justify-content: space-around;
     text-align: center;
     margin-top: 1.25rem;
 }
 
-/* Styling für die Labels ("Total Tests", "Passed", etc.) */
-#resultsPageWrapper>header+div>.flex.justify-around p.font-semibold {
+.results-tests-title {
     font-weight: 500;
     color: var(--text-primary);
-    margin-bottom: 0.25rem;
+    margin: 0 0 0.25rem 0;
     font-size: 0.95rem;
 }
 
-/* Styling für die Zahlen */
-#resultsPageWrapper>header+div>.flex.justify-around p.text-2xl {
+.results-tests-number {
     font-size: 2rem;
     font-weight: 700;
     line-height: 1;
+    margin: 0;
 }
 
-/* Farben für die Zahlen (bleibt gleich) */
 #totalTestsCount {
     color: var(--text-primary);
 }
@@ -1313,7 +1138,14 @@ input[type="file"].hidden-input {
 }
 
 
-/* --- Rest der Seite (bleibt unverändert, da es bereits funktioniert) --- */
+.results-panel header {
+    flex-shrink: 0;
+}
+
+#resultsPageWrapper header #runningTestName {
+    font-weight: 600;
+    color: var(--interactive-accent-text);
+}
 
 #testSuitesContainer {
     display: flex;
@@ -1421,12 +1253,6 @@ input[type="file"].hidden-input {
     stroke: var(--text-secondary);
 }
 
-.result-item.running {
-    background-color: var(--surface-secondary);
-    border-color: var(--border-subtle);
-    color: var(--text-secondary);
-}
-
 .result-item.running .result-icon .result-icon-placeholder {
     border-width: 2px;
     border-style: solid;
@@ -1441,5 +1267,28 @@ input[type="file"].hidden-input {
 @keyframes spin {
     to {
         transform: rotate(360deg);
+    }
+}
+
+/* ==========================================================================
+   RESPONSIVENESS
+   ========================================================================== */
+@media (max-width: 1024px) {
+    body {
+        overflow-y: auto;
+    }
+
+    #app-main {
+        overflow-y: visible;
+        padding: 16px;
+    }
+
+    #splitViewContainer {
+        flex-direction: column;
+    }
+
+    .setup-panel,
+    .results-panel {
+        overflow-y: visible;
     }
 }
