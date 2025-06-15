@@ -3,9 +3,9 @@
    Styles for the main content area, including the two-panel split view.
    ========================================================================== */
 
-   #app-main {
+#app-main {
     flex-grow: 1;
-    padding: 24px;
+    padding: 1.5rem;
     box-sizing: border-box;
     display: flex;
     min-height: 0;
@@ -25,7 +25,7 @@
     background-color: var(--surface-primary);
     border-radius: 0.5rem;
     box-shadow: var(--shadow-medium);
-    padding: 1.5rem;
+    padding: 2.5rem;
     overflow-y: auto;
     min-width: 0;
     display: flex;
@@ -38,10 +38,6 @@
     margin-bottom: 1.5rem;
 }
 
-.setup-panel header {
-    text-align: center;
-}
-
 .setup-panel header h1,
 .results-panel #resultsPageTitle {
     font-size: 1.875rem;
@@ -51,6 +47,7 @@
 }
 
 @media (min-width: 640px) {
+
     .setup-panel header h1,
     .results-panel #resultsPageTitle {
         font-size: 2.25rem;
@@ -92,9 +89,11 @@
         overflow-y: auto;
         padding: 16px;
     }
+
     #splitViewContainer {
         flex-direction: column;
     }
+
     .setup-panel,
     .results-panel {
         overflow-y: visible;
