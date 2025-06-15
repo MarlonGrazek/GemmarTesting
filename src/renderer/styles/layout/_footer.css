@@ -15,7 +15,6 @@
 
 .info-box {
     position: relative;
-    max-width: 350px;
     cursor: pointer;
     transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
     background-color: var(--surface-secondary);
