@@ -3,6 +3,7 @@ import { initializeUpdateRenderer } from "./managers/update-manager.js";
 import { initializeThemeManager, openThemeManager } from "./managers/theme-manager.js";
 import { initializeTestUIManager } from "./managers/test-ui-manager.js";
 import { initializeTestRunner, startTestRun } from "./managers/test-run-manager.js";
+import TooltipManager from "./managers/tooltip-manager.js";
 
 const SVG_CLOSE = `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
 const SVG_MINIMIZE = `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="12" x2="7" y2="12"></line></svg>`;
@@ -15,7 +16,6 @@ let htmlElement,
     minimizeButton, maximizeButton, closeButton,
     themeManagerButton,
     appLogo,
-    customTooltip,
     resultsPlaceholderLogo;
 
 let showModal;
@@ -26,130 +26,44 @@ function initializeWindowControls() {
     closeButton = document.getElementById('closeButton');
 
     appLogo = document.getElementById('appLogo');
-
     resultsPlaceholderLogo = document.getElementById('resultsPlaceholderLogo');
 
-    if (appLogo) {
-        appLogo.innerHTML = SVG_LOGO;
-    } else console.log('App-Logo not found');
-
-    if (resultsPlaceholderLogo) {
-        resultsPlaceholderLogo.innerHTML = SVG_LOGO;
-    } else console.log('ResultsPlaceholderLogo not found');
+    if (appLogo) appLogo.innerHTML = SVG_LOGO;
+    if (resultsPlaceholderLogo) resultsPlaceholderLogo.innerHTML = SVG_LOGO;
 
     if (!window.electronAPI || typeof window.electronAPI.minimizeWindow !== 'function') {
-        console.error("Fenstersteuerungs-API (electronAPI) ist nicht vollständig verfügbar. Preload-Skript überprüfen.");
-        // Optional: Wenn die API nicht verfügbar ist, können Sie die Buttons im UI ausblenden oder deaktivieren.
         if (minimizeButton) minimizeButton.style.display = 'none';
         if (maximizeButton) maximizeButton.style.display = 'none';
         if (closeButton) closeButton.style.display = 'none';
-        return; // Funktion beenden, da die API nicht nutzbar ist
+        return;
     }
 
-    // Event-Listener für den Minimieren-Button
-    if (minimizeButton) { // Prüfen, ob der Button im HTML gefunden wurde
+    if (minimizeButton) {
         minimizeButton.innerHTML = SVG_MINIMIZE;
-        minimizeButton.addEventListener('click', () => {
-            window.electronAPI.minimizeWindow(); // Aufruf der Funktion im Main-Prozess
-        });
-    } else {
-        console.warn("Minimize-Button (ID: 'minimizeButton') nicht gefunden. Bitte HTML überprüfen.");
+        minimizeButton.addEventListener('click', () => window.electronAPI.minimizeWindow());
     }
 
-    // Event-Listener für den Maximieren/Wiederherstellen-Button
     if (maximizeButton) {
-        maximizeButton.addEventListener('click', () => {
-            window.electronAPI.maximizeWindow(); // Aufruf der Funktion im Main-Prozess
-        });
-
+        maximizeButton.addEventListener('click', () => window.electronAPI.maximizeWindow());
         if (window.electronAPI.onWindowMaximizeStatusChange) {
             window.electronAPI.onWindowMaximizeStatusChange((isMaximized) => {
-                if (isMaximized) {
-                    maximizeButton.innerHTML = SVG_RESTORE;
-                    maximizeButton.setAttribute('data-custom-tooltip', 'Restore');
-                } else {
-                    maximizeButton.innerHTML = SVG_MAXIMIZE;
-                    maximizeButton.setAttribute('data-custom-tooltip', 'Maximize');
-                }
-            })
+                maximizeButton.innerHTML = isMaximized ? SVG_RESTORE : SVG_MAXIMIZE;
+                maximizeButton.setAttribute('data-custom-tooltip', isMaximized ? 'Restore' : 'Maximize');
+            });
         }
-
         maximizeButton.innerHTML = SVG_MAXIMIZE;
-
-    } else {
-        console.warn("Maximize-Button (ID: 'maximizeButton') nicht gefunden. Bitte HTML überprüfen.");
     }
 
-    // Event-Listener für den Schließen-Button
     if (closeButton) {
         closeButton.innerHTML = SVG_CLOSE;
-        closeButton.addEventListener('click', () => {
-            window.electronAPI.closeWindow(); // Aufruf der Funktion im Main-Prozess
-        });
-    } else {
-        console.warn("Close-Button (ID: 'closeButton') nicht gefunden. Bitte HTML überprüfen.");
+        closeButton.addEventListener('click', () => window.electronAPI.closeWindow());
     }
-
-    console.log("Fenstersteuerungs-Buttons initialisiert.");
-}
-
-function initializeCustomTooltip() {
-
-    customTooltip = document.getElementById('customTooltip');
-
-    if (customTooltip) {
-        document.body.addEventListener('mouseover', (event) => {
-            const targetWithTooltip = event.target.closest('[data-custom-tooltip]');
-            if (targetWithTooltip) {
-                const tooltipText = targetWithTooltip.dataset.customTooltip;
-                if (tooltipText) {
-                    customTooltip.innerHTML = tooltipText.replace(/\n/g, '<br>');
-                    customTooltip.classList.add('visible');
-                    positionCustomTooltip(event);
-                }
-            }
-        });
-        document.body.addEventListener('mouseout', (event) => {
-            const targetWithTooltip = event.target.closest('[data-custom-tooltip]');
-            if (targetWithTooltip || event.target === customTooltip) {
-                if (customTooltip.classList.contains('visible')) {
-                    customTooltip.classList.remove('visible');
-                }
-            }
-        });
-        document.body.addEventListener('mousemove', (event) => {
-            if (customTooltip.classList.contains('visible')) {
-                positionCustomTooltip(event);
-            }
-        });
-    }
-
-}
-
-function positionCustomTooltip(event) {
-    if (!customTooltip || !customTooltip.classList.contains('visible')) return;
-    const offsetX = 15, offsetY = 10;
-    let x = event.pageX + offsetX, y = event.pageY + offsetY;
-    const tooltipRect = customTooltip.getBoundingClientRect();
-    const viewportWidth = window.innerWidth, viewportHeight = window.innerHeight;
-
-    if (x + tooltipRect.width > viewportWidth - 10) x = event.pageX - tooltipRect.width - offsetX;
-    if (y + tooltipRect.height > viewportHeight - 10) y = event.pageY - tooltipRect.height - offsetY;
-    if (x < 10) x = 10;
-    if (y < 10) y = 10;
-
-    customTooltip.style.left = `${x}px`;
-    customTooltip.style.top = `${y}px`;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("Renderer.js: DOMContentLoaded event fired.");
-
     htmlElement = document.documentElement;
-
     const modalAPI = initializeModalSystem();
     showModal = modalAPI.showModal;
-
     themeManagerButton = document.getElementById('themeManagerButton');
 
     if (themeManagerButton) {
@@ -166,7 +80,6 @@ document.addEventListener('DOMContentLoaded', () => {
         showModal: showModal,
         onStartTest: (testConfig, files) => startTestRun(testConfig, files)
     });
-    initializeCustomTooltip();
-
-    console.log("Renderer.js: Initiales Setup in DOMContentLoaded abgeschlossen.");
+    
+    TooltipManager.init();
 });
