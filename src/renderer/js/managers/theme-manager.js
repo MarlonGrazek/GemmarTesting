@@ -1,5 +1,7 @@
 console.log("theme-renderer.js wird geladen...");
 
+import ModalManager from "./modal-manager.js";
+
 const predefinedThemes = [
     {
         name: 'Light',
@@ -22,11 +24,8 @@ const predefinedThemes = [
 ];
 
 let activeThemeName = 'Light';
-let showModal;
 
-export function initializeThemeManager(dependencies) {
-
-    showModal = dependencies.showModal;
+export function initializeThemeManager() {
 
     console.log("Theme Manager wird initialisiert (Version mit Kompatibilitäts-Brücke)...");
 
@@ -77,7 +76,7 @@ export function initializeThemeManager(dependencies) {
 
         // Wir übergeben das NORMALISIERTE settings-Objekt an die Palette.
         const generatedPalette = generateColorPalette(settingsForPalette);
-        
+
         applyColors(generatedPalette);
         localStorage.setItem('activeThemeName', activeThemeName);
 
@@ -252,13 +251,6 @@ function applyColors(colorPalette) {
     }
 }
 
-// HINZUGEFÜGT: Die folgenden Funktionen bauen die UI des Theme-Managers
-// dynamisch mit dem neuen Modal-System auf.
-
-// Importiere die showModal Funktion, falls sie in einem anderen Modul liegt.
-// Annahme: sie wird global verfügbar gemacht oder importiert.
-// import { showModal } from './modal-manager.js';
-
 // SVG-Icons, die wir für die Buttons benötigen
 const SVG_PENCIL = `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M14.06,9L15,9.94L5.92,19H5V18.08L14.06,9M17.66,3C17.41,3 17.15,3.1 16.96,3.29L15.13,5.12L18.88,8.87L20.71,7.05C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18.17,3.09 17.92,3 17.66,3M14.06,6.19L3,17.25V21H6.75L17.81,9.94L14.06,6.19Z"></path></svg>`;
 const SVG_CROSS = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
@@ -278,7 +270,7 @@ export function openThemeManager() {
     } catch (e) {
         console.error("Fehler beim Laden der Custom Themes.", e);
     }
-    
+
     // 2. Die Listenansicht anzeigen
     renderThemeListView();
 }
@@ -287,7 +279,7 @@ export function openThemeManager() {
  * Zeigt das Modal mit der Liste aller verfügbaren Themes an.
  */
 function renderThemeListView() {
-    showModal({
+    ModalManager.show({
         title: 'Themes',
         size: 'small',
         headerButtons: [
@@ -295,7 +287,7 @@ function renderThemeListView() {
                 class: 'modal-header-button close-button',
                 svg: SVG_CROSS,
                 tooltip: 'Close',
-                onClick: (args) => args.close()
+                onClick: ({ close }) => close()
             }
         ],
         contentTree: {
@@ -365,7 +357,7 @@ function renderThemeListView() {
 function renderThemeEditorView(themeToEdit) {
     const isEditMode = !!themeToEdit;
     const baseTheme = themeToEdit || allThemes.find(t => t.name === activeThemeName) || predefinedThemes[0];
-    
+
     const initialSettings = { ...baseTheme.settings };
     if (baseTheme.type === 'custom' && baseTheme.colors && baseTheme.colors['--accent-blue']) {
         initialSettings.accentColor = baseTheme.colors['--accent-blue'];
@@ -381,18 +373,19 @@ function renderThemeEditorView(themeToEdit) {
         applyColors(palette);
     };
 
-    showModal({
+    ModalManager.show({
         title: isEditMode ? 'Edit Theme' : 'Create Theme',
         size: 'medium',
         headerButtons: [{
             class: 'modal-header-button close-button',
             svg: SVG_CROSS,
             tooltip: 'Back to selection',
-            onClick: () => {
+            /*onClick: () => {
                 const originalActiveTheme = allThemes.find(t => t.name === activeThemeName);
                 if (originalActiveTheme) applyTheme(originalActiveTheme);
                 renderThemeListView();
-            }
+            }*/
+            onClick: ({close}) => close()
         }],
         contentTree: {
             tag: 'div',
@@ -420,10 +413,14 @@ function renderThemeEditorView(themeToEdit) {
                                 { tag: 'span', props: { id: 'themeBrightnessValue', textContent: `${Math.round(initialSettings.brightness)}%` } }
                             ]
                         },
-                        { tag: 'input', props: { type: 'range', id: 'themeBrightnessSlider', min: 0, max: 100, value: initialSettings.brightness, className: 'theme-slider', oninput: (e) => {
-                            document.getElementById('themeBrightnessValue').textContent = `${e.target.value}%`;
-                            updateLivePreview();
-                        }}}
+                        {
+                            tag: 'input', props: {
+                                type: 'range', id: 'themeBrightnessSlider', min: 0, max: 100, value: initialSettings.brightness, className: 'theme-slider', oninput: (e) => {
+                                    document.getElementById('themeBrightnessValue').textContent = `${e.target.value}%`;
+                                    updateLivePreview();
+                                }
+                            }
+                        }
                     ]
                 },
                 // --- Row 3: Accent Color ---
@@ -432,7 +429,7 @@ function renderThemeEditorView(themeToEdit) {
                     props: { className: 'theme-editor-row' },
                     children: [
                         { tag: 'label', props: { htmlFor: 'themeAccentColorPicker', textContent: 'Accent-Color:', className: 'theme-editor-label' } },
-                        { tag: 'input', props: { type: 'color', id: 'themeAccentColorPicker', value: initialSettings.accentColor, className: 'color-picker-input', oninput: updateLivePreview }}
+                        { tag: 'input', props: { type: 'color', id: 'themeAccentColorPicker', value: initialSettings.accentColor, className: 'color-picker-input', oninput: updateLivePreview } }
                     ]
                 },
                 // --- Row 4: Tint Intensity ---
@@ -448,10 +445,14 @@ function renderThemeEditorView(themeToEdit) {
                                 { tag: 'span', props: { id: 'themeTintIntensityValue', textContent: `${initialSettings.tintIntensity}%` } }
                             ]
                         },
-                        { tag: 'input', props: { type: 'range', id: 'themeTintIntensitySlider', min: 0, max: 40, value: initialSettings.tintIntensity, className: 'theme-slider', oninput: (e) => {
-                            document.getElementById('themeTintIntensityValue').textContent = `${e.target.value}%`;
-                            updateLivePreview();
-                        }}}
+                        {
+                            tag: 'input', props: {
+                                type: 'range', id: 'themeTintIntensitySlider', min: 0, max: 40, value: initialSettings.tintIntensity, className: 'theme-slider', oninput: (e) => {
+                                    document.getElementById('themeTintIntensityValue').textContent = `${e.target.value}%`;
+                                    updateLivePreview();
+                                }
+                            }
+                        }
                     ]
                 }
             ]
@@ -501,7 +502,7 @@ function saveTheme(originalName) {
         alert(`A theme with the name "${newName}" already exists.`);
         return;
     }
-    
+
     const newTheme = {
         name: newName,
         type: 'custom', // Alle gespeicherten Themes sind 'custom'
@@ -517,7 +518,7 @@ function saveTheme(originalName) {
     customThemes.push(newTheme);
 
     localStorage.setItem('customThemes', JSON.stringify(customThemes));
-    
+
     applyTheme(newTheme);
     openThemeManager(); // Zurück zur aktualisierten Liste
 }
@@ -529,7 +530,7 @@ function saveTheme(originalName) {
 function deleteTheme(themeName) {
     let customThemes = allThemes.filter(t => t.isEditable && t.name !== themeName);
     localStorage.setItem('customThemes', JSON.stringify(customThemes));
-    
+
     // Wenn das gelöschte Theme das aktive war, auf ein Standard-Theme zurückfallen
     if (activeThemeName === themeName) {
         applyTheme(predefinedThemes[0]); // Fallback auf das erste vordefinierte Theme (z.B. Light)
@@ -545,7 +546,7 @@ function applyTheme(themeObject) {
     if (themeObject.type === 'custom' && themeObject.colors && themeObject.colors['--accent-blue']) {
         settingsForPalette.accentColor = themeObject.colors['--accent-blue'];
     }
-    
+
     const palette = generateColorPalette(settingsForPalette);
     applyColors(palette);
 

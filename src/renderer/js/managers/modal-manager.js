@@ -1,156 +1,158 @@
-console.log("modal-manager.js wird geladen...");
+/**
+ * ModalManager
+ * Verwaltet das Erstellen, Anzeigen und Schließen von Modals.
+ * Jedes Modal ist eine unabhängige Instanz, die dynamisch erstellt
+ * und zerstört wird. Dies ermöglicht das Stapeln von mehreren Modals.
+ */
+const ModalManager = {
 
-let modalOverlay, modalContainer, modalTitle, modalHeaderButtons, modalContent, modalActions;
+    // Ein Stack, um alle aktiven Modals zu verwalten.
+    stack: [],
 
+    /**
+     * Erstellt und zeigt ein neues Modal basierend auf den übergebenen Optionen.
+     * @param {object} options - Konfiguration für das Modal.
+     * @param {string} options.title - Der Titel des Modals.
+     * @param {string} [options.size='medium'] - Größe des Modals ('small', 'medium', 'large').
+     * @param {string|object} options.content - HTML-String oder eine contentTree-Struktur.
+     * @param {Array<object>} [options.actionButtons] - Konfiguration für die Action-Buttons.
+     * @param {Array<object>} [options.headerButtons] - Konfiguration für die Header-Buttons.
+     * @returns {HTMLElement} Das erstellte Modal-Overlay-Element.
+     */
+    show(options = {}) {
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'modal-overlay';
 
-function showModal(options = {}) {
-    console.log("Die Funktion 'showModal' wurde aufgerufen mit den Optionen:", options);
+        const modalContainer = document.createElement('div');
+        modalContainer.className = 'modal-container';
+        const sizeClass = `size-${options.size || 'medium'}`;
+        modalContainer.classList.add(sizeClass);
 
-    // TITLE
-    if (modalTitle) {
-        if (options.title) {
-            modalTitle.textContent = options.title;
-        } else {
-            modalTitle.textContent = 'Title';
-        }
-    }
+        const modalHeader = document.createElement('div');
+        modalHeader.className = 'modal-header';
 
-    // HEADER BUTTONS
-    if (modalHeaderButtons) {
-        modalHeaderButtons.innerHTML = '';
+        const modalTitle = document.createElement('h3');
+        modalTitle.className = 'modal-title';
+        modalTitle.textContent = options.title || 'Information';
+        
+        const modalHeaderButtons = document.createElement('div');
+        modalHeaderButtons.className = 'modal-header-buttons';
 
-        if (options.headerButtons && Array.isArray(options.headerButtons)) {
+        const modalContent = document.createElement('div');
+        modalContent.className = 'modal-content';
 
+        const modalActions = document.createElement('div');
+        modalActions.className = 'modal-actions';
+
+        if (options.headerButtons) {
             options.headerButtons.forEach(btnConfig => {
-
-                const button = document.createElement('label');
-                button.className = btnConfig.class || 'modal-header-button';
-                if (btnConfig.tooltip) {
-                    button.dataset.customTooltip = btnConfig.tooltip;
-                }
-                if (btnConfig.svg) {
-                    button.innerHTML = btnConfig.svg;
-                }
-
-                if (btnConfig.onClick && typeof btnConfig.onClick === 'function') {
-                    button.addEventListener('click', (event) => {
-                        if (btnConfig.onClick) {
-                            btnConfig.onClick({
-                                close: () => modalOverlay.classList.add('hidden-alt')
-                            }, event);
-                        }
-                    });
-                }
-
+                const button = this._buildButton(btnConfig, () => this.close(modalOverlay));
                 modalHeaderButtons.appendChild(button);
             });
         }
-    }
-
-    // SIZE
-    if (modalContainer) {
-        modalContainer.classList.remove('size-small', 'size-medium', 'size-large');
-
-        if (options.size && ['small', 'medium', 'large'].includes(options.size)) {
-            modalContainer.classList.add(`size-${options.size}`); // z.B. wird aus 'medium' die Klasse 'size-medium'
-        } else {
-            // Optional: Füge eine Standard-Größe hinzu, falls keine angegeben wurde.
-            modalContainer.classList.add('size-medium');
-        }
-    }
-
-    // CONTENT
-    if (modalContent) {
         
-        modalContent.innerHTML = '';
-
-        if(options.contentTree) {
-            const newContent = buildElement(options.contentTree);
-            modalContent.appendChild(newContent);
-        } else if(options.content) {
+        if (options.contentTree) {
+            const contentElement = this._buildElementFromTree(options.contentTree);
+            modalContent.appendChild(contentElement);
+        } else if (options.content) {
             modalContent.innerHTML = options.content;
         }
-    }
 
-    // ACTION BUTTONS
-    if (modalActions) {
-
-        modalActions.innerHTML = '';
-
-        if (options.actionButtons && Array.isArray(options.actionButtons)) {
-
+        if (options.actionButtons) {
             options.actionButtons.forEach(btnConfig => {
-
-                const button = document.createElement('label');
-                button.textContent = btnConfig.text || '';
-                button.className = btnConfig.class || 'button-default';
-                if (btnConfig.tooltip) {
-                    button.dataset.customTooltip = btnConfig.tooltip;
-                }
-                if (btnConfig.onClick && typeof btnConfig.onClick === 'function') {
-                    button.addEventListener('click', (event) => {
-                        btnConfig.onClick({
-                            close: () => modalOverlay.classList.add('hidden-alt')
-                        }, event);
-                    });
-                }
-
+                const button = this._buildButton(btnConfig, () => this.close(modalOverlay));
                 modalActions.appendChild(button);
             });
         }
-    }
 
-    if (modalOverlay) {
-        modalOverlay.classList.remove('hidden-alt');
-    }
-}
+        modalHeader.appendChild(modalTitle);
+        modalHeader.appendChild(modalHeaderButtons);
+        modalContainer.appendChild(modalHeader);
+        modalContainer.appendChild(modalContent);
+        modalContainer.appendChild(modalActions);
+        modalOverlay.appendChild(modalContainer);
 
-function buildElement(config) {
+        document.body.appendChild(modalOverlay);
 
-    const element = document.createElement(config.tag);
+        this.stack.push(modalOverlay);
 
-    if (config.props) {
-        for (const [key, value] of Object.entries(config.props)) {
+        requestAnimationFrame(() => {
+            modalOverlay.classList.add('visible');
+            modalContainer.classList.add('visible');
+        });
+        
+        return modalOverlay;
+    },
 
-            if (key.startsWith('on') && typeof value === 'function') {
-                element.addEventListener(key.substring(2).toLocaleLowerCase(), value);
-            } else {
-                element[key] = value;
+    /**
+     * Schließt ein bestimmtes Modal.
+     * @param {HTMLElement} modalOverlay - Das zu schließende Modal-Overlay-Element.
+     */
+    close(modalOverlay) {
+        if (!modalOverlay || !this.stack.includes(modalOverlay)) {
+            console.warn("Modal to close not found or not in stack.", modalOverlay);
+            return;
+        }
+
+        const modalContainer = modalOverlay.querySelector('.modal-container');
+
+        modalOverlay.classList.remove('visible');
+        if(modalContainer) modalContainer.classList.remove('visible');
+
+        this.stack = this.stack.filter(m => m !== modalOverlay);
+
+        // KORREKTUR: Dauer auf 200ms reduziert für ein schnelleres Gefühl.
+        setTimeout(() => {
+            if (modalOverlay.parentElement) {
+                modalOverlay.remove();
+            }
+        }, 0);
+    },
+
+    /**
+     * Schließt das oberste Modal im Stack.
+     */
+    closeTop() {
+        if (this.stack.length > 0) {
+            const topModal = this.stack[this.stack.length - 1];
+            this.close(topModal);
+        }
+    },
+
+    _buildButton(config, closeCallback) {
+        const button = document.createElement('label');
+        button.textContent = config.text || '';
+        if (config.svg) button.innerHTML = config.svg;
+        button.className = config.class || 'button-default';
+        if (config.tooltip) button.dataset.customTooltip = config.tooltip;
+
+        if (config.onClick && typeof config.onClick === 'function') {
+            button.addEventListener('click', (event) => {
+                config.onClick({ close: closeCallback }, event);
+            });
+        }
+        return button;
+    },
+
+    _buildElementFromTree(config) {
+        const element = document.createElement(config.tag);
+        if (config.props) {
+            for (const [key, value] of Object.entries(config.props)) {
+                if (key.startsWith('on') && typeof value === 'function') {
+                    element.addEventListener(key.substring(2).toLowerCase(), value);
+                } else {
+                    element[key] = value;
+                }
             }
         }
+        if (config.children) {
+            config.children.forEach(childConfig => {
+                const childElement = this._buildElementFromTree(childConfig);
+                element.appendChild(childElement);
+            });
+        }
+        return element;
     }
+};
 
-    if (config.children) {
-        config.children.forEach(childConfig => {
-
-            const childElement = buildElement(childConfig);
-            element.appendChild(childElement);
-        });
-    }
-
-    return element;
-}
-
-export function initializeModalSystem() {
-    console.log("Initialisiere das Modal-System...");
-
-    // Hole die Referenzen zu allen neuen Modal-Elementen aus dem HTML.
-    modalOverlay = document.getElementById('modalOverlay');
-    modalContainer = document.getElementById('modalContainer');
-    modalTitle = document.getElementById('modalTitle');
-    modalHeaderButtons = document.getElementById('modalHeaderButtons');
-    modalContent = document.getElementById('modalContent');
-    modalActions = document.getElementById('modalActions');
-
-    // Ein kleiner Test, ob alle wichtigen Elemente gefunden wurden.
-    if (!modalOverlay || !modalContainer || !modalTitle || !modalContent || !modalActions) {
-        console.error("Ein oder mehrere Modal-Elemente konnten im DOM nicht gefunden werden!");
-        // Wir geben eine leere Funktion zurück, damit die App nicht abstürzt.
-        return { showModal: () => console.error("Modal-System nicht korrekt initialisiert.") };
-    }
-
-    console.log("Modal-System erfolgreich initialisiert. Die 'showModal'-Funktion ist jetzt bereit.");
-
-    // Gib die Hauptfunktion zurück, damit andere Teile der App sie verwenden können.
-    return { showModal };
-}
+export default ModalManager;

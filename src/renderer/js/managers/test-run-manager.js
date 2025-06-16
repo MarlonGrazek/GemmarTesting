@@ -1,5 +1,7 @@
 // src/renderer/js/managers/test-run-manager.js
 
+import ModalManager from "./modal-manager.js";
+
 // --- SVG Icons for Results ---
 const SVG_CHECK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
 const SVG_CROSS = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
@@ -12,8 +14,6 @@ const SVG_WARN = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fi
 const SVG_PASS = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`;
 
 // --- Module-level State & Variables ---
-let showModal;
-let electronAPI;
 let javaTestEventListenerUnsubscribe = null;
 
 // DOM Elements for the results page
@@ -33,14 +33,7 @@ let state = {
     currentTestConfig: null,
 };
 
-/**
- * Initializes the Test Runner module.
- * @param {object} dependencies - Required external functions and objects.
- */
-export function initializeTestRunner(dependencies) {
-    showModal = dependencies.showModal;
-    electronAPI = dependencies.electronAPI;
-
+export function initializeTestRunner() {
     _queryDOMElements();
 }
 
@@ -51,7 +44,7 @@ export function initializeTestRunner(dependencies) {
  */
 export async function startTestRun(testConfig, files) {
     if (!testConfig || !files || files.length === 0) {
-        showModal({ title: "Error", content: "Cannot start test run without a selected test and files." });
+        ModalManager.show({ title: "Error", content: "Cannot start test run without a selected test and files." });
         return;
     }
 
@@ -330,7 +323,7 @@ function _handleJavaTestEvent(eventData) {
 
             const summaryMessage = `Test run for "${state.currentTestConfig.title}" completed.<br>
                                   Result: ${state.passedTests} Passed, ${state.failedTests} Failed, ${state.warningTests} Warnings.`;
-            showModal({
+            ModalManager.show({
                 title: "Test Run Finished",
                 content: summaryMessage,
                 size: 'medium',
@@ -338,7 +331,7 @@ function _handleJavaTestEvent(eventData) {
                     {
                         text: 'Okay',
                         class: 'button-primary',
-                        onClick: (modal) => modal.close()
+                        onClick: ({ close }) => close()
                     }
                 ]
             });

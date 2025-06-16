@@ -1,14 +1,13 @@
 console.log("update-renderer.js wird geladen...");
 
+import ModalManager from "./modal-manager.js";
+
 let availableUpdateInfo = null;
-let showModal;
 
 const SVG_CLOSE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
 
-export function initializeUpdateRenderer(dependencies) {
+export function initializeUpdateRenderer() {
     console.log("Update-Renderer wird jetzt initialisiert.");
-
-    showModal = dependencies.showModal;
 
     if (versionBox) {
         console.log("Update-UI: 'versionBox' ist erreichbar!");
@@ -29,7 +28,7 @@ export function initializeUpdateRenderer(dependencies) {
             availableUpdateInfo = payload;
             showCustomUpdatePrompt(payload);
         } else if (payload.status == 'downloaded') {
-            if(availableUpdateInfo) availableUpdateInfo.status = 'downloaded';
+            if (availableUpdateInfo) availableUpdateInfo.status = 'downloaded';
             showCustomRestartPrompt(payload);
         } else if (payload.status === 'not-available' || payload.status === 'error') {
             availableUpdateInfo = null;
@@ -157,14 +156,9 @@ function handleVersionBoxClick() {
 
 function showCustomRestartPrompt(updateDetails) {
 
-    if (!showModal) {
-        console.error("MessageBox-Elemente sind nicht verfügbar.");
-        return;
-    }
-
     console.log('Zeige Restart-Prompt für Version:', updateDetails.version);
 
-    showModal({
+    ModalManager.show({
         title: `Update to version ${updateDetails.version} installed`,
         size: 'medium',
         headerButtons: [
@@ -172,7 +166,7 @@ function showCustomRestartPrompt(updateDetails) {
                 class: 'modal-header-button close-button',
                 tooltip: 'Close',
                 svg: SVG_CLOSE,
-                onClick: (modal) => modal.close()
+                onClick: ({ close }) => close()
             }
         ],
         contentTree: {
@@ -204,24 +198,20 @@ function showCustomRestartPrompt(updateDetails) {
 }
 
 function showCustomUpdatePrompt(updateDetails) {
-    if (!showModal) {
-        console.error("showModal-Funktion ist nicht verfügbar, kann Prompt nicht anzeigen.");
-        return;
-    }
 
     console.log('Zeige "Herunterladen?"-Prompt für Version:', updateDetails.version);
 
     // Definiere die "Blaupause" für dein Modal
-    showModal({
+    ModalManager.show({
         title: `Update to version ${updateDetails.version} available`,
         size: 'medium',
-        
+
         headerButtons: [
             {
                 class: 'modal-header-button close-button',
                 tooltip: 'Close',
                 svg: SVG_CLOSE,
-                onClick: (modal) => modal.close()
+                onClick: ({ close }) => close()
             }
         ],
 

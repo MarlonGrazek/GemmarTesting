@@ -4,8 +4,9 @@ const SVG_PIN = '<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0
 const SVG_CLOSE = `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
 const MANIFEST_URL = 'https://gist.github.com/MarlonGrazek/6bffda46a3510f9556b9843aba7d6484/raw';
 
+import ModalManager from "./modal-manager.js";
+
 // --- Module-level State & Variables ---
-let showModal;
 let onStartTest;
 
 // DOM Elements
@@ -24,7 +25,6 @@ const countdownIntervals = new Map();
  * @param {object} dependencies - Required external functions and objects.
  */
 export async function initializeTestUIManager(dependencies) {
-    showModal = dependencies.showModal;
     onStartTest = dependencies.onStartTest;
 
     // Query all DOM elements this module controls
@@ -43,16 +43,16 @@ export async function initializeTestUIManager(dependencies) {
     if (pinBox) pinBox.addEventListener('click', _handlePinBoxClick);
     if (fileUploadInput) fileUploadInput.addEventListener('change', _handleFileUpload);
     if (runTestButton) runTestButton.addEventListener('click', _handleRunTestClick);
-    
+
     // Load initial data and render the UI
     try {
         const data = await _fetchManifest();
         latestManifestData = data;
         updatePinBox();
-        _renderTestList(); 
+        _renderTestList();
     } catch (error) {
         console.error("Could not initialize tests:", error);
-        if(testListContainer) testListContainer.innerHTML = '<p class="text-secondary text-center">Could not load tests.</p>';
+        if (testListContainer) testListContainer.innerHTML = '<p class="text-secondary text-center">Could not load tests.</p>';
     }
 }
 
@@ -79,8 +79,8 @@ async function _fetchManifest() {
 function updatePinBox() {
     if (!pinBox || !pinBoxTitle || !pinBoxSubtitle) return;
 
-    const testToDisplay = (pinnedTestId && latestManifestData?.tests) 
-        ? latestManifestData.tests.find(t => t.id === pinnedTestId) 
+    const testToDisplay = (pinnedTestId && latestManifestData?.tests)
+        ? latestManifestData.tests.find(t => t.id === pinnedTestId)
         : null;
 
     if (testToDisplay) {
@@ -125,12 +125,12 @@ function _renderTestList() {
         infoButton.innerHTML = SVG_INFO;
         infoButton.setAttribute('aria-label', `Info for ${test.title}`);
         infoButton.dataset.customTooltip = `Show details for "${test.title}"`;
-        
+
         infoButton.addEventListener('click', (event) => {
             event.stopPropagation();
             _openTestInfoModal(test);
         });
-        
+
         card.appendChild(infoButton);
         card.addEventListener('click', () => _handleTestSelection(test, card));
         testListContainer.appendChild(card);
@@ -145,15 +145,15 @@ function _handleTestSelection(test, selectedCardElement) {
     selectedTestConfig = test;
     document.querySelectorAll('.test-card.selected').forEach(card => card.classList.remove('selected'));
     selectedCardElement.classList.add('selected');
-    
+
     if (selectedTestNameElem) selectedTestNameElem.textContent = test.title;
     if (codeUploadSection) codeUploadSection.classList.remove('hidden-alt');
-    
+
     if (fileUploadInput) fileUploadInput.value = '';
     if (fileSelectionInfo) fileSelectionInfo.textContent = '';
     selectedFiles = null;
-    
-    _updateRunTestButtonState(); 
+
+    _updateRunTestButtonState();
     codeUploadSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -164,10 +164,10 @@ function _handleTestSelection(test, selectedCardElement) {
 function _handleFileUpload(event) {
     if (event.target.files?.length > 0) {
         selectedFiles = event.target.files;
-        if(fileSelectionInfo) fileSelectionInfo.textContent = `${selectedFiles.length} Datei(en) ausgewählt.`;
+        if (fileSelectionInfo) fileSelectionInfo.textContent = `${selectedFiles.length} Datei(en) ausgewählt.`;
     } else {
         selectedFiles = null;
-        if(fileSelectionInfo) fileSelectionInfo.textContent = '';
+        if (fileSelectionInfo) fileSelectionInfo.textContent = '';
     }
     _updateRunTestButtonState();
 }
@@ -217,7 +217,7 @@ function _openTestInfoModal(test) {
     const flagsContainer = document.createElement('div');
     flagsContainer.className = 'modal-flags-container';
     let hasFlagsContent = false;
-    
+
     let countdownElementId = null;
     if (test.dueDate) {
         countdownElementId = `modal-countdown-${test.id}`;
@@ -227,7 +227,7 @@ function _openTestInfoModal(test) {
         flagsContainer.appendChild(countdownEl);
         hasFlagsContent = true;
     }
-    
+
     if (test.flags?.length > 0) {
         test.flags.forEach(flag => {
             const flagEl = document.createElement('span');
@@ -239,14 +239,14 @@ function _openTestInfoModal(test) {
         });
     }
 
-    if(hasFlagsContent) {
+    if (hasFlagsContent) {
         contentHtml += flagsContainer.outerHTML;
     }
     contentHtml += _parseMarkup(test.description || "No description available.");
 
     const headerButtons = [];
     const isPinned = pinnedTestId === test.id;
-    
+
     headerButtons.push({
         class: isPinned ? 'modal-header-button pin-button active' : 'modal-header-button pin-button',
         svg: SVG_PIN,
@@ -255,7 +255,7 @@ function _openTestInfoModal(test) {
             pinnedTestId = (pinnedTestId === test.id) ? null : test.id;
             localStorage.setItem('pinnedTestId', pinnedTestId || '');
             if (!pinnedTestId) localStorage.removeItem('pinnedTestId');
-            
+
             const buttonEl = event.currentTarget;
             buttonEl.classList.toggle('active', !!pinnedTestId);
             buttonEl.innerHTML = SVG_PIN;
@@ -268,7 +268,7 @@ function _openTestInfoModal(test) {
         class: 'modal-header-button close-button',
         tooltip: 'Close',
         svg: SVG_CLOSE,
-        onClick: (modal) => modal.close()
+        onClick: ({ close }) => close()
     });
 
     const actionButtons = [];
@@ -286,8 +286,8 @@ function _openTestInfoModal(test) {
             }
         });
     }
-    
-    showModal({
+
+    ModalManager.show({
         title: test.title,
         size: 'large',
         content: contentHtml,
@@ -297,7 +297,7 @@ function _openTestInfoModal(test) {
 
     if (countdownElementId) {
         const el = document.getElementById(countdownElementId);
-        if(el) _startCountdownTimer(test.dueDate, el, `modal_${test.id}`);
+        if (el) _startCountdownTimer(test.dueDate, el, `modal_${test.id}`);
     }
 }
 
@@ -308,16 +308,16 @@ function _openTestInfoModal(test) {
  */
 function _startCountdownTimer(targetDateString, element, key) {
     if (countdownIntervals.has(key)) clearInterval(countdownIntervals.get(key));
-    
+
     const targetDate = new Date(targetDateString);
     if (!element || isNaN(targetDate.getTime())) {
-        if(element) element.textContent = "Invalid date";
+        if (element) element.textContent = "Invalid date";
         return;
     }
 
     const fullDateTime = new Intl.DateTimeFormat('en-US', { dateStyle: 'full', timeStyle: 'short' }).format(targetDate);
     element.dataset.customTooltip = `Due by: ${fullDateTime}`;
-    
+
     const updateTimer = () => {
         const timeLeft = targetDate.getTime() - Date.now();
         element.textContent = _formatCountdown(timeLeft);
