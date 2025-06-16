@@ -1,243 +1,206 @@
-console.log("update-renderer.js wird geladen...");
-
 import ModalManager from "./modal-manager.js";
-
-let availableUpdateInfo = null;
 
 const SVG_CLOSE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
 
-export function initializeUpdateRenderer() {
-    console.log("Update-Renderer wird jetzt initialisiert.");
+/**
+ * UpdateManager
+ * Verwaltet die Anzeige des Update-Status in der UI und die Interaktion mit dem Benutzer.
+ */
+const UpdateManager = {
+    // Gekapselter Zustand und DOM-Referenzen
+    updateInfo: null,
+    versionBox: null,
+    versionBoxTitle: null,
+    versionBoxSubtitle: null,
 
-    if (versionBox) {
-        console.log("Update-UI: 'versionBox' ist erreichbar!");
-        updateVersionBox('init');
-    } else {
-        console.error("Update-UI: 'versionBox' konnte nicht von renderer.js übernommen werden!");
-    }
+    /**
+     * Initialisiert den Manager, holt DOM-Elemente und registriert Listener.
+     */
+    init() {
+        // 1. DOM-Elemente selbst holen
+        this.versionBox = document.getElementById('versionBox');
+        this.versionBoxTitle = document.getElementById('versionBoxTitle');
+        this.versionBoxSubtitle = document.getElementById('versionBoxSubtitle');
 
-    if (versionBox) {
-        // Der Klick-Handler bleibt hier (oder wird in eine eigene Funktion ausgelagert)
-        versionBox.addEventListener('click', handleVersionBoxClick);
-    }
-
-    window.electronAPI.receive('update-status', (payload) => {
-        console.log('Update-Renderer: IPC "update-status" empfangen mit Payload:', payload);
-
-        if (payload.status === 'available') {
-            availableUpdateInfo = payload;
-            showCustomUpdatePrompt(payload);
-        } else if (payload.status == 'downloaded') {
-            if (availableUpdateInfo) availableUpdateInfo.status = 'downloaded';
-            showCustomRestartPrompt(payload);
-        } else if (payload.status === 'not-available' || payload.status === 'error') {
-            availableUpdateInfo = null;
+        if (!this.versionBox || !this.versionBoxTitle || !this.versionBoxSubtitle) {
+            console.error("UpdateManager: Ein oder mehrere versionBox-Elemente nicht gefunden!");
+            return;
         }
 
-        updateVersionBox(payload.status, payload);
+        // 2. Event-Listener registrieren
+        this.versionBox.addEventListener('click', this.handleVersionBoxClick.bind(this));
+        
+        window.electronAPI.receive('update-status', (payload) => {
+            console.log('UpdateManager: IPC "update-status" empfangen:', payload);
+            this.updateInfo = payload;
+            
+            // Logik für automatische Popups bei Statusänderung
+            if (payload.status === 'available') {
+                this.showUpdatePrompt(payload);
+            } else if (payload.status === 'downloaded') {
+                this.showRestartPrompt(payload);
+            }
+            
+            this.updateVersionBoxUI(payload.status, payload);
+        });
 
-    });
-}
+        // 3. Initialen Zustand setzen
+        this.updateVersionBoxUI('init');
+        console.log("UpdateManager erfolgreich initialisiert.");
+    },
 
-async function updateVersionBox(status, data = null) {
+    /**
+     * Aktualisiert die UI der versionBox basierend auf dem Update-Status.
+     * @param {string} status - Der aktuelle Update-Status.
+     * @param {object} [data=null] - Zusätzliche Daten wie Version, Prozent etc.
+     */
+    async updateVersionBoxUI(status, data = null) {
+        if (!this.versionBox) return;
 
-    if (!versionBox || !versionBoxTitle || !versionBoxSubtitle) {
-        console.error("versionBox oder versionBoxLabel DOM-Element nicht initialisiert!");
-        return;
-    }
+        this.versionBox.className = 'info-box'; // Reset zu Basisklasse
+        this.versionBox.style.setProperty('--download-progress', '0%');
 
-    // Reset der spezifischen Zustands-Klassen erstmal
-    versionBox.classList.remove(
-        'update-available',
-        'update-checking',
-        'update-downloading',
-        'update-error'
-    );
-
-    switch (status) {
-        case 'init': // Initialer Zustand beim Laden der App
-        case 'idle': // Allgemeiner Ruhezustand
-        case 'not-available': // Kein Update gefunden
-            try {
-                const appVersion = await window.electronAPI.getAppVersion();
-                versionBoxTitle.textContent = `Version ${appVersion}`;
-                if (status === 'not-available') {
-                    // Optional: Zusatz, wenn explizit kein Update da war
-                    // versionBoxLabel.textContent += " (aktuell)"; 
+        switch (status) {
+            case 'init':
+            case 'idle':
+            case 'not-available':
+                try {
+                    const appVersion = await window.electronAPI.getAppVersion();
+                    this.versionBoxTitle.textContent = `Version ${appVersion}`;
+                } catch (error) {
+                    this.versionBoxTitle.textContent = 'Unknown version';
                 }
-            } catch (error) {
-                console.error('Error while accessing the app-version:', error);
-                versionBoxTitle.textContent = 'Unknown version';
-            }
-            versionBoxSubtitle.textContent = 'Click to view the patchnotes'
-            break;
+                this.versionBoxSubtitle.textContent = 'Click to view the patchnotes';
+                break;
 
-        case 'checking':
-            versionBoxTitle.textContent = "Searching for updates...";
-            versionBox.classList.add('update-checking'); // Deine CSS-Klasse für die Animation
-            versionBoxSubtitle.textContent = 'Please hold on for a moment...'
-            break;
+            case 'checking':
+                this.versionBoxTitle.textContent = "Searching for updates...";
+                this.versionBoxSubtitle.textContent = 'Please hold on for a moment...';
+                this.versionBox.classList.add('update-checking');
+                break;
 
-        case 'available':
-            if (data && data.version) {
-                versionBoxTitle.textContent = `Update to Version ${data.version}`;
-            } else {
-                versionBoxTitle.textContent = "Update available";
-            }
-            versionBox.classList.add('update-available'); // Deine CSS-Klasse für Akzent-Rand
-            versionBoxSubtitle.textContent = 'Click to view the update details'
-            break;
-
-        case 'downloading':
-            versionBoxTitle.textContent = "Downloading...";
-            if (data && data.version) {
-                // Das `data.percent` musst du noch übergeben, wenn das 'downloading'-Event kommt
-                versionBoxSubtitle.textContent = `${data.percent !== undefined ? data.percent + '%' : ' ' + `${data.speed}`}`
-            } else {
-                versionBoxSubtitle.textContent = "Download is running";
-            }
-            versionBox.classList.add('update-downloading'); // Deine CSS-Klasse für Download-Animation/Rand
-
-            if (data && data.percent) {
-                versionBox.style.setProperty('--download-progress', `${data.percent}%`);
-            }
-            break;
-
-        case 'downloaded':
-            versionBoxTitle.textContent = "Download complete";
-            versionBox.classList.add('update-available'); // Kann dieselbe Hervorhebung wie 'available' haben
-            versionBoxSubtitle.textContent = 'Click to install the update and restart the app';
-            break;
-
-        case 'error':
-            try { // Versuche, trotzdem die aktuelle Version anzuzeigen
-                const appVersionOnError = await window.electronAPI.getAppVersion();
-                versionBoxTitle.textContent = `Version ${appVersionOnError} (Update-Error)`;
-            } catch (error) {
-                versionBoxTitle.textContent = 'Unknown version (Update-Error)';
-            }
-            versionBox.classList.add('update-error'); // Deine CSS-Klasse für Fehler-Rand
-            versionBoxSubtitle.textContent = "There was an error while updating";
-            break;
-
-        default: // Fallback, sollte eigentlich nicht passieren
-            try {
-                const appVersionDefault = await window.electronAPI.getAppVersion();
-                versionBoxTitle.textContent = `Version ${appVersionDefault}`;
-            } catch (error) {
-                versionBoxTitle.textContent = 'Unknown version';
-            }
-            versionBoxSubtitle.textContent = "Click to view the patchnotes";
-    }
-}
-
-function handleVersionBoxClick() {
-
-    if (availableUpdateInfo) {
-        console.log(`Klick auf versionBox. Aktueller Status ist: "${availableUpdateInfo.status}"`);
-
-        switch (availableUpdateInfo.status) {
             case 'available':
-                showCustomUpdatePrompt(availableUpdateInfo);
+                this.versionBoxTitle.textContent = `Update to Version ${data.version}`;
+                this.versionBoxSubtitle.textContent = 'Click to view the update details';
+                this.versionBox.classList.add('update-available');
+                break;
+
+            case 'downloading':
+                this.versionBoxTitle.textContent = "Downloading...";
+                this.versionBoxSubtitle.textContent = `${data.percent ? data.percent + '%' : ''} ${data.speed || ''}`;
+                this.versionBox.classList.add('update-downloading');
+                if (data.percent) {
+                    this.versionBox.style.setProperty('--download-progress', `${data.percent}%`);
+                }
                 break;
 
             case 'downloaded':
-                showCustomRestartPrompt(availableUpdateInfo);
+                this.versionBoxTitle.textContent = "Download complete";
+                this.versionBoxSubtitle.textContent = 'Click to install and restart';
+                this.versionBox.classList.add('update-available');
                 break;
 
-            default:
-                console.log(`Klick auf versionBox im Status '${availableUpdateInfo.status}' - keine explizite Aktion definiert.`);
+            case 'error':
+                 try {
+                    const appVersion = await window.electronAPI.getAppVersion();
+                    this.versionBoxTitle.textContent = `Version ${appVersion} (Update-Error)`;
+                } catch (error) {
+                    this.versionBoxTitle.textContent = 'Unknown version (Update-Error)';
+                }
+                this.versionBoxSubtitle.textContent = "An error occurred during update";
+                this.versionBox.classList.add('update-error');
                 break;
         }
-    } else {
-        console.log("Klick auf versionBox, aber kein Update verfügbar. (Hier könnten Patchnotes angezeigt werden)");
+    },
+
+    /**
+     * Behandelt Klicks auf die versionBox.
+     */
+    handleVersionBoxClick() {
+        if (!this.updateInfo) {
+            console.log("Klick auf versionBox, kein Update-Status bekannt. (Aktion für Patchnotes hier).");
+            // Hier könnte man z.B. immer die Patchnotes der aktuellen Version anzeigen
+            return;
+        }
+
+        switch (this.updateInfo.status) {
+            case 'available':
+                this.showUpdatePrompt(this.updateInfo);
+                break;
+            case 'downloaded':
+                this.showRestartPrompt(this.updateInfo);
+                break;
+            default:
+                console.log(`Klick auf versionBox im Status '${this.updateInfo.status}', keine Aktion definiert.`);
+                break;
+        }
+    },
+
+    /**
+     * Öffentliches Interface, um das "Herunterladen?"-Modal anzuzeigen.
+     */
+    showUpdatePrompt(details) {
+        this._showUpdateModal({
+            title: `Update to version ${details.version} available`,
+            notes: details.notes,
+            buttons: [
+                { text: 'Later', class: 'modal-action-button button-secondary', onClick: ({ close }) => close() },
+                { 
+                    text: 'Download', 
+                    class: 'modal-action-button button-primary',
+                    onClick: ({ close }) => {
+                        window.electronAPI.send('update-download', details);
+                        close();
+                    }
+                }
+            ]
+        });
+    },
+
+    /**
+     * Öffentliches Interface, um das "Neustarten?"-Modal anzuzeigen.
+     */
+    showRestartPrompt(details) {
+        this._showUpdateModal({
+            title: `Update to version ${details.version} installed`,
+            notes: details.notes,
+            buttons: [
+                { text: 'Later', class: 'modal-action-button button-secondary', onClick: ({ close }) => close() },
+                { 
+                    text: 'Restart & Install', 
+                    class: 'modal-action-button button-primary',
+                    onClick: () => {
+                        window.electronAPI.send('restart-and-install');
+                    }
+                }
+            ]
+        });
+    },
+
+    /**
+     * Private Hilfsfunktion, die die eigentliche Modal-Erstellung übernimmt.
+     * @private
+     */
+    _showUpdateModal({ title, notes, buttons }) {
+        ModalManager.show({
+            title: title,
+            size: 'medium',
+            headerButtons: [{
+                class: 'modal-header-button close-button',
+                tooltip: 'Close',
+                svg: SVG_CLOSE,
+                onClick: ({ close }) => close()
+            }],
+            contentTree: {
+                tag: 'div',
+                props: {
+                    className: 'patch-notes-content',
+                    innerHTML: (notes || 'No patchnotes available').replace(/\n/g, '<br>')
+                }
+            },
+            actionButtons: buttons
+        });
     }
-}
+};
 
-function showCustomRestartPrompt(updateDetails) {
-
-    console.log('Zeige Restart-Prompt für Version:', updateDetails.version);
-
-    ModalManager.show({
-        title: `Update to version ${updateDetails.version} installed`,
-        size: 'medium',
-        headerButtons: [
-            {
-                class: 'modal-header-button close-button',
-                tooltip: 'Close',
-                svg: SVG_CLOSE,
-                onClick: ({ close }) => close()
-            }
-        ],
-        contentTree: {
-            tag: 'div',
-            props: {
-                className: 'patch-notes-content',
-                innerHTML: (updateDetails.notes || 'No patchnotes available').replace(/\n/g, '<br>')
-            }
-        },
-        actionButtons: [
-            {
-                text: 'Later',
-                class: 'modal-action-button button-secondary',
-                onClick: (modal) => {
-                    console.log("Neustart auf 'Später' verschoben.");
-                    modal.close();
-                }
-            },
-            {
-                text: 'Restart & Install',
-                class: 'modal-action-button button-primary',
-                onClick: () => {
-                    console.log("Sende 'restart-and-install' an den Hauptprozess.");
-                    window.electronAPI.send('restart-and-install');
-                }
-            }
-        ]
-    });
-}
-
-function showCustomUpdatePrompt(updateDetails) {
-
-    console.log('Zeige "Herunterladen?"-Prompt für Version:', updateDetails.version);
-
-    // Definiere die "Blaupause" für dein Modal
-    ModalManager.show({
-        title: `Update to version ${updateDetails.version} available`,
-        size: 'medium',
-
-        headerButtons: [
-            {
-                class: 'modal-header-button close-button',
-                tooltip: 'Close',
-                svg: SVG_CLOSE,
-                onClick: ({ close }) => close()
-            }
-        ],
-
-        contentTree: {
-            tag: 'div',
-            props: {
-                className: 'patch-notes-content',
-                innerHTML: (updateDetails.notes || 'No patchnotes available').replace(/\n/g, '<br>')
-            }
-        },
-
-        actionButtons: [
-            {
-                text: 'Later',
-                class: 'modal-action-button button-secondary', // Deine sekundäre Button-Klasse
-                onClick: (modal) => modal.close()
-            },
-            {
-                text: 'Download',
-                class: 'modal-action-button button-primary',    // Deine primäre Akzent-Button-Klasse
-                onClick: (modal) => {
-                    // Sende das Signal zum Download an den Hauptprozess
-                    window.electronAPI.send('update-download', updateDetails);
-                    modal.close();
-                }
-            }
-        ]
-    });
-}
+export default UpdateManager;
