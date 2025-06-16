@@ -3,7 +3,7 @@
    Defines global CSS variables for colors and transitions.
    ========================================================================== */
 
-   :root {
+:root {
     --color-danger: #ef4444;
     --color-danger-text: #dc2626;
     --color-warning: #f59e0b;

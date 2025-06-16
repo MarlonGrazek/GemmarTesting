@@ -109,7 +109,7 @@
 #codeUploadSection>div:first-of-type {
     padding: 1.25rem;
     border-radius: 0.5rem;
-    border: 1px dashed var(--border-subtle);
+    border: 3px dashed var(--border-subtle);
     text-align: center;
     background-color: var(--surface-inset);
 }

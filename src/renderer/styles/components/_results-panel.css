@@ -3,13 +3,58 @@
    Styles for the entire right-side panel that displays test run results.
    ========================================================================== */
 
-   .results-panel header {
-    flex-shrink: 0; /* Prevents the header from shrinking */
+.results-panel header {
+    flex-shrink: 0;
+    /* Prevents the header from shrinking */
 }
 
 #resultsPageWrapper header #runningTestName {
     font-weight: 600;
     color: var(--interactive-accent-text);
+}
+
+.results-feedback {
+    background-color: var(--surface-secondary);
+    border: var(--border-subtle);
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+}
+
+.results-feedback.passed {
+    color: var(--interactive-accent-text);
+    background-color: color-mix(in srgb, var(--interactive-accent-primary) 10%, var(--surface-secondary));
+}
+
+.results-feedback.warning {
+    color: var(--color-warning-text);
+    background-color: color-mix(in srgb, var(--color-warning) 10%, var(--surface-secondary));
+}
+
+.results-feedback.failed {
+    color: color-mix(in srgb, var(--color-danger-text) 25%, var(--text-primary));
+    background-color: color-mix(in srgb, var(--color-danger-text) 50%, var(--surface-secondary));
+}
+
+.results-feedback.running {
+    color: color-mix(in srgb, var(--text-secondary) 25%, var(--text-primary));
+    background-color: color-mix(in srgb, var(--text-secondary) 25%, var(--surface-secondary));
+}
+
+#resultsFeedbackSubtitle {
+    color: var(--text-secondary);
+    margin: 0 0 1.5rem 0;
+}
+
+#resultsFeedbackIcon {
+    width: 7rem;
+    height: 7rem;
+    margin-top: 1.5rem;
 }
 
 /* --- Summary Box --- */
@@ -67,10 +112,21 @@
     margin: 0;
 }
 
-#totalTestsCount { color: var(--text-primary); }
-#passedTestsCount { color: var(--interactive-accent-primary); }
-#failedTestsCount { color: var(--color-danger); }
-#warningTestsCount { color: var(--color-warning); }
+#totalTestsCount {
+    color: var(--text-primary);
+}
+
+#passedTestsCount {
+    color: var(--interactive-accent-primary);
+}
+
+#failedTestsCount {
+    color: var(--color-danger);
+}
+
+#warningTestsCount {
+    color: var(--color-warning);
+}
 
 
 /* --- Individual Result Items --- */

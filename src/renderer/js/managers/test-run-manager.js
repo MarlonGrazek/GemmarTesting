@@ -7,6 +7,10 @@ const SVG_WARNING = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" 
 const SVG_INFO = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`;
 const SPINNER_ICON = `<div class="result-icon-placeholder"></div>`; // A placeholder for the CSS spinner
 
+const SVG_FAIL = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+const SVG_WARN = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`;
+const SVG_PASS = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`;
+
 // --- Module-level State & Variables ---
 let showModal;
 let electronAPI;
@@ -15,7 +19,8 @@ let javaTestEventListenerUnsubscribe = null;
 // DOM Elements for the results page
 let resultsPlaceholder, resultsContent, runningTestNameElem,
     progressBar, progressPercentage, totalTestsCountElem, passedTestsCountElem,
-    failedTestsCountElem, warningTestsCountElem, testSuitesContainer;
+    failedTestsCountElem, warningTestsCountElem, testSuitesContainer,
+    resultsFeedback, resultsFeedbackIcon, resultsFeedbackTitle, resultsFeedbackSubtitle;
 
 // State for the current test run
 let state = {
@@ -49,9 +54,11 @@ export async function startTestRun(testConfig, files) {
         showModal({ title: "Error", content: "Cannot start test run without a selected test and files." });
         return;
     }
+
     state.currentTestConfig = testConfig;
 
     _resetResultsState();
+    _updateFeedbackDisplay('running');
 
     // UI-Umschaltung: Platzhalter ausblenden, Ergebnisse einblenden
     if (resultsPlaceholder) resultsPlaceholder.classList.add('hidden-alt');
@@ -102,6 +109,11 @@ function _queryDOMElements() {
     failedTestsCountElem = document.getElementById('failedTestsCount');
     warningTestsCountElem = document.getElementById('warningTestsCount');
     testSuitesContainer = document.getElementById('testSuitesContainer');
+
+    resultsFeedback = document.getElementById('resultsFeedback');
+    resultsFeedbackIcon = document.getElementById('resultsFeedbackIcon');
+    resultsFeedbackTitle = document.getElementById('resultsFeedbackTitle');
+    resultsFeedbackSubtitle = document.getElementById('resultsFeedbackSubtitle');
 }
 
 
@@ -142,6 +154,49 @@ function _resetResultsState() {
 /**
  * Updates the summary display (counters and progress bar).
  */
+
+function _updateFeedbackDisplay(newState) {
+
+    if (!resultsFeedback || !resultsFeedbackIcon || !resultsFeedbackTitle || !resultsFeedbackSubtitle) {
+        console.log('A results-feedback element is not available');
+        return;
+    }
+
+    resultsFeedback.classList.remove('failed');
+    resultsFeedback.classList.remove('warning');
+    resultsFeedback.classList.remove('passed');
+    resultsFeedback.classList.remove('running');
+
+    switch (newState) {
+        case "failed":
+            resultsFeedback.classList.add('failed');
+            resultsFeedbackIcon.innerHTML = SVG_FAIL;
+            resultsFeedbackTitle.textContent = 'Some tests failed';
+            resultsFeedbackSubtitle.textContent = 'Something went wrong. Time for debugging!';
+            break;
+        case "warning":
+            resultsFeedback.classList.add('warning');
+            resultsFeedbackIcon.innerHTML = SVG_WARN;
+            resultsFeedbackTitle.textContent = 'Warnings found';
+            resultsFeedbackSubtitle.textContent = 'The code works, but you might check a few things';
+            break;
+        case "passed":
+            resultsFeedback.classList.add('passed');
+            resultsFeedbackIcon.innerHTML = SVG_PASS;
+            resultsFeedbackTitle.textContent = 'Everything passed';
+            resultsFeedbackSubtitle.textContent = 'Great work! All tests were successful.';
+            break;
+        case "running":
+            resultsFeedback.classList.add('running');
+            resultsFeedbackIcon.innerHTML = SVG_WARN;
+            resultsFeedbackTitle.textContent = 'Test running';
+            resultsFeedbackSubtitle.textContent = 'Please wait for the test to finish to see your results.';
+            break;
+        default:
+            console.log('There was an error generating the results feedback');
+    }
+}
+
 function _updateSummaryDisplay() {
     if (totalTestsCountElem) totalTestsCountElem.textContent = state.totalTestsInPlan;
     if (passedTestsCountElem) passedTestsCountElem.textContent = state.passedTests;
@@ -268,6 +323,10 @@ function _handleJavaTestEvent(eventData) {
                 progressPercentage.textContent = `Finished in ${eventData.duration} ms`;
             }
             _updateSummaryDisplay();
+
+            if (state.failedTests != 0) _updateFeedbackDisplay('failed');
+            else if (state.warningTests != 0) _updateFeedbackDisplay('warning');
+            else _updateFeedbackDisplay('passed');
 
             const summaryMessage = `Test run for "${state.currentTestConfig.title}" completed.<br>
                                   Result: ${state.passedTests} Passed, ${state.failedTests} Failed, ${state.warningTests} Warnings.`;
