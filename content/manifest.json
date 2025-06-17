@@ -1,4 +1,5 @@
 {
+    "runnerFile": "TestRunner.java",
     "tests": [
       {
         "id": "pvl1",
