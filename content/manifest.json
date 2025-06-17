@@ -1,0 +1,140 @@
+{
+    "tests": [
+      {
+        "id": "pvl1",
+        "title": "PVL1 - Stringsplitter",
+        "description": "Testbeschreibung für PVL1.\n\nImplementieren Sie für die Klasse **StudentAdministration** folgende Methoden:\n\n **StudentAdministration ()**\nDer Konstruktor erstellt eine neue Instanz der Klasse StudentAdministration.\n\n **enrollStudent(String firstName , String surname)**\nDie Methode fügt einen Studenten mit dem gegebenen Vor- und Nachnamen der Verwaltung hinzu und weist diesem Studenten eine eindeutige Matrikelnummer zu. Dies soll die erste freie Matrikelnummer im Intervall [1,999] sein. Geben Sie die Matrikelnummer zurück, wenn der Student erfolgreich angelegt wurde, ansonsten geben Sie -1 zurück.\n\n **disenrollStudent(int number)**\nExmatrikulieren Sie den Studenten mit der gegebenen Matrikelnummer, indem Sie seine Daten aus der Studierendenverwaltung entfernen. Geben Sie ”True” zurück, sollte die Operation erfolgreich gewesen sein, ansonsten ”False”.\n\n **takeExam(int number , String courseID , float grade)**\nDie Methode fügt beim Studierenden mit der Matrikelnummer ”number” den jeweiligen Kurs hinzu, sofern dieser noch nicht vorhanden sein sollte. Sollte der Kurs bereits vorhanden sein und wurde er bereits bestanden, so soll nichts passieren. Wenn der Kurs bereits vorhanden ist, aber noch nicht bestanden wurde, soll er anhand der Note aktualisiert werden. Eine 5.0 steht dabei für Durchgefallen. Sollte die Prüfung als nicht bestanden zählen und ein 3. Versuch sein, exmatrikulieren Sie den Studenten.\n\n **getStudent(int number)**\nFinden Sie den Studenten mit der gegebenen Matrikelnummer und geben Sie seine Daten als Liste von Strings zurück. Sollte kein Student mit der gegebenen Matrikelnummer existieren, geben Sie eine leere Liste zurück.\nDie Liste L soll das folgende Format haben:\n• L[0] = der Vorname des Studenten\n• L[1] = der Nachname des Studenten\n• L[2] = die Matrikelnummer des Studenten\n• Ab dem Index 3 sollen die Kurse gespeichert sein. Die Reihenfolge sei dabei egal, ein Kurs sei wie folgt formatiert: ”Kursname Note AnzahlDerVersuche”.\n\n**Beispiel:**\nenrollStudent(\"Sam\", \"Ple\") // gibt 1 zurück\ntakeExam(1, \"Math\", 5.0)\ntakeExam(1, \"Math\", 4.0)\ntakeExam(1, \"English\", 2.0)\ngetStudent(1) // gibt zurück [\"Sam\", \"Ple\",\"1\",\"Math 4.0 2\",\"English 2.0 1\"]",
+        "dueDate": "2025-04-27T23:59:59",
+        "submissionPage": "https://bildungsportal.sachsen.de/opal/auth/RepositoryEntry/48500113421/CourseNode/1618799771950921010",
+        "filePath": "https://gist.github.com/MarlonGrazek/22f334c5da7ca713cd3560f0cb39c5bb/raw",
+        "mainTestClassName": "PVL1Test",
+        "userCodeEntryClassFQN": "Stringsplitter",
+        "flags": [
+          {
+            "title": "Test",
+            "details": "Die Aufgabe muss in Java gelöst werden. Nutzen Sie für die Abgabe das Code-Template aus dem OPAL-Bereich 'Prüfungsvorleistung 1'. Verändern Sie auf keinen Fall die vorgegebenen Methodensignaturen des Interfaces und entfernen Sie nicht das Interface aus der Klasse. Laden Sie alle für die Ausführung Ihrer Abgabe notwendigen java Dateien im OPAL-Bereich 'Prüfungsvorleistung 1' hoch. Es werden nur java Dateien akzeptiert."
+          },
+          {
+            "title": "Test",
+            "details": "Sie dürfen Klassen und Methoden aus der Standardbibliothek von Java nutzen. Bitte benutzen Sie keine Bibliotheken von Dritten."
+          }
+        ]
+      },
+      {
+        "id": "pvl2",
+        "title": "PVL2 - Wetterbericht",
+        "description": "Testbeschreibung für PVL2.\n\nImplementieren Sie für die Klasse **StudentAdministration** folgende Methoden:\n\n **StudentAdministration ()**\nDer Konstruktor erstellt eine neue Instanz der Klasse StudentAdministration.\n\n **enrollStudent(String firstName , String surname)**\nDie Methode fügt einen Studenten mit dem gegebenen Vor- und Nachnamen der Verwaltung hinzu und weist diesem Studenten eine eindeutige Matrikelnummer zu. Dies soll die erste freie Matrikelnummer im Intervall [1,999] sein. Geben Sie die Matrikelnummer zurück, wenn der Student erfolgreich angelegt wurde, ansonsten geben Sie -1 zurück.\n\n **disenrollStudent(int number)**\nExmatrikulieren Sie den Studenten mit der gegebenen Matrikelnummer, indem Sie seine Daten aus der Studierendenverwaltung entfernen. Geben Sie ”True” zurück, sollte die Operation erfolgreich gewesen sein, ansonsten ”False”.\n\n **takeExam(int number , String courseID , float grade)**\nDie Methode fügt beim Studierenden mit der Matrikelnummer ”number” den jeweiligen Kurs hinzu, sofern dieser noch nicht vorhanden sein sollte. Sollte der Kurs bereits vorhanden sein und wurde er bereits bestanden, so soll nichts passieren. Wenn der Kurs bereits vorhanden ist, aber noch nicht bestanden wurde, soll er anhand der Note aktualisiert werden. Eine 5.0 steht dabei für Durchgefallen. Sollte die Prüfung als nicht bestanden zählen und ein 3. Versuch sein, exmatrikulieren Sie den Studenten.\n\n **getStudent(int number)**\nFinden Sie den Studenten mit der gegebenen Matrikelnummer und geben Sie seine Daten als Liste von Strings zurück. Sollte kein Student mit der gegebenen Matrikelnummer existieren, geben Sie eine leere Liste zurück.\nDie Liste L soll das folgende Format haben:\n• L[0] = der Vorname des Studenten\n• L[1] = der Nachname des Studenten\n• L[2] = die Matrikelnummer des Studenten\n• Ab dem Index 3 sollen die Kurse gespeichert sein. Die Reihenfolge sei dabei egal, ein Kurs sei wie folgt formatiert: ”Kursname Note AnzahlDerVersuche”.\n\n**Beispiel:**\nenrollStudent(\"Sam\", \"Ple\") // gibt 1 zurück\ntakeExam(1, \"Math\", 5.0)\ntakeExam(1, \"Math\", 4.0)\ntakeExam(1, \"English\", 2.0)\ngetStudent(1) // gibt zurück [\"Sam\", \"Ple\",\"1\",\"Math 4.0 2\",\"English 2.0 1\"]",
+        "dueDate": "2025-05-11T23:59:59",
+        "submissionPage": "https://bildungsportal.sachsen.de/opal/auth/RepositoryEntry/48500113421/CourseNode/1619404520403672010",
+        "filePath": "https://gist.githubusercontent.com/MarlonGrazek/c0913bbf304f772f637357efee5d2c63/raw",
+        "mainTestClassName": "PVL2Test",
+        "userCodeEntryClassFQN": "Forecast",
+        "flags": [
+          {
+            "title": "Test",
+            "details": "Spezifische Abgabebedingungen für PVL2."
+          },
+          {
+            "title": "Test",
+            "details": "Erlaubte Bibliotheken: Nur Java Standard."
+          }
+        ]
+      },
+      {
+        "id": "pvl3",
+        "title": "PVL 3 - StudentAdministration",
+        "description": "Schreiben Sie eine Klasse **StudentAdministration** zur Verwaltung von Studenten einer Universität.\nEin Student wird dabei durch die **Matrikelnummer (1-999)** eindeutig gekennzeichnet, außerdem besitzt ein Student einen Vor- und Nachnamen. Weiterhin soll ein Student eine Sammlung von Kursen besitzen, in denen bereits eine Prüfung abgelegt wurde. Die Sammlung kann eine Datenstruktur Ihrer Wahl sein. Pro Kurs sollen die Note und die Anzahl der Versuche gespeichert werden. Die möglichen Noten liegen im Intervall **1.0 bis 5.0**, eine **5.0** gilt als nicht bestanden.\n\nImplementieren Sie für die Klasse **StudentAdministration** folgende Methoden:\n\n **StudentAdministration ()**\nDer Konstruktor erstellt eine neue Instanz der Klasse StudentAdministration.\n\n **enrollStudent(String firstName , String surname)**\nDie Methode fügt einen Studenten mit dem gegebenen Vor- und Nachnamen der Verwaltung hinzu und weist diesem Studenten eine eindeutige Matrikelnummer zu. Dies soll die erste freie Matrikelnummer im Intervall [1,999] sein. Geben Sie die Matrikelnummer zurück, wenn der Student erfolgreich angelegt wurde, ansonsten geben Sie -1 zurück.\n\n **disenrollStudent(int number)**\nExmatrikulieren Sie den Studenten mit der gegebenen Matrikelnummer, indem Sie seine Daten aus der Studierendenverwaltung entfernen. Geben Sie ”True” zurück, sollte die Operation erfolgreich gewesen sein, ansonsten ”False”.\n\n **takeExam(int number , String courseID , float grade)**\nDie Methode fügt beim Studierenden mit der Matrikelnummer ”number” den jeweiligen Kurs hinzu, sofern dieser noch nicht vorhanden sein sollte. Sollte der Kurs bereits vorhanden sein und wurde er bereits bestanden, so soll nichts passieren. Wenn der Kurs bereits vorhanden ist, aber noch nicht bestanden wurde, soll er anhand der Note aktualisiert werden. Eine 5.0 steht dabei für Durchgefallen. Sollte die Prüfung als nicht bestanden zählen und ein 3. Versuch sein, exmatrikulieren Sie den Studenten.\n\n **getStudent(int number)**\nFinden Sie den Studenten mit der gegebenen Matrikelnummer und geben Sie seine Daten als Liste von Strings zurück. Sollte kein Student mit der gegebenen Matrikelnummer existieren, geben Sie eine leere Liste zurück.\nDie Liste L soll das folgende Format haben:\n• L[0] = der Vorname des Studenten\n• L[1] = der Nachname des Studenten\n• L[2] = die Matrikelnummer des Studenten\n• Ab dem Index 3 sollen die Kurse gespeichert sein. Die Reihenfolge sei dabei egal, ein Kurs sei wie folgt formatiert: ”Kursname Note AnzahlDerVersuche”.\n\n**Beispiel:**\n```enrollStudent(\"Sam\", \"Ple\") // gibt 1 zurück\ntakeExam(1, \"Math\", 5.0)\ntakeExam(1, \"Math\", 4.0)\ntakeExam(1, \"English\", 2.0)\ngetStudent(1) // gibt zurück [\"Sam\", \"Ple\",\"1\",\"Math 4.0 2\",\"English 2.0 1\"]```",
+        "dueDate": "2025-05-25T23:59:59",
+        "submissionPage": "https://bildungsportal.sachsen.de/opal/auth/RepositoryEntry/48500113421/CourseNode/1620009408321506010",
+        "filePath": "https://gist.github.com/MarlonGrazek/1978a629e50d7ad389cd2f3ed6d7640f/raw",
+        "mainTestClassName": "PVL3Test",
+        "userCodeEntryClassFQN": "StudentAdministration",
+        "flags": [
+          {
+            "title": "Abgabe",
+            "details": "Die Aufgabe muss in Java gelöst werden. Nutzen Sie für die Abgabe das Code-Template aus dem OPAL-Bereich 'Prüfungsvorleistung 3'. Verändern Sie auf keinen Fall die vorgegebenen Methodensignaturen des Interfaces und entfernen Sie nicht das Interface aus der Klasse. Laden Sie alle für die Ausführung Ihrer Abgabe notwendigen java Dateien im OPAL-Bereich 'Prüfungsvorleistung 3' hoch. Es werden nur java Dateien akzeptiert."
+          },
+          {
+            "title": "Erlaubte Klassen",
+            "details": "Sie dürfen Klassen und Methoden aus der Standardbibliothek von Java nutzen. Bitte benutzen Sie keine Bibliotheken von Dritten."
+          },
+          {
+            "title": "Plagiate",
+            "details": "Es ist erlaubt, Lösungen aus dem Internet in Ihre Abgabe zu integrieren. Bitte markieren Sie jeglichen Code, der nicht von Ihnen selbst stammt, indem Sie einen Kommentar mit der Quelle des Codes (URL ist ausreichend) an die entsprechende Stelle setzen. Dies soll verhindern, dass Ihre Lösung fälschlicherweise als Plagiat erkannt wird. Da es sich hierbei um eine Prüfungsvorleistung handelt, ist es notwendig, dass Sie die Aufgaben selbständig bearbeiten. Daher werden alle Abgaben untereinander auf Plagiate überprüft. Sollten Plagiate erkannt werden, gilt die Abgabe von sämtlichen beteiligten Parteien als ungültig."
+          },
+          {
+            "title": "Kompilierbarkeit und Clean Code",
+            "details": "Es werden nur Abgaben gewertet, welche sich in einem ausführbaren Zustand befinden. Achten Sie außerdem auf die Leserlichkeit des Codes. Unverständliche oder unangemessene Bezeichner von Klassen, Variablen, etc. können zu Punkteabzügen führen."
+          },
+          {
+            "title": "Fragen",
+            "details": "Bitte stellen Sie ihre Fragen im Forum im Thread PVL3, damit alle Studierenden Zugang zu allen notwendigen Informationen erhalten."
+          }
+        ]
+      },
+      {
+        "id": "pvl4",
+        "title": "PVL4 - Prioritätswarteschlange",
+        "description": "Der Fokus dieser PVL liegt auf der Datenstruktur der Prioritätswarteschlange.\n\nPrioritätswarteschlangen werden häufig in Scheduling-Anwendungen benutzt. Ein Beispiel wo solch eine Anwendung benutzt wird waere ein Betriebssystem. In Betriebssystemen existiert (grob vereinfacht) die Abstraktion 'Prozess'. Für unsere Zwecke definieren wir einen Prozess einfach als ein kleines nicht unterbrechbares Programm. Die Aufgabe des Betriebssystems ist nun die Planung wann welcher Prozess ausgeführt wird.\n\nIn unserem Fall soll ein Prozess aus einer **\"arrivalTime\"**, **\"executionTime\"** und **\"priority\"** bestehen. Das Betriebssystem soll die Möglichkeit haben auf eine Anzahl **\"kernelNumber\"** Prozessoren zuzugreifen (so können mehrere Prozesse parallel durchgeführt werden). Die **\"arrivalTime\"** beschreibt den diskreten Zeitpunkt ab wann ein Prozess gestartet werden kann. Die **\"executionTime\"** beschreibt wie viele diskrete Zeitschritte der Prozess benötigt um durchgeführt zu werden. Die **\"priority\"** gibt an welcher Prozess präferiert werden soll. Eine höhere Zahl bedeutet dabei dass der Prozess Vorrang hat. Sollten mehrere Prozesse bereit zur Ausführung sein und ein Prozessor zur Verfügung stehen so soll der Prozess mit der höchsten Priorität ausgeführt werden.\n\nFür die Abstraktion des Prozesses steht das Interface **\"Process\"** zur Verfügung. Implementierten Sie dafür folgende Methoden:\n\n**public Process(int pid , int arrivalTime , int executionTime , int priority)**\nImplementieren Sie einen Konstruktor welcher die Attribute der Klasse basierend auf den übergebenen Werten setzt.\n\n**public int getPID()**\nWelche die PID zurückgibt.\n\n**public int getArrivalTime()**\nWelche die \"arrivalTime\" zurückgibt.\n\n**public int getExecutionTime()**\nWelche die \"executionTime\" zurückgibt.\n\n**public int getPriority()**\nWelche die \"priority\" zurückgibt.\n\nFür die Anwendung steht das Interface **\"OperationSystem\"** zur Verfügung. Implementieren Sie dieses.\n\n**public OperationSystem(int kernelNumber)**\nImplementieren Sie einen Konstruktor welcher die Anzahl der nutzbaren Kernels setzt.\n\n**public int createProcess(int arrivalTime , int executionTime , int priority)**\nSie bekommen die nötigen Parameter bis auf die PID zur Erzeugung eines Prozesses. Ihre Implementierung soll die Zuweisung der PID durchführen. Eine PID soll im Intervall [1, 255] liegen. Es soll stets die niedrigste PID vergeben werden. Geben Sie die PID zurück. Sollte keine PID mehr verfügbar sein geben Sie -1 zurück. Speichern Sie sich den Prozess für den weiteren Verlauf.\n\n**public boolean deleteProcess(int PID)**\nSie bekommen eine Zahl aus dem Intervall [1, 255]. Sollte es einen Prozess geben der diese PID besitzt löschen Sie diesen und geben Sie die PID frei. Wurde ein Prozess gelöscht geben Sie true zurück ansonsten false.\n\n**public List<List<Integer>> execute()**\nFühren Sie die gespeicherten Prozesse aus (startend beim Zeitpunkt 0 positiv fortlaufend). Benutzen Sie alle Prozessoren und arbeiten Sie alle Prozesse so schnell wie möglich ab. Die Ausführung gilt als beendet wenn alle Prozesse ausgeführt wurden.\nGeben Sie eine Liste aus Listen zurück. Diese soll zu jedem Zeitpunkt einen \"Log\" - Eintrag darüber erstellen welcher Prozessor welchen Prozess ausführt. Sollte kein Prozess ausgeführt werden nutzen Sie die 0 sonst die PID des Prozesses. Die Liste soll folgendes Format haben:\n[\n   [ProcessInKernel[0], ProcessInKernel[1], ..., ProcessInKernel[n - 1]]\n]\nDabei soll am Index i der Liste der i-te Zeitpunkt beschrieben sein.\n\n**Beispiel**\nOperationSystem scheduler = new OperationSystem(2);\nscheduler.createProcess(0, 3, 10); //pid 1\nscheduler.createProcess(0, 2, 10); //pid 2\nscheduler.createProcess(2, 1, 10); //pid 3\nscheduler.createProcess(5, 4, 10); //pid 4\nscheduler.createProcess(5, 3, 90); //pid 5\nscheduler.createProcess(9, 1, 10); //pid 6\nscheduler.deleteProcess(6); //true\nscheduler.createProcess(5, 1, 80); //pid 6\n\nList<List<Integer>> result = scheduler.execute();\n//[\n//[1,2],\n//[1,2],\n//[1,3],\n//[0,0],\n//[0,0],\n//[5,6],\n//[5,4],\n//[5,4],\n//[0,4],\n//[0,4]\n//]",
+        "dueDate": "2025-06-08T23:59:59",
+        "submissionPage": "https://bildungsportal.sachsen.de/opal/auth/RepositoryEntry/48500113421/CourseNode/1620613972998818010",
+        "filePath": "https://gist.github.com/MarlonGrazek/6153b1a5e4fb647d04b65c3f5ee27d6c/raw",
+        "mainTestClassName": "PVL4Test",
+        "userCodeEntryClassFQN": "OperationSystem",
+        "flags": [
+          {
+            "title": "Abgabe",
+            "details": "Die Aufgabe muss in Java geloest werden. Nutzen Sie fuer die Abgabe das Code-Template aus dem OPALBereich Pruefungsvorleistung 4. Veraendern Sie auf keinen Fall die vorgegebenen Methodensignaturen des Interfaces und entfernen Sie nicht das Interface aus der Klasse. Sie duerfen zusaetzliche Klassen und Methoden erstellen die nicht von der Aufgabe definiert werden. Laden Sie alle fuer die Ausfuehrung Ihrer Abgabe notwendigen .java Dateien im OPAL-Bereich Pruefungsvorleistung 4 hoch. Es werden nur .java Dateien akzeptiert."
+          },
+          {
+            "title": "Erlaubte Klassen",
+            "details": "Sie duerfen Klassen und Methoden aus der Standardbibliothek von Java nutzen. Bitte benutzen Sie keine Bibliotheken von Dritten."
+          },
+          {
+            "title": "Plagiate",
+            "details": "Es ist erlaubt Loesungen aus dem Internet in Ihre Abgabe zu integrieren. Bitte markieren Sie jeglichen Code der nicht von Ihnen selbst stammt indem Sie einen Kommentar mit der Quelle des Codes URL ist ausreichend an die entsprechende Stelle setzen. Dies soll verhindern dass Ihre Loesung faelschlicherweise als Plagiat erkannt wird. Da es sich hierbei um eine Pruefungsvorleistung handelt ist es notwendig dass Sie die Aufgaben selbststaendig bearbeiten. Daher werden alle Abgaben untereinander auf Plagiate ueberprueft. Sollten Plagiate erkannt werden gilt die Abgabe von saemtlichen beteiligten Parteien als ungueltig."
+          },
+          {
+            "title": "Kompilierbarkeit und Clean Code",
+            "details": "Es werden nur Abgaben gewertet welche sich in einem ausfuehrbaren Zustand befinden. Achten Sie ausserdem auf die Leserlichkeit des Codes."
+          },
+          {
+            "title": "Fragen",
+            "details": "Bitte stellen Sie ihre Fragen im Forum im Thread PVL4 damit alle Studierenden Zugang zu allen notwendigen Informationen erhalten."
+          }
+        ]
+      },
+      {
+        "id": "pvl5",
+        "title": "PVL5 - FamilyTree",
+        "description": "Bäume sind besonders gut dazu geeignet, Daten mit klaren hierarchischen Strukturen darzustellen, wie zum Beispiel den Stammbaum einer Familie. Für diese Aufgabe sollen Sie einen simplen Stammbaum implementieren, welcher nur eine Seite einer Familiengeschichte darstellt, Partner werden zu diesem Zweck ignoriert.\n\nEine Person im Stammbaum wird durch die Klasse **Person** repräsentiert. Implementieren Sie die folgenden Methoden:\n\n**public Person (String name)**\nImplementieren Sie einen Konstruktor in ihrer entsprechenden Sprache, welcher den Namen der Person entsprechend des übergebenen Werts setzt.\n\n**public String getName()**\nGeben Sie den Namen der Person zurück.\n\nImplementieren Sie die Klasse **FamilyTree** als Baum-Struktur. Alle Personen, die Teil des Baums sind, werden mit einer eindeutigen ID gekennzeichnet. Implementieren Sie die folgenden Methoden:\n\n**public FamilyTree (Person root)**\nImplementieren Sie einen Konstruktor, der einen Baum initialisiert und die übergebene Person an der Wurzel des Baumes einfügt. Die übergebene Person soll die ID 0 erhalten.\n\n**public Integer insertAsChildForId (Person toInsert, Integer parentID)**\nFügen Sie die Person toInsert als Kind von der Person mit der ID parentID in den Baum ein. Teilen Sie ihr dabei eine eindeutige ID zu. IDs werden nach der Reihenfolge, nach der die Personen dem Stammbaum hinzugefügt werden, vergeben (erste eingefügte Person = 0 nächste eingefügte Person = 1, usw.). Geben Sie die ID zurück.\n\n**public Integer getParentOf (Integer id)**\nGeben Sie die ID des Elternteils der übergebenen id zurück.\n\n**List<Integer> getSiblingsOf (Integer id)**\nGeben Sie eine Liste von IDs der Geschwister von id zurück.\n\n**List<Integer> getChildrenOf (Integer id)**\nGeben Sie eine Liste von IDs der Kinder von id zurück.\n\n**List<Integer> getNiecesNephewsOf (Integer id)**\nGeben Sie eine Liste von IDs der Nichten und Neffen von id zurück.\n\n**List<Integer> getCousinsOf (Integer id)**\nGeben Sie eine Liste von IDs der Cousinen und Cousins von id zurück.\n\n**Person getPersonById (Integer id)**\nGeben Sie die Person mit der übergebenen id zurück.\n\n**Beispiel**\n```\nPerson grandpa = new Person(\"Johann\");\nFamilyTree buddenbrooks = new FamilyTree(grandpa);\nbuddenbrooks.insertAsChildForId(new Person(\"Gotthold\"), 0); //gibt 1 zurück\nbuddenbrooks.insertAsChildForId(new Person(\"Jean\"), 0); //gibt 2 zurück\nbuddenbrooks.insertAsChildForId(new Person(\"Olly\"), 0); //gibt 3 zurück\nbuddenbrooks.insertAsChildForId(new Person(\"Friederike\"), 1); //gibt 4 zurück\nbuddenbrooks.insertAsChildForId(new Person(\"Henriette\"), 1); //gibt 5 zurück\nbuddenbrooks.insertAsChildForId(new Person(\"Pfiffi\"), 1); //gibt 6 zurück\nbuddenbrooks.insertAsChildForId(new Person(\"Thomas\"), 2); //gibt 7 zurück\nbuddenbrooks.insertAsChildForId(new Person(\"Antonie\"), 2); //gibt 8 zurück\nbuddenbrooks.insertAsChildForId(new Person(\"Christian\"), 2); //gibt 9 zurück\nbuddenbrooks.insertAsChildForId(new Person(\"Clara\"), 2); //gibt 10 zurück\n\nbuddenbrooks.getParentOf(3); //gibt 0 zurück\nbuddenbrooks.getSiblingsOf(3); // gibt [1,2] zurück\nbuddenbrooks.getChildrenOf(3); //gibt eine leere Liste zurück\nbuddenbrooks.getNiecesNephewsOf(3); // gibt [4,5,6,7,8,9,10] zurück\n```",
+        "dueDate": "2025-06-22T23:59:59",
+        "submissionPage": "https://bildungsportal.sachsen.de/opal/auth/RepositoryEntry/48500113421/CourseNode/1621218834375551010",
+        "filePath": "https://gist.github.com/MarlonGrazek/e73153f1c195d46e90a9e5b3cc6fccf5/raw",
+        "mainTestClassName": "PVL5Test",
+        "userCodeEntryClassFQN": "FamilyTree",
+        "flags": [
+          {
+            "title": "Abgabe",
+            "details": "Downloaden Sie den zip Ordner PVL5.zip aus dem OPAL-Bereich 'Prüfungsvorleistung 5'. Implementieren Sie die in der Aufgabenstellung definierten Klassen. Nutzen Sie dafür das vorgegebene Template. Verändern Sie auf keinen Fall die vorgegebenen Methodensignaturen oder Klassennamen! Das Template enthält Interfaces. Verändern Sie daher auf keinen Fall die Interfaces und entfernen Sie nicht das Keyword 'implements' aus der Klasse. Abgaben mit geändertem Interface gelten als nicht kompilierbar. Sie dürfen zusätzliche Klassen und Methoden erstellen. Laden Sie alle Quellcode-Dateien, die notwendig sind, um Ihre Abgabe auszuführen, in OPAL hoch. Es werden nur Dateien mit der Dateiendung .java akzeptiert. Geben Sie keine Ordner oder Archive ab."
+          },
+          {
+            "title": "Erlaubte Klassen",
+            "details": "Sie dürfen Klassen und Methoden aus der Standardbibliothek von Java nutzen. Bitte benutzen Sie keine Bibliotheken von Dritten."
+          },
+          {
+            "title": "Plagiate",
+            "details": "Es ist erlaubt, Lösungen aus dem Internet in Ihre Abgabe zu integrieren. Bitte markieren Sie jeglichen Code, der nicht von Ihnen selbst stammt, indem Sie einen Kommentar mit der Quelle des Codes (URL ist ausreichend) an die entsprechende Stelle setzen. Dies soll verhindern, dass Ihre Lösung fälschlicherweise als Plagiat erkannt wird. Da es sich hierbei um eine Prüfungsvorleistung handelt, ist es notwendig, dass Sie die Aufgaben selbständig bearbeiten. Daher werden alle Abgaben untereinander auf Plagiate überprüft. Sollten Plagiate erkannt werden, gilt die Abgabe von sämtlichen beteiligten Parteien als ungültig."
+          },
+          {
+            "title": "Kompilierbarkeit und Clean Code",
+            "details": "Es werden nur Abgaben gewertet, welche sich in einem kompilierbaren und ausführbaren Zustand befinden. Achten Sie außerdem auf die Leserlichkeit des Codes."
+          },
+          {
+            "title": "Fragen",
+            "details": "Bitte stellen Sie ihre Fragen im Forum im Thread PVL5, damit alle Studierenden Zugang zu allen notwendigen Informationen erhalten."
+          }
+        ]
+      }
+    ]
+  }
