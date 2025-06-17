@@ -1,6 +1,5 @@
 import ModalManager from "./modal-manager.js";
-// NEU: Direkter Import des TestRunManager
-import TestRunManager from "./test-run-manager.js";
+import TestRunManager from "./test-execution-manager.js";
 
 // --- Konstanten ---
 const SVG_INFO = `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M10.5,9H13.5V7H10.5Z M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M10.5,17H13.5V11H10.5V17Z" /></svg>`;
@@ -9,11 +8,11 @@ const SVG_CLOSE = `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox=
 const MANIFEST_URL = 'https://gist.github.com/MarlonGrazek/6bffda46a3510f9556b9843aba7d6484/raw';
 
 /**
- * TestUIManager
+ * TestSetupManager
  * Verwaltet die Anzeige der Testauswahl, das Hochladen von Dateien und
  * die Interaktion mit der Test-UI.
  */
-const TestUIManager = {
+const TestSetupManager = {
     // Gekapselter Zustand, UI-Referenzen und Callbacks
     state: {
         manifestData: null,
@@ -37,9 +36,9 @@ const TestUIManager = {
             this.state.manifestData = await this._fetchManifest();
             this._updatePinBoxUI();
             this._renderTestList();
-            console.log("TestUIManager erfolgreich initialisiert.");
+            console.log("TestSetupManager erfolgreich initialisiert.");
         } catch (error) {
-            console.error("TestUIManager: Initialisierung fehlgeschlagen:", error);
+            console.error("TestSetupManager: Initialisierung fehlgeschlagen:", error);
             if (this.ui.testListContainer) this.ui.testListContainer.innerHTML = '<p class="text-secondary text-center">Could not load tests.</p>';
         }
     },
@@ -317,4 +316,4 @@ const TestUIManager = {
     }
 };
 
-export default TestUIManager;
+export default TestSetupManager;

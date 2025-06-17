@@ -12,11 +12,11 @@ const SVG_PASS_FEEDBACK = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 
 
 
 /**
- * TestRunManager
+ * TestExecutionManager
  * Verwaltet den gesamten Prozess eines Testlaufs, von der Dateiauswahl
  * bis zur Anzeige der Ergebnisse.
  */
-const TestRunManager = {
+const TestExecutionManager = {
     // Gekapselter Zustand, UI-Referenzen und Listener
     state: {},
     ui: {},
@@ -28,10 +28,10 @@ const TestRunManager = {
     init() {
         this._queryDOMElements();
         if (!this.ui.resultsContent) {
-            console.error("TestRunManager: Initialisierung fehlgeschlagen, wichtige UI-Elemente nicht gefunden.");
+            console.error("TestExecutionManager: Initialisierung fehlgeschlagen, wichtige UI-Elemente nicht gefunden.");
             return;
         }
-        console.log("TestRunManager erfolgreich initialisiert.");
+        console.log("TestExecutionManager erfolgreich initialisiert.");
     },
 
     /**
@@ -301,4 +301,4 @@ const TestRunManager = {
     }
 };
 
-export default TestRunManager;
+export default TestExecutionManager;
