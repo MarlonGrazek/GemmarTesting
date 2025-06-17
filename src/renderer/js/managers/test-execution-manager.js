@@ -45,9 +45,17 @@ const TestExecutionManager = {
         this.ui.runningTestNameElem.textContent = testConfig.title;
 
         try {
-            // Die URLs werden jetzt korrekt mit der übergebenen Basis-URL zusammengebaut.
+            // === FINALE, VEREINFACHTE LOGIK ZUR ABLEITUNG ===
+            const identifier = testConfig.id; // Das 'id'-Feld ist jetzt die einzige Quelle
+            if (!identifier) {
+                throw new Error("Test-Konfiguration ist ungültig: 'id' fehlt.");
+            }
+            const mainTestClassName = identifier;
+            const testFileName = `${identifier}.java`;
+            // ===============================================
+
             const runnerUrl = `${baseUrl}${manifestData.runnerFile}`;
-            const testLogicUrl = `${baseUrl}${testConfig.filePath}`;
+            const testLogicUrl = `${baseUrl}${testFileName}`; // Verwendet den abgeleiteten Namen
 
             const [runnerCode, testLogicCode, userFileContents] = await Promise.all([
                 this._fetchSourceCode(runnerUrl),
@@ -62,12 +70,11 @@ const TestExecutionManager = {
                 userFiles: userFileContents,
                 testFiles: [
                     { name: manifestData.runnerFile, content: runnerCode },
-                    { name: testConfig.filePath.split('/').pop(), content: testLogicCode }
+                    { name: testFileName, content: testLogicCode }
                 ],
                 testConfig: {
-                    mainTestClassName: testConfig.mainTestClassName,
-                    userCodeEntryClassFQN: testConfig.userCodeEntryClassFQN,
-                    expectedInterfaceName: testConfig.expectedInterfaceName
+                    mainTestClassName: mainTestClassName,
+                    userCodeEntryClassFQN: testConfig.userClassToTest,
                 }
             });
         } catch (error) {
