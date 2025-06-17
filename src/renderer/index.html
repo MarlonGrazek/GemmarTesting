@@ -4,6 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self';
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+        font-src 'self' https://fonts.gstatic.com;
+        connect-src 'self' https://gist.githubusercontent.com https://gist.github.com https://api.github.com;
+        img-src 'self' data:;">
     <title>Gemmar Testing</title>
     <link rel="stylesheet" href="styles/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -89,7 +96,8 @@
 
                     <div class="results-feedback" id="resultsFeedback">
                         <div id="resultsFeedbackIcon"></div>
-                        <h2 id="resultsFeedbackTitle"></h1>
+                        <h2 id="resultsFeedbackTitle">
+                            </h1>
                             <p id="resultsFeedbackSubtitle"></p>
                     </div>
 
