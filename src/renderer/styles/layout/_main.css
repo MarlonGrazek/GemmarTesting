@@ -3,12 +3,12 @@
    Styles for the main content area, including the two-panel split view.
    ========================================================================== */
 
-#app-main {
+   #app-main {
     flex-grow: 1;
     padding: 1.5rem;
     box-sizing: border-box;
     display: flex;
-    min-height: 0;
+    min-height: 0; /* Wichtig für Flexbox-Kinder, die scrollen sollen */
 }
 
 #splitViewContainer {
@@ -19,7 +19,19 @@
     min-width: 0;
 }
 
-.setup-panel,
+/* KORREKTUR: Korrektes Flexbox-Layout für das linke Panel */
+.setup-panel {
+    flex: 1;
+    background-color: var(--surface-primary);
+    border-radius: 0.5rem;
+    box-shadow: var(--shadow-medium);
+    padding: 2.5rem;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Verhindert, dass das Panel selbst scrollt */
+}
+
 .results-panel {
     flex: 1;
     background-color: var(--surface-primary);
@@ -30,17 +42,34 @@
     min-width: 0;
     display: flex;
     flex-direction: column;
-}
-
-.results-panel {
     position: relative;
 }
 
-/* Base styles for headers within the panels */
-.setup-panel header,
-.results-panel header {
-    margin-bottom: 1.5rem;
+/* Header und Upload-Sektion sollen ihre feste Höhe behalten */
+.setup-panel > header,
+#codeUploadSection {
+    flex-shrink: 0; /* Verhindert, dass diese Sektionen schrumpfen */
 }
+
+/* KORREKTUR: Die Sektion mit der Testliste wird zum scrollbaren Bereich */
+#testSelectionSection {
+    flex-grow: 1; /* Lässt diese Sektion den gesamten verfügbaren Platz füllen */
+    overflow-y: auto; /* Fügt NUR HIER einen Scrollbalken hinzu, wenn der Inhalt überläuft */
+    min-height: 0; /* Ein wichtiger Fix, der Flexbox erlaubt, den Inhalt korrekt zu verkleinern */
+    
+    /* Etwas Abstand, damit der Scrollbalken den Inhalt nicht überdeckt */
+    padding-right: 12px;
+    margin-right: -12px;
+}
+
+#testSelectionSection h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+/* --- Unveränderte Styles für den Rest --- */
 
 .setup-panel header h1,
 .results-panel #resultsPageTitle {
@@ -51,7 +80,6 @@
 }
 
 @media (min-width: 640px) {
-
     .setup-panel header h1,
     .results-panel #resultsPageTitle {
         font-size: 2.25rem;
@@ -64,12 +92,20 @@
     color: var(--text-secondary);
 }
 
-.setup-panel #testSelectionSection h2,
-.setup-panel #codeUploadSection h2 {
+#codeUploadSection h2 {
     font-size: 1.5rem;
     font-weight: 600;
     color: var(--text-primary);
     margin-bottom: 1rem;
+}
+
+#noTestSelectedError {
+    flex-shrink: 0;
+}
+
+.results-panel header {
+    flex-shrink: 0;
+    margin-bottom: 1.5rem;
 }
 
 #resultsPlaceholder {
@@ -94,11 +130,7 @@
     transition: all 0.3s ease-in-out;
 }
 
-#resultsPlaceholderLogo .logo-main {
-    fill: var(--surface-secondary);
-    transition: fill 0.3s ease-in-out;
-}
-
+#resultsPlaceholderLogo .logo-main,
 #resultsPlaceholderLogo .logo-accent {
     fill: var(--surface-secondary);
     transition: fill 0.3s ease-in-out;
@@ -117,6 +149,11 @@
 
     .setup-panel,
     .results-panel {
-        overflow-y: visible;
+        overflow-y: visible; /* Auf kleinen Bildschirmen darf das ganze Panel wieder scrollen */
+        display: block; /* Setzt Flexbox-Verhalten zurück */
+    }
+
+    #testSelectionSection {
+        overflow-y: visible; /* Auch hier das Scrollen für mobile Ansicht deaktivieren */
     }
 }

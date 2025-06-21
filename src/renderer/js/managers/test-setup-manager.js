@@ -8,13 +8,7 @@ const SVG_CLOSE = `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox=
 
 const MANIFEST_URL = 'https://raw.githubusercontent.com/MarlonGrazek/GemmarTesting/refs/heads/content/content/manifest.json';
 
-/**
- * TestSetupManager
- * Verwaltet die Anzeige der Testauswahl, das Hochladen von Dateien und
- * die Interaktion mit der Test-UI.
- */
 const TestSetupManager = {
-    // Gekapselter Zustand, UI-Referenzen und Callbacks
     state: {
         manifestData: null,
         pinnedTestId: null,
@@ -24,9 +18,6 @@ const TestSetupManager = {
     ui: {},
     countdownIntervals: new Map(),
 
-    /**
-     * Initialisiert den Manager.
-     */
     async init() {
         this._queryDOMElements();
         this._bindEventListeners();
@@ -43,8 +34,6 @@ const TestSetupManager = {
             if (this.ui.testListContainer) this.ui.testListContainer.innerHTML = '<p class="text-secondary text-center">Could not load tests.</p>';
         }
     },
-
-    // --- Private Methoden zur UI-Verwaltung ---
 
     _queryDOMElements() {
         this.ui = {
@@ -67,6 +56,10 @@ const TestSetupManager = {
         if (this.ui.runTestButton) this.ui.runTestButton.addEventListener('click', this._handleRunTestClick.bind(this));
     },
 
+    /**
+     * Erstellt die Test-Karten basierend auf den Daten aus dem Manifest.
+     * Nutzt jetzt das 'icon'-Feld direkt aus dem Test-Objekt.
+     */
     _renderTestList() {
         if (!this.ui.testListContainer) return;
         this.ui.testListContainer.innerHTML = '';
@@ -77,27 +70,61 @@ const TestSetupManager = {
             return;
         }
 
+        // *** FINALE, KORRIGIERTE LOGIK ZUM ERSTELLEN DER KARTEN ***
         tests.forEach(test => {
             const card = document.createElement('div');
             card.className = 'test-card';
             card.dataset.testId = test.id;
 
-            const title = document.createElement('h3');
-            title.textContent = test.title;
-            card.appendChild(title);
+            // 1. Container für den Hauptinhalt (Icon + Text)
+            const contentWrapper = document.createElement('div');
+            contentWrapper.className = 'test-card-content';
 
+            // 1a. Icon-Wrapper
+            const iconWrapper = document.createElement('div');
+            iconWrapper.className = 'test-card-icon-wrapper';
+            const fallbackIcon = `<svg class="icon" viewBox="0 0 24 24"><path d="M12.9,2.62a1,1,0,0,0-1.8,0L3.43,18.15a1,1,0,0,0,.9,1.47H19.67a1,1,0,0,0,.9-1.47ZM12,6.5a1,1,0,0,1,1,1v5a1,1,0,0,1-2,0V7.5A1,1,0,0,1,12,6.5Zm0,11a1.25,1.25,0,1,1,1.25-1.25A1.25,1.25,0,0,1,12,17.5Z"/></svg>`;
+            iconWrapper.innerHTML = test.icon || fallbackIcon;
+            
+            // 1b. Text-Wrapper (für Titel und Subtitel)
+            const textWrapper = document.createElement('div');
+            textWrapper.className = 'test-card-text-wrapper';
+            
+            const title = document.createElement('h3');
+            title.className = 'test-card-title';
+            title.textContent = test.title;
+            
+            const subtitle = document.createElement('p');
+            subtitle.className = 'test-card-subtitle';
+            subtitle.textContent = test.subtitle || "No subtitle provided";
+            subtitle.title = test.subtitle || ""; // Tooltip für vollen Text
+
+            textWrapper.appendChild(title);
+            textWrapper.appendChild(subtitle);
+            
+            contentWrapper.appendChild(iconWrapper);
+            contentWrapper.appendChild(textWrapper);
+
+            // 3. Info-Button als separater Container
             const infoButton = document.createElement('button');
-            infoButton.className = 'test-card-info-button';
+            infoButton.className = 'test-card-info-button'; // Nutzt deine alte Klasse
             infoButton.innerHTML = SVG_INFO;
             infoButton.setAttribute('aria-label', `Info for ${test.title}`);
-            infoButton.dataset.customTooltip = `Show details for "${test.title}"`;
+            infoButton.dataset.customTooltip = `Show details for ${test.title}`;
+            
+            // Event-Listener
             infoButton.addEventListener('click', (event) => {
                 event.stopPropagation();
                 this._openTestInfoModal(test);
             });
+            
+            // Klick auf die gesamte Karte zum Auswählen
+            card.addEventListener('click', () => this._handleTestSelection(test, card));
+
+            // Elemente zur Karte hinzufügen
+            card.appendChild(contentWrapper);
             card.appendChild(infoButton);
 
-            card.addEventListener('click', () => this._handleTestSelection(test, card));
             this.ui.testListContainer.appendChild(card);
         });
     },
@@ -108,7 +135,7 @@ const TestSetupManager = {
         
         if (test) {
             this.ui.pinBoxIcon.innerHTML = SVG_PIN;
-            this.ui.pinBoxTitle.textContent = test.title;
+            this.ui.pinBoxTitle.textContent = `${test.title} - ${test.subtitle}`;
             if (test.dueDate) {
                 this.ui.pinBoxSubtitle.style.display = 'block';
                 this._startCountdownTimer(test.dueDate, this.ui.pinBoxSubtitle, 'pinBox');
@@ -128,8 +155,6 @@ const TestSetupManager = {
             this.ui.runTestButton.disabled = !(this.state.selectedTestConfig && this.state.selectedFiles);
         }
     },
-
-    // --- Private Methoden zur Event-Behandlung ---
 
     _handleTestSelection(test, cardElement) {
         this.state.selectedTestConfig = test;
@@ -159,7 +184,6 @@ const TestSetupManager = {
         this._updateRunTestButtonState();
     },
 
-    /** Behandelt den Klick auf den "Run Test"-Button. */
     _handleRunTestClick() {
         if (this.state.selectedTestConfig && this.state.selectedFiles) {
             const baseUrl = MANIFEST_URL.substring(0, MANIFEST_URL.lastIndexOf('/') + 1);
@@ -172,8 +196,6 @@ const TestSetupManager = {
         const test = this.state.manifestData.tests.find(t => t.id === this.state.pinnedTestId);
         if (test) this._openTestInfoModal(test);
     },
-
-    // --- Private Methoden für Modals und Timer ---
 
     _openTestInfoModal(test) {
         const isPinned = this.state.pinnedTestId === test.id;
@@ -215,7 +237,7 @@ const TestSetupManager = {
         }
         
         ModalManager.show({
-            title: test.title,
+            title: `${test.title} - ${test.subtitle}`,
             size: 'large',
             content: this._buildModalContent(test),
             headerButtons: headerButtons,
@@ -293,7 +315,6 @@ const TestSetupManager = {
         }
     },
     
-    // --- Reine Hilfsfunktionen (unverändert) ---
     _formatCountdown: (ms) => {
         if (ms <= 0) return "Expired";
         const d = Math.floor(ms / 86400000), h = Math.floor((ms % 86400000) / 3600000), m = Math.floor((ms % 3600000) / 60000), s = Math.floor((ms % 60000) / 1000);
