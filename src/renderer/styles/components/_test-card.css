@@ -17,7 +17,7 @@
 }
 
 .test-card {
-    padding: 0.25rem 0.5rem;
+    padding: 0.25rem 1rem;
     border-radius: 1rem;
     background-color: var(--surface-secondary);
     box-shadow: var(--shadow-small);
@@ -95,7 +95,6 @@
 .test-card-info-button {
     background: none;
     border: none;
-    padding: 0.5rem;
     border-radius: 0.375rem;
     cursor: pointer;
     color: var(--text-secondary);
