@@ -20,6 +20,24 @@ body {
     overflow: hidden;
 }
 
+body.sparkle-mode-active p::before,
+body.sparkle-mode-active p::after,
+body.sparkle-mode-active h1::before,
+body.sparkle-mode-active h1::after,
+body.sparkle-mode-active h2::before,
+body.sparkle-mode-active h2::after,
+body.sparkle-mode-active h3::before,
+body.sparkle-mode-active h3::after,
+body.sparkle-mode-active span::before,
+body.sparkle-mode-active span::after,
+body.sparkle-mode-active li::before,
+body.sparkle-mode-active li::after,
+body.sparkle-mode-active a::before,
+body.sparkle-mode-active a::after
+{
+    content: "✨";
+}
+
 .icon {
     width: 1.25em;
     height: 1.25em;
