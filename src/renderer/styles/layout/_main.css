@@ -12,6 +12,11 @@
     /* Wichtig für Flexbox-Kinder, die scrollen sollen */
 }
 
+#app-header,
+#app-footer {
+    flex-shrink: 0;
+}
+
 #splitViewContainer {
     display: flex;
     flex-grow: 1;
@@ -74,7 +79,7 @@
     margin-bottom: 1rem;
 }
 
-.setup-panel > footer {
+.setup-panel>footer {
     margin-top: 1.5rem;
     flex-shrink: 0;
 }
