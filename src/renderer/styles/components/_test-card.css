@@ -61,9 +61,13 @@
 }
 
 .test-card-icon-wrapper svg {
-    /* KORREKTUR: Icons größer gemacht */
     width: 2rem;
     height: 2rem;
+}
+
+.test-card-info-button svg {
+    width: 1.5rem;
+    height: 1.5rem;
 }
 
 /* --- Text (Titel & Subtitel) --- */

@@ -134,7 +134,6 @@ const ModalManager = {
         return button;
     },
 
-    // ERSETZEN SIE DIESE FUNKTION IN ModalManager.js
 _buildElementFromTree(config) {
     const element = document.createElement(config.tag);
     if (config.props) {

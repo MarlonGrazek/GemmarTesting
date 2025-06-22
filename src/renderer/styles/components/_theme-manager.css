@@ -219,6 +219,11 @@
     /* KORREKTUR: Vergrößert */
 }
 
+.preview-logo-wrapper svg {
+    width: 2.25rem;
+    height: 2.25rem;
+}
+
 .preview-logo-wrapper svg .logo-main,
 .preview-logo-wrapper svg .logo-accent {
     fill: var(--preview-logo-color);

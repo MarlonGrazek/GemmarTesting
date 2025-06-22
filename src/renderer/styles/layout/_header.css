@@ -126,12 +126,12 @@
 #app-header .icon-button svg {
     width: 1.25rem;
     height: 1.25rem;
-    fill: var(--text-secondary);
+    stroke: var(--text-secondary);
     transition: 0.2s ease-in-out;
 }
 
 #app-header .icon-button:hover svg {
-    fill: var(--text-primary);
+    stroke: var(--text-primary);
 }
 
 .divider {

@@ -51,7 +51,7 @@
     margin: 0 0 1.5rem 0;
 }
 
-#resultsFeedbackIcon {
+#resultsFeedbackIcon svg {
     width: 7rem;
     height: 7rem;
     margin-top: 1.5rem;

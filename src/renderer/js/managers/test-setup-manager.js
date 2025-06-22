@@ -1,13 +1,7 @@
 import ModalManager from "./modal-manager.js";
 import TestExecutionManager from "./test-execution-manager.js";
 
-// --- Konstanten ---
-const SVG_INFO = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info-icon lucide-info"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>`;
-const SVG_PIN = '<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8.5" r="4.5" fill="none" stroke="currentColor" stroke-width="2.5"/><line x1="12" y1="13" x2="12" y2="19.25" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>';
-const SVG_CLOSE = `<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
-const SVG_CHECK = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`;
-const SVG_UPLOAD = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-upload-icon lucide-upload"><path d="M12 3v12"/><path d="m17 8-5-5-5 5"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></svg>`;
-const SVG_DROP = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download-icon lucide-download"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>`;
+import { ICON_INFO, ICON_PIN, ICON_UNPIN, ICON_CROSS, ICON_CHECK_CIRCLE, ICON_BASKET_UP, ICON_BASKET_DOWN, ICON_WARNING } from "../common/svg-icons.js";
 
 const MANIFEST_URL = 'https://raw.githubusercontent.com/MarlonGrazek/GemmarTesting/refs/heads/content/content/manifest.json';
 
@@ -78,14 +72,14 @@ const TestSetupManager = {
 
         if (files && files.length > 0) {
             // Zustand, wenn Dateien ausgewählt sind
-            this.ui.fileUploadIcon.innerHTML = SVG_CHECK;
+            this.ui.fileUploadIcon.innerHTML = ICON_CHECK_CIRCLE;
             this.ui.fileUploadTitle.textContent = `${files.length} files selected`;
             this.ui.fileUploadSubtitle.textContent = 'Click to change your selection';
             this.ui.fileUploadIcon.classList.add('files-selected');
         } else {
             // Zustand, wenn keine Dateien ausgewählt sind
             this.state.selectedFiles = null; // Sicherstellen, dass der State null ist
-            this.ui.fileUploadIcon.innerHTML = SVG_UPLOAD;
+            this.ui.fileUploadIcon.innerHTML = ICON_BASKET_UP;
             this.ui.fileUploadTitle.textContent = 'Click to select files';
             this.ui.fileUploadSubtitle.textContent = 'or drag and drop them here';
             this.ui.fileUploadIcon.classList.remove('files-selected');
@@ -107,7 +101,6 @@ const TestSetupManager = {
             return;
         }
 
-        // *** FINALE, KORRIGIERTE LOGIK ZUM ERSTELLEN DER KARTEN ***
         tests.forEach(test => {
             const card = document.createElement('div');
             card.className = 'test-card';
@@ -120,8 +113,7 @@ const TestSetupManager = {
             // 1a. Icon-Wrapper
             const iconWrapper = document.createElement('div');
             iconWrapper.className = 'test-card-icon-wrapper';
-            const fallbackIcon = `<svg class="icon" viewBox="0 0 24 24"><path d="M12.9,2.62a1,1,0,0,0-1.8,0L3.43,18.15a1,1,0,0,0,.9,1.47H19.67a1,1,0,0,0,.9-1.47ZM12,6.5a1,1,0,0,1,1,1v5a1,1,0,0,1-2,0V7.5A1,1,0,0,1,12,6.5Zm0,11a1.25,1.25,0,1,1,1.25-1.25A1.25,1.25,0,0,1,12,17.5Z"/></svg>`;
-            iconWrapper.innerHTML = test.icon || fallbackIcon;
+            iconWrapper.innerHTML = test.icon || ICON_WARNING;
 
             // 1b. Text-Wrapper (für Titel und Subtitel)
             const textWrapper = document.createElement('div');
@@ -145,7 +137,7 @@ const TestSetupManager = {
             // 3. Info-Button als separater Container
             const infoButton = document.createElement('button');
             infoButton.className = 'test-card-info-button'; // Nutzt deine alte Klasse
-            infoButton.innerHTML = SVG_INFO;
+            infoButton.innerHTML = ICON_INFO;
             infoButton.setAttribute('aria-label', `Info for ${test.title}`);
             infoButton.dataset.customTooltip = `Show details for ${test.title}`;
 
@@ -171,7 +163,7 @@ const TestSetupManager = {
         const test = this.state.pinnedTestId ? this.state.manifestData?.tests.find(t => t.id === this.state.pinnedTestId) : null;
 
         if (test) {
-            this.ui.pinBoxIcon.innerHTML = SVG_PIN;
+            this.ui.pinBoxIcon.innerHTML = ICON_PIN;
             this.ui.pinBoxTitle.textContent = `${test.title} - ${test.subtitle}`;
             if (test.dueDate) {
                 this.ui.pinBoxSubtitle.style.display = 'block';
@@ -221,7 +213,7 @@ const TestSetupManager = {
         this.ui.fileUploadArea.classList.add('drag-over');
         this.ui.fileUploadTitle.textContent = 'Drop files here';
         this.ui.fileUploadSubtitle.textContent = 'to upload them';
-        this.ui.fileUploadIcon.innerHTML = SVG_DROP;
+        this.ui.fileUploadIcon.innerHTML = ICON_BASKET_DOWN;
     },
 
     _handleDragLeave(event) {
@@ -229,7 +221,7 @@ const TestSetupManager = {
         this.ui.fileUploadArea.classList.remove('drag-over');
         this.ui.fileUploadTitle.textContent = 'Click to select files';
         this.ui.fileUploadSubtitle.textContent = 'or drag and drop them here';
-        this.ui.fileUploadIcon.innerHTML = SVG_UPLOAD;
+        this.ui.fileUploadIcon.innerHTML = ICON_BASKET_UP;
     },
 
     _handleDrop(event) {
@@ -279,14 +271,15 @@ const TestSetupManager = {
     },
 
     _openTestInfoModal(test) {
-        const isPinned = this.state.pinnedTestId === test.id;
 
+        const isPinned = this.state.pinnedTestId === test.id;
         const headerButtons = [
             {
                 class: isPinned ? 'modal-header-button pin-button active' : 'modal-header-button pin-button',
-                svg: SVG_PIN,
+                svg: isPinned ? ICON_UNPIN : ICON_PIN,
                 tooltip: isPinned ? 'Unpin this test' : 'Pin this test',
                 onClick: (_, event) => {
+                    const isPinned = this.state.pinnedTestId === test.id;
                     this.state.pinnedTestId = isPinned ? null : test.id;
                     if (this.state.pinnedTestId) {
                         localStorage.setItem('pinnedTestId', this.state.pinnedTestId);
@@ -297,13 +290,14 @@ const TestSetupManager = {
 
                     const buttonEl = event.currentTarget;
                     buttonEl.classList.toggle('active', !isPinned);
+                    buttonEl.innerHTML = isPinned ? ICON_PIN : ICON_UNPIN;
                     buttonEl.dataset.customTooltip = !isPinned ? 'Unpin this test' : 'Pin this test';
                 }
             },
             {
                 class: 'modal-header-button close-button',
                 tooltip: 'Close',
-                svg: SVG_CLOSE,
+                svg: ICON_CROSS,
                 onClick: ({ close }) => close()
             }
         ];

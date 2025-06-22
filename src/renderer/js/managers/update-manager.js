@@ -1,6 +1,6 @@
 import ModalManager from "./modal-manager.js";
 
-const SVG_CLOSE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+import { ICON_CROSS } from "../common/svg-icons.js";
 
 const UpdateManager = {
     updateInfo: null,
@@ -152,7 +152,7 @@ const UpdateManager = {
     _showUpdateModal({ title, notes, buttons, isForced }) {
         const headerButtons = [];
         if (!isForced) {
-            headerButtons.push({ class: 'modal-header-button close-button', tooltip: 'Close', svg: SVG_CLOSE, onClick: ({ close }) => close() });
+            headerButtons.push({ class: 'modal-header-button close-button', tooltip: 'Close', svg: ICON_CROSS, onClick: ({ close }) => close() });
         }
 
         ModalManager.show({
