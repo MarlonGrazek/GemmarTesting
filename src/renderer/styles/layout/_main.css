@@ -3,12 +3,13 @@
    Styles for the main content area, including the two-panel split view.
    ========================================================================== */
 
-   #app-main {
+#app-main {
     flex-grow: 1;
     padding: 1.5rem;
     box-sizing: border-box;
     display: flex;
-    min-height: 0; /* Wichtig für Flexbox-Kinder, die scrollen sollen */
+    min-height: 0;
+    /* Wichtig für Flexbox-Kinder, die scrollen sollen */
 }
 
 #splitViewContainer {
@@ -29,7 +30,8 @@
     min-width: 0;
     display: flex;
     flex-direction: column;
-    overflow: hidden; /* Verhindert, dass das Panel selbst scrollt */
+    overflow: hidden;
+    /* Verhindert, dass das Panel selbst scrollt */
 }
 
 .results-panel {
@@ -46,17 +48,20 @@
 }
 
 /* Header und Upload-Sektion sollen ihre feste Höhe behalten */
-.setup-panel > header,
-#codeUploadSection {
-    flex-shrink: 0; /* Verhindert, dass diese Sektionen schrumpfen */
+.setup-panel>header {
+    flex-shrink: 0;
+    /* Verhindert, dass diese Sektionen schrumpfen */
 }
 
 /* KORREKTUR: Die Sektion mit der Testliste wird zum scrollbaren Bereich */
 #testSelectionSection {
-    flex-grow: 1; /* Lässt diese Sektion den gesamten verfügbaren Platz füllen */
-    overflow-y: auto; /* Fügt NUR HIER einen Scrollbalken hinzu, wenn der Inhalt überläuft */
-    min-height: 0; /* Ein wichtiger Fix, der Flexbox erlaubt, den Inhalt korrekt zu verkleinern */
-    
+    flex-grow: 1;
+    /* Lässt diese Sektion den gesamten verfügbaren Platz füllen */
+    overflow-y: auto;
+    /* Fügt NUR HIER einen Scrollbalken hinzu, wenn der Inhalt überläuft */
+    min-height: 0;
+    /* Ein wichtiger Fix, der Flexbox erlaubt, den Inhalt korrekt zu verkleinern */
+
     /* Etwas Abstand, damit der Scrollbalken den Inhalt nicht überdeckt */
     padding-right: 12px;
     margin-right: -12px;
@@ -67,6 +72,16 @@
     font-weight: 600;
     color: var(--text-primary);
     margin-bottom: 1rem;
+}
+
+.setup-panel > footer {
+    margin-top: 1.5rem;
+    flex-shrink: 0;
+}
+
+#runTestButton {
+    display: block;
+    text-align: center;
 }
 
 /* --- Unveränderte Styles für den Rest --- */
@@ -80,6 +95,7 @@
 }
 
 @media (min-width: 640px) {
+
     .setup-panel header h1,
     .results-panel #resultsPageTitle {
         font-size: 2.25rem;
@@ -90,13 +106,6 @@
 .results-panel #resultsPageSubtitle {
     margin-top: 0.375rem;
     color: var(--text-secondary);
-}
-
-#codeUploadSection h2 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 1rem;
 }
 
 #noTestSelectedError {
@@ -149,11 +158,14 @@
 
     .setup-panel,
     .results-panel {
-        overflow-y: visible; /* Auf kleinen Bildschirmen darf das ganze Panel wieder scrollen */
-        display: block; /* Setzt Flexbox-Verhalten zurück */
+        overflow-y: visible;
+        /* Auf kleinen Bildschirmen darf das ganze Panel wieder scrollen */
+        display: block;
+        /* Setzt Flexbox-Verhalten zurück */
     }
 
     #testSelectionSection {
-        overflow-y: visible; /* Auch hier das Scrollen für mobile Ansicht deaktivieren */
+        overflow-y: visible;
+        /* Auch hier das Scrollen für mobile Ansicht deaktivieren */
     }
 }

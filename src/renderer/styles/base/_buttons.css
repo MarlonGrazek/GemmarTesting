@@ -3,7 +3,7 @@
    Defines the styles for common button types used throughout the app.
    ========================================================================== */
 
-   .button-primary {
+.button-primary {
     cursor: pointer;
     display: inline-block;
     padding: 0.6875rem 1.375rem;
@@ -52,7 +52,7 @@
     background-color: #B22222;
 }
 
-button:disabled {
+.button-primary.disabled {
     opacity: 0.5;
     cursor: not-allowed;
     pointer-events: none;
