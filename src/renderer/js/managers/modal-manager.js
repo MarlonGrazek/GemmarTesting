@@ -134,25 +134,26 @@ const ModalManager = {
         return button;
     },
 
-    _buildElementFromTree(config) {
-        const element = document.createElement(config.tag);
-        if (config.props) {
-            for (const [key, value] of Object.entries(config.props)) {
-                if (key.startsWith('on') && typeof value === 'function') {
-                    element.addEventListener(key.substring(2).toLowerCase(), value);
-                } else {
-                    element[key] = value;
-                }
+    // ERSETZEN SIE DIESE FUNKTION IN ModalManager.js
+_buildElementFromTree(config) {
+    const element = document.createElement(config.tag);
+    if (config.props) {
+        for (const [key, value] of Object.entries(config.props)) {
+            if (key.startsWith('on') && typeof value === 'function') {
+                element.addEventListener(key.substring(2).toLowerCase(), value);
             }
+            else if (key.startsWith('data-')) element.setAttribute(key, value);
+            else element[key] = value;
         }
-        if (config.children) {
-            config.children.forEach(childConfig => {
-                const childElement = this._buildElementFromTree(childConfig);
-                element.appendChild(childElement);
-            });
-        }
-        return element;
     }
+    if (config.children) {
+        config.children.forEach(childConfig => {
+            const childElement = this._buildElementFromTree(childConfig);
+            element.appendChild(childElement);
+        });
+    }
+    return element;
+}
 };
 
 export default ModalManager;
