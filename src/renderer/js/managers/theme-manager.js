@@ -7,12 +7,12 @@ const ThemeManager = {
     // ... state und init() bleiben unverändert ...
     state: {
         predefinedThemes: [
-            { name: 'Light', isEditable: false, settings: { brightness: 100, accentColor: '#3B82F6', tintIntensity: 0 } },
-            { name: 'Dark', isEditable: false, settings: { brightness: 10, accentColor: '#3B82F6', tintIntensity: 30 } },
-            { name: 'Midnight', isEditable: false, settings: { brightness: 5, accentColor: '#3B82F6', tintIntensity: 20 } },
+            { name: 'Arctic', isEditable: false, settings: { brightness: 100, accentColor: '#3B82F6', tintIntensity: 30 } },
+            { name: 'Lunar', isEditable: false, settings: { brightness: 10, accentColor: '#3B82F6', tintIntensity: 30 } },
+            { name: 'Eclipse', isEditable: false, settings: { brightness: 5, accentColor: '#3B82F6', tintIntensity: 30 } },
         ],
         customThemes: [],
-        activeThemeName: 'Light',
+        activeThemeName: 'Arctic',
     },
     ui: {},
 
