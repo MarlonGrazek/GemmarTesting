@@ -58,7 +58,7 @@ const ThemeManager = {
                         tag: 'div',
                         props: { className: 'preview-panel left', style: `background-color: ${palette['--surface-primary']};` },
                         children: [
-                            { tag: 'div', props: { className: 'preview-line title', style: `background-color: ${palette['--text-secondary']};` } },
+                            { tag: 'div', props: { className: 'preview-line title', style: `background-color: ${palette['--text-primary']};` } },
                             {
                                 tag: 'div',
                                 props: { className: 'preview-test-grid' },
@@ -69,7 +69,7 @@ const ThemeManager = {
                                     buildTestCard()
                                 ]
                             },
-                            { tag: 'div', props: { className: 'preview-upload-box', style: `border-color: ${palette['--border-subtle']};` } },
+                            { tag: 'div', props: { className: 'preview-upload-box', style: `border-color: ${palette['--border-subtle']}; background-color: ${palette['--surface-inset']};` } },
                             { tag: 'div', props: { className: 'preview-run-button', style: `background-color: ${palette['--interactive-accent-primary']};` } },
                         ]
                     },
@@ -92,7 +92,7 @@ const ThemeManager = {
                             },
                             {
                                 tag: 'div',
-                                props: { className: 'preview-summary-box', style: `background-color: ${palette['--surface-secondary']};` },
+                                props: { className: 'preview-summary-box', style: `background-color: ${palette['--surface-inset']};` },
                                 children: [
                                     {
                                         tag: 'div',
