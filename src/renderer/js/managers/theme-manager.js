@@ -22,7 +22,7 @@ const ThemeManager = {
         this._loadThemesFromStorage();
         const storedThemeName = localStorage.getItem('activeThemeName');
         const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const defaultThemeName = systemPrefersDark ? 'Dark' : 'Light';
+        const defaultThemeName = systemPrefersDark ? 'Lunar' : 'Arctic';
         const themeToApply = this.getAllThemes().find(t => t.name === storedThemeName) || this.state.predefinedThemes.find(t => t.name === defaultThemeName);
         this._applyTheme(themeToApply);
         console.log("ThemeManager erfolgreich initialisiert.");
