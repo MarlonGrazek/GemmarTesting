@@ -1,5 +1,6 @@
 import ModalManager from "./modal-manager.js";
 import TestExecutionManager from "./test-execution-manager.js";
+import TooltipManager from "./tooltip-manager.js";
 
 import { ICON_INFO, ICON_PIN, ICON_UNPIN, ICON_CROSS, ICON_CHECK_CIRCLE, ICON_BASKET_UP, ICON_BASKET_DOWN, ICON_WARNING } from "../common/svg-icons.js";
 
@@ -292,6 +293,8 @@ const TestSetupManager = {
                     buttonEl.classList.toggle('active', !isPinned);
                     buttonEl.innerHTML = isPinned ? ICON_PIN : ICON_UNPIN;
                     buttonEl.dataset.customTooltip = !isPinned ? 'Unpin this test' : 'Pin this test';
+                    TooltipManager.hide(true);
+                    TooltipManager.show(event.currentTarget);
                 }
             },
             {
