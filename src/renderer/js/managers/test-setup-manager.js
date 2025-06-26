@@ -316,6 +316,7 @@ const TestSetupManager = {
 
         ModalManager.show({
             title: `${test.title} - ${test.subtitle}`,
+            icon: test.icon,
             size: 'large',
             content: this._buildModalContent(test),
             headerButtons: headerButtons,

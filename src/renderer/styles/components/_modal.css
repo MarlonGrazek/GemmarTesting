@@ -3,7 +3,7 @@
    Styles for the modal pop-up system.
    ========================================================================== */
 
-   .modal-overlay {
+.modal-overlay {
     position: fixed;
     inset: 0;
     background-color: rgba(0, 0, 0, 0.5);
@@ -27,7 +27,7 @@
     background-color: var(--surface-primary);
     border: 1px solid var(--border-divider);
     box-shadow: var(--shadow-large);
-    border-radius: 0.5rem;
+    border-radius: 1rem;
     display: flex;
     flex-direction: column;
     max-height: 90vh;
@@ -35,9 +35,17 @@
 }
 
 /* Size classes */
-.modal-container.size-small { max-width: 28rem; }
-.modal-container.size-medium { max-width: 42rem; }
-.modal-container.size-large { max-width: 56rem; }
+.modal-container.size-small {
+    max-width: 28rem;
+}
+
+.modal-container.size-medium {
+    max-width: 42rem;
+}
+
+.modal-container.size-large {
+    max-width: 56rem;
+}
 
 .modal-header {
     display: flex;
@@ -48,11 +56,37 @@
     flex-shrink: 0;
 }
 
+.modal-header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-width: 0;
+}
+
+.modal-icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    background-color: var(--surface-secondary-hover);
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+}
+
+.modal-icon svg {
+    width: 1.75rem;
+    height: 1.75rem;
+}
+
 .modal-title {
-    font-size: 1.125rem;
+    font-size: 1.25rem;
     font-weight: 600;
     color: var(--text-primary);
     margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .modal-header-buttons {
@@ -70,9 +104,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 2rem;
-    height: 2rem;
-    padding: 0;
+    padding: 0.25rem;
 }
 
 .modal-header-button:hover {
@@ -86,8 +118,8 @@
 }
 
 .modal-header-button svg {
-    width: 1.5rem;
-    height: 1.5rem;
+    width: 1.75rem;
+    height: 1.75rem;
 }
 
 .modal-header-button.pin-button.active {

@@ -31,12 +31,30 @@ const ModalManager = {
         const modalHeader = document.createElement('div');
         modalHeader.className = 'modal-header';
 
+        // --- KORRIGIERTE LOGIK ---
+        // 1. Wrapper für die linke Seite (Icon und Titel) erstellen
+        const modalHeaderLeft = document.createElement('div');
+        modalHeaderLeft.className = 'modal-header-left';
+
+        // 2. Icon hinzufügen, falls vorhanden
+        if (options.icon) {
+            const modalIcon = document.createElement('div');
+            modalIcon.className = 'modal-icon';
+            modalIcon.innerHTML = options.icon;
+            modalHeaderLeft.appendChild(modalIcon);
+        }
+
+        // 3. Titel hinzufügen
         const modalTitle = document.createElement('h3');
         modalTitle.className = 'modal-title';
         modalTitle.textContent = options.title || 'Information';
-        
+        modalHeaderLeft.appendChild(modalTitle);
+
+        // 4. Buttons-Container
         const modalHeaderButtons = document.createElement('div');
         modalHeaderButtons.className = 'modal-header-buttons';
+
+        // --- ENDE KORRIGIERTE LOGIK ---
 
         const modalContent = document.createElement('div');
         modalContent.className = 'modal-content';
@@ -65,8 +83,10 @@ const ModalManager = {
             });
         }
 
-        modalHeader.appendChild(modalTitle);
+        // Wrapper und Buttons zum Header hinzufügen
+        modalHeader.appendChild(modalHeaderLeft);
         modalHeader.appendChild(modalHeaderButtons);
+
         modalContainer.appendChild(modalHeader);
         modalContainer.appendChild(modalContent);
         modalContainer.appendChild(modalActions);

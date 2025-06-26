@@ -141,6 +141,7 @@ const ThemeManager = {
     _renderThemeListView() {
         ModalManager.show({
             title: 'Themes',
+            icon: ICON_PALETTE,
             size: 'large',
             headerButtons: [{ class: 'modal-header-button close-button', svg: ICON_CROSS, tooltip: 'Close', onClick: ({ close }) => close() }],
             contentTree: {
@@ -223,6 +224,7 @@ const ThemeManager = {
 
         ModalManager.show({
             title: isEditMode ? 'Edit Theme' : 'Create Theme',
+            icon: ICON_SLIDERS,
             size: 'medium',
             headerButtons: [{
                 class: 'modal-header-button close-button', svg: ICON_CROSS, tooltip: 'Back',
