@@ -85,6 +85,8 @@ app.whenReady().then(() => {
 
     ipcMain.handle('get-app-version', () => app.getVersion());
 
+    ipcMain.handle('get-admin-status', () => { return isAdminMode });
+
     createWindow();
 
     autoUpdater.allowPrerelease = true;
@@ -95,9 +97,9 @@ app.whenReady().then(() => {
     autoUpdater.on('error', (err) => sendStatusToWindow({ status: 'error', message: err.message }));
     autoUpdater.on('download-progress', (p) => sendStatusToWindow({ status: 'downloading', percent: Math.round(p.percent), speed: p.bytesPerSecond, version: currentUpdateVersionInfo?.version || '?.?.?' }));
     autoUpdater.on('update-downloaded', (info) => sendStatusToWindow({ status: 'downloaded', version: info.version, notes: info.releaseNotes || 'No details available.' }));
-    
+
     try { autoUpdater.checkForUpdates(); } catch (error) { log.error('Error calling checkForUpdates:', error); }
-    
+
     globalShortcut.register('Control+Shift+I', () => mainWindow?.webContents.toggleDevTools());
 
     app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });
@@ -205,7 +207,7 @@ function findClassFQNBySimpleName(userJavaFiles, simpleClassNameToFind) {
 function compileJavaCode(directory, sendTestEvent) {
     return new Promise((resolve, reject) => {
         sendTestEvent({ event: 'log', level: 'info', message: `Starte Kompilierung...` });
-        
+
         const javaFilesToCompile = [];
         function findJavaFilesRecursive(dir) {
             fs.readdirSync(dir, { withFileTypes: true }).forEach(item => {
@@ -222,10 +224,10 @@ function compileJavaCode(directory, sendTestEvent) {
         if (javaFilesToCompile.length === 0) {
             return reject(new Error("Keine Java-Dateien zum Kompilieren gefunden."));
         }
-        
+
         const javac = spawn('javac', ['-d', '.', '-Xlint:all', '-encoding', 'UTF-8', ...javaFilesToCompile], { cwd: directory, shell: true });
         let compileOutput = '';
-        
+
         const handleOutput = (data, level) => {
             const msg = data.toString().trim();
             if (msg) {
@@ -284,4 +286,24 @@ function executeJavaTest(directory, mainClassName, userClassFQN, sendTestEvent) 
         });
         java.on('error', (err) => reject(new Error(`Fehler beim Starten von Java: ${err.message}`)));
     });
+}
+
+// ================================================================================
+// --- Admin Mode ---
+// ================================================================================
+let isAdminMode = false;
+try {
+    // Der Pfad zur admin.json im Root-Verzeichnis deines Projekts
+    const adminConfigPath = path.join(app.getAppPath(), 'admin.json');
+    if (fs.existsSync(adminConfigPath)) {
+        const adminConfig = JSON.parse(fs.readFileSync(adminConfigPath, 'utf-8'));
+        if (adminConfig.enabled === true) {
+            isAdminMode = true;
+            log.info('###########################');
+            log.info('### ADMIN MODE ENABLED  ###');
+            log.info('###########################');
+        }
+    }
+} catch (error) {
+    log.warn('Could not read admin.json config file.', error);
 }

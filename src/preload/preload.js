@@ -8,13 +8,13 @@ const { contextBridge, ipcRenderer } = require('electron');
 // Definiert eine Whitelist von Kanälen, die für die IPC-Kommunikation verwendet werden dürfen.
 // Dies ist eine Sicherheitsmaßnahme, um zu verhindern, dass beliebige Kanäle verwendet werden.
 const validSendChannels = [
-    'run-java-test',
-    'minimize-window',    // NEU für Fenstersteuerung
-    'maximize-window',    // NEU für Fenstersteuerung
-    'close-window',        // NEU für Fenstersteuerung
-    'update-found',
-    'update-download',
-    'restart-and-install'
+  'run-java-test',
+  'minimize-window',    // NEU für Fenstersteuerung
+  'maximize-window',    // NEU für Fenstersteuerung
+  'close-window',        // NEU für Fenstersteuerung
+  'update-found',
+  'update-download',
+  'restart-and-install'
 ];
 const validReceiveChannels = [
   'java-test-event',
@@ -23,7 +23,7 @@ const validReceiveChannels = [
   'update-status',
   'window-is-maximized'
 ];
-const validInvokeChannels = ['open-external-link']; // Für invoke/handle-Muster
+const validInvokeChannels = ['open-external-link', 'get-app-version', 'get-admin-status']; // Für invoke/handle-Muster
 
 // Stellt dem Renderer-Prozess über `window.electronAPI` definierte Funktionen zur Verfügung.
 contextBridge.exposeInMainWorld('electronAPI', {
@@ -59,7 +59,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
       };
     } else {
       console.warn(`Preload: Ungültiger Empfangs-Kanal versucht: ${channel}`);
-      return () => {}; // Leere Funktion, um Fehler im aufrufenden Code zu vermeiden.
+      return () => { }; // Leere Funktion, um Fehler im aufrufenden Code zu vermeiden.
     }
   },
 
@@ -70,9 +70,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
    */
   removeAllListeners: (channel) => {
     if (validReceiveChannels.includes(channel)) { // Nur für bekannte Empfangskanäle erlauben
-        ipcRenderer.removeAllListeners(channel);
+      ipcRenderer.removeAllListeners(channel);
     } else {
-        console.warn(`Preload: Versuch, Listener von ungültigem/nicht gelisteten Kanal zu entfernen: ${channel}`);
+      console.warn(`Preload: Versuch, Listener von ungültigem/nicht gelisteten Kanal zu entfernen: ${channel}`);
     }
   },
 
@@ -84,35 +84,34 @@ contextBridge.exposeInMainWorld('electronAPI', {
    */
   openExternalLink: (url) => {
     if (validInvokeChannels.includes('open-external-link')) {
-        if (url && (url.startsWith('http:') || url.startsWith('https:'))) {
-            return ipcRenderer.invoke('open-external-link', url);
-        } else {
-            console.error('Preload: Ungültige URL für openExternalLink:', url);
-            return Promise.resolve({ success: false, error: 'Ungültige URL' });
-        }
+      if (url && (url.startsWith('http:') || url.startsWith('https:'))) {
+        return ipcRenderer.invoke('open-external-link', url);
+      } else {
+        console.error('Preload: Ungültige URL für openExternalLink:', url);
+        return Promise.resolve({ success: false, error: 'Ungültige URL' });
+      }
     } else {
-        console.warn(`Preload: Ungültiger Invoke-Kanal versucht: open-external-link`);
-        return Promise.resolve({ success: false, error: 'Ungültiger Invoke-Kanal' });
+      console.warn(`Preload: Ungültiger Invoke-Kanal versucht: open-external-link`);
+      return Promise.resolve({ success: false, error: 'Ungültiger Invoke-Kanal' });
     }
   },
 
-  // NEUE Funktionen für Fenstersteuerung
   minimizeWindow: () => {
-    if (validSendChannels.includes('minimize-window')) {
-        ipcRenderer.send('minimize-window');
-    }
+    if (validSendChannels.includes('minimize-window')) ipcRenderer.send('minimize-window');
   },
   maximizeWindow: () => {
-    if (validSendChannels.includes('maximize-window')) {
-        ipcRenderer.send('maximize-window');
-    }
+    if (validSendChannels.includes('maximize-window')) ipcRenderer.send('maximize-window');
   },
   closeWindow: () => {
-    if (validSendChannels.includes('close-window')) {
-        ipcRenderer.send('close-window');
-    }
+    if (validSendChannels.includes('close-window')) ipcRenderer.send('close-window');
   },
-  getAppVersion: () => ipcRenderer.invoke('get-app-version'),
+  getAppVersion: () => {
+    if (validInvokeChannels.includes('get-app-version')) return ipcRenderer.invoke('get-app-version');
+  },
+  getAdminStatus: () => {
+    if (validInvokeChannels.includes('get-admin-status')) return ipcRenderer.invoke('get-admin-status');
+  },
+
   onWindowMaximizeStatusChange: (callback) => {
     ipcRenderer.on('window-is-maximized', (event, isMaximized) => callback(isMaximized))
   }

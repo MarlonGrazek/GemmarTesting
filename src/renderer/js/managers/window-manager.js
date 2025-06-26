@@ -15,12 +15,14 @@ const WindowManager = {
     /**
      * Initialisiert den Manager, holt DOM-Elemente und registriert Listener.
      */
-    init() {
+    async init() {
         this._queryDOMElements();
         this._setLogos();
         this._bindEventListeners();
         this._updateSparkleButtonVisuals(); // Initialen Zustand des Sparkle-Buttons setzen
         console.log("WindowManager erfolgreich initialisiert.");
+
+        if (await window.electronAPI.getAdminStatus()) this.ui.appTitle.textContent = "Gemmar Admin";
     },
 
     /** Holt alle benötigten DOM-Elemente. */
@@ -30,6 +32,7 @@ const WindowManager = {
             maximizeButton: document.getElementById('maximizeButton'),
             closeButton: document.getElementById('closeButton'),
             appLogo: document.getElementById('appLogo'),
+            appTitle: document.getElementById('appTitle'),
             resultsPlaceholderLogo: document.getElementById('resultsPlaceholderLogo'),
             uploadIcon: document.getElementById('fileUploadIcon'),
             sparkleButton: document.getElementById('sparkleButton'),
@@ -132,9 +135,9 @@ const WindowManager = {
         // Bei 9 Klicks soll es 90% gelb sein.
         const maxClicksForColorTransition = 9; // Klicks 0 bis 9
         let fillPercentage = (this.sparkleMode.clicks / maxClicksForColorTransition) * 90;
-        
+
         // Sicherstellen, dass der Wert zwischen 0 und 90 (inklusive) bleibt
-        fillPercentage = Math.min(Math.max(fillPercentage, 0), 90); 
+        fillPercentage = Math.min(Math.max(fillPercentage, 0), 90);
 
         // Setze die CSS-Variable, die im CSS für color-mix verwendet wird
         this.ui.sparkleButton.style.setProperty('--sparkle-fill-percentage', `${fillPercentage}%`);

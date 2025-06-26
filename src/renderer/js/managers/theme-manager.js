@@ -4,7 +4,6 @@ import { ICON_SLIDERS, ICON_CROSS, ICON_PALETTE, ICON_LOGO } from "../common/svg
 
 
 const ThemeManager = {
-    // ... state und init() bleiben unverändert ...
     state: {
         predefinedThemes: [
             { name: 'Arctic', isEditable: false, settings: { brightness: 100, accentColor: '#3B82F6', tintIntensity: 30 } },
@@ -13,13 +12,24 @@ const ThemeManager = {
         ],
         customThemes: [],
         activeThemeName: 'Arctic',
+        isAdminMode: false,
     },
     ui: {},
 
-    init() {
+    async init() {
         this._queryDOMElements();
         this._bindEventListeners();
         this._loadThemesFromStorage();
+
+        try {
+            this.state.isAdminMode = await window.electronAPI.getAdminStatus();
+            if (this.state.isAdminMode) {
+                console.log("ThemeManager: Admin Mode ist aktiv.");
+            }
+        } catch (e) {
+            console.error("ThemeManager: Admin-Status konnte nicht abgefragt werden.", e);
+        }
+
         const storedThemeName = localStorage.getItem('activeThemeName');
         const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         const defaultThemeName = systemPrefersDark ? 'Lunar' : 'Arctic';
@@ -124,7 +134,14 @@ const ThemeManager = {
     },
 
     getAllThemes() {
-        return [...this.state.predefinedThemes, ...this.state.customThemes];
+
+        const predefined = JSON.parse(JSON.stringify(this.state.predefinedThemes));
+
+        if (this.state.isAdminMode) {
+            predefined.forEach(theme => theme.isEditable = true);
+        }
+
+        return [...predefined, ...this.state.customThemes];
     },
 
     _queryDOMElements() {
@@ -294,37 +311,66 @@ const ThemeManager = {
     _saveTheme(originalName) {
         const nameInput = document.getElementById('themeNameInput');
         const newName = nameInput.value.trim();
-
-        if (!newName) {
-            ModalManager.show({
-                title: 'Error',
-                headerButtons: [{ class: 'modal-header-button close-button', svg: ICON_CROSS, tooltip: 'Close', onClick: ({ close }) => close() }],
-                content: 'Please enter a name for the theme.' });
-            return false;
-        }
-        if (newName !== originalName && this.getAllThemes().some(t => t.name.toLowerCase() === newName.toLowerCase())) {
-            ModalManager.show({
-                title: 'Error',
-                headerButtons: [{ class: 'modal-header-button close-button', svg: ICON_CROSS, tooltip: 'Close', onClick: ({ close }) => close() }],
-                content: `A theme with the name "${newName}" already exists.` });
-            return false;
-        }
-
-        const newTheme = {
-            name: newName,
-            type: 'custom',
-            isEditable: true,
-            settings: {
-                brightness: parseFloat(document.getElementById('themeBrightnessSlider').value),
-                accentColor: document.getElementById('themeAccentColorPicker').value,
-                tintIntensity: parseFloat(document.getElementById('themeTintIntensitySlider').value)
-            }
+        const newSettings = {
+            brightness: parseFloat(document.getElementById('themeBrightnessSlider').value),
+            accentColor: document.getElementById('themeAccentColorPicker').value,
+            tintIntensity: parseFloat(document.getElementById('themeTintIntensitySlider').value)
         };
 
-        const otherCustomThemes = this.state.customThemes.filter(t => t.name !== originalName);
-        this.state.customThemes = [...otherCustomThemes, newTheme];
-        this._saveThemesToStorage();
-        this._applyTheme(newTheme);
+        if (!newName) {
+            ModalManager.show({ 
+                title: 'Error', 
+                content: 'Please enter a name for the theme.', 
+                headerButtons: [{ class: 'modal-header-button close-button', svg: ICON_CROSS, tooltip: 'Close', onClick: ({ close }) => close() }] 
+            });
+            return false;
+        }
+
+        const isPredefined = this.state.predefinedThemes.some(t => t.name === originalName);
+
+        // Fall 1: Admin bearbeitet ein vordefiniertes Theme
+        if (this.state.isAdminMode && isPredefined) {
+            if (newName !== originalName) {
+                ModalManager.show({ 
+                    title: 'Error', 
+                    content: 'Predefined theme names cannot be changed.', 
+                    headerButtons: [{ class: 'modal-header-button close-button', svg: ICON_CROSS, tooltip: 'Close', onClick: ({ close }) => close() }] 
+                });
+                return false;
+            }
+            const themeToUpdate = this.state.predefinedThemes.find(t => t.name === originalName);
+            if (themeToUpdate) {
+                // Nur im Speicher für die aktuelle Sitzung aktualisieren
+                themeToUpdate.settings = newSettings;
+                this._applyTheme(themeToUpdate);
+            }
+        } else {
+            // Fall 2: Ein neues Theme wird erstellt oder ein benutzerdefiniertes Theme wird bearbeitet
+            const allThemes = [...this.state.predefinedThemes, ...this.state.customThemes];
+            const nameExists = allThemes.some(t => t.name.toLowerCase() === newName.toLowerCase() && t.name !== originalName);
+
+            if (nameExists) {
+                ModalManager.show({ 
+                    title: 'Error', 
+                    content: `A theme with the name "${newName}" already exists.`, 
+                    headerButtons: [{ class: 'modal-header-button close-button', svg: ICON_CROSS, tooltip: 'Close', onClick: ({ close }) => close() }] 
+                });
+                return false;
+            }
+
+            const newTheme = {
+                name: newName,
+                type: 'custom',
+                isEditable: true,
+                settings: newSettings
+            };
+
+            const otherCustomThemes = this.state.customThemes.filter(t => t.name !== originalName);
+            this.state.customThemes = [...otherCustomThemes, newTheme];
+            this._saveThemesToStorage(); // Dauerhaft im localStorage speichern
+            this._applyTheme(newTheme);
+        }
+
         return true;
     },
 
