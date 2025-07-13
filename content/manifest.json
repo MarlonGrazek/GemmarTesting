@@ -172,6 +172,42 @@
             "details": "Für die Aufgabe werden Maximal 10 Punkte vergeben. Außerdem gibt es eine Bonusaufgabe mit maximal 2 Bonuspunkten."
           }
         ]
+      },
+      {
+        "id": "PVL7Test",
+        "title": "PVL7",
+        "subtitle": "Directed Graph",
+        "description": "Implementieren Sie in der Klasse **Directed Graph** einen gewichteten, gerichteten Graphen. Dafür ist das Interface PVL7 vorgegeben.\n\nEin Graph sei dabei ein Tupel von Knoten V und Kanten E: G=(V,E). Der Graph soll N Knoten besitzen, indiziert von 0 bis N-1. Eine Kante ist eine einseitig nutzbare Verbindung zwischen zwei Knoten.\nImplementieren Sie folgende Methoden, um einen gewichteten, gerichteten Graphen zu realisieren:\n\n**`public DirectedGraph()`**\nDer Konstruktor für die Klasse Directed Graph, welcher keine Argumente erhält und die Klasse für die Verwendung vorbereitet.\n\n**`public int newNode()`**\nWelche einen neuen Knoten dem Graphen hinzufügt und dessen Nummer zurückgibt.\n\n**`public boolean setEdge (int from, int to, int weight)`**\nWelche eine Kante zwischen den Knoten FROM und To mit dem Gewicht WEIGHT erstellt. Geben Sie false zurück, falls diese Kante bereits existiert. Ansonsten geben Sie true zurück.\n\n**`public List<List<List<Integer>>> getEdges ()`**\nWelche eine Liste von allen Kanten des Graphen zurückgibt:\nAm n-ten Index der äußeren Liste soll eine Liste von Kanten repräsentieren, welche Kanten von Knoten n ausgehen. Jede einzelne Kante wird dabei durch eine Integer-Liste bestehend aus dem Index des Zielknotens und dem Gewicht der Kante dargestellt.\n\n**`public boolean hasNegativeCircle()`**\nEin negativer Kreis sei ein Kreis, dessen Kantengewichte aufsummiert kleiner 0 sind. Geben Sie true zurück, falls es einen negativen Kreis gibt, ansonsten false.\n\n**`public List<List<Integer>> shortestPath (int source, int destin)`**\nGeben Sie eine Liste von Kanten zurück, welche den Kantenzug (ein Weg, in welchem Dopplungen von Knoten erlaubt sind) mit dem geringsten Gewicht von SOURCE nach DESTIN beschreibt. Beachten Sie, dass der Kantenzug nicht unendlich 'kurz' werden darf. Sollte es keinen gültigen kürzesten Kantenzug oder gar keinen Kantenzug geben, geben Sie eine leere Liste zurück.\n\n**Bonusaufgabe (3 Punkte):**\n**`public int universalSink()`**\nEine universelle Senke ist ein Knoten. Dieser Knoten kann von allen anderen Knoten erreicht werden (über einen Weg), doch selbst erreicht er keinen anderen Knoten. Geben Sie den Index der universellen Senke an. Sollte es keine universelle Senke geben, geben Sie -1 zurück.",
+        "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-vector-square-icon lucide-vector-square\"><path d=\"M19.5 7a24 24 0 0 1 0 10\"/><path d=\"M4.5 7a24 24 0 0 0 0 10\"/><path d=\"M7 19.5a24 24 0 0 0 10 0\"/><path d=\"M7 4.5a24 24 0 0 1 10 0\"/><rect x=\"17\" y=\"17\" width=\"5\" height=\"5\" rx=\"1\"/><rect x=\"17\" y=\"2\" width=\"5\" height=\"5\" rx=\"1\"/><rect x=\"2\" y=\"17\" width=\"5\" height=\"5\" rx=\"1\"/><rect x=\"2\" y=\"2\" width=\"5\" height=\"5\" rx=\"1\"/></svg>",
+        "dueDate": "2025-07-20T23:59:59",
+        "submissionPage": "https://bildungsportal.sachsen.de/opal/auth/RepositoryEntry/48500113421/CourseNode/1622428508937512010",
+        "userClassToTest": "DirectedGraph",
+        "flags": [
+          {
+            "title": "Abgabe",
+            "details": "Downloaden Sie den .zip Ordner PVL7.zip aus dem OPAL-Bereich 'Prüfungsvorleistung 7'. Implementieren Sie die in der Aufgabenstellung definierten Klassen und nutzen Sie dafür das vorgegebene Template. Verändern Sie auf keinen Fall die vorgegebenen Methodensignaturen oder Klassennamen und entfernen Sie nicht das `implements`-Keyword. Sie dürfen zusätzliche Klassen und Methoden erstellen. Laden Sie alle für die Ausführung notwendigen .java Dateien im OPAL-Bereich hoch. Es werden nur .java Dateien akzeptiert, keine Ordner oder Archive."
+          },
+          {
+            "title": "Erlaubte Klassen",
+            "details": "Sie dürfen Klassen und Methoden aus der Standardbibliothek von Java nutzen. Bitte benutzen Sie keine Bibliotheken von Dritten."
+          },
+          {
+            "title": "Plagiate",
+            "details": "Es ist erlaubt, Lösungen aus dem Internet in Ihre Abgabe zu integrieren. Bitte markieren Sie jeglichen Code, der nicht von Ihnen selbst stammt, indem Sie einen Kommentar mit der Quelle des Codes (URL ist ausreichend) an die entsprechende Stelle setzen. Da es sich hierbei um eine Prüfungsvorleistung handelt, ist es notwendig, dass Sie die Aufgaben selbständig bearbeiten. Alle Abgaben werden untereinander auf Plagiate überprüft."
+          },
+          {
+            "title": "Kompilierbarkeit und Clean Code",
+            "details": "Es werden nur Abgaben gewertet, welche sich in einem kompilierbaren und ausführbaren Zustand befinden. Achten Sie außerdem auf die Leserlichkeit des Codes."
+          },
+          {
+            "title": "Fragen",
+            "details": "Bitte stellen Sie ihre Fragen im Forum im Thread PVL7, damit alle Studierenden Zugang zu allen notwendigen Informationen erhalten."
+          },
+          {
+            "title": "Punkte",
+            "details": "Für die Aufgabe werden maximal 10 Punkte vergeben. Außerdem gibt es eine Bonusaufgabe mit maximal 3 Bonuspunkten."
+          }
+        ]
       }
     ]
   }
